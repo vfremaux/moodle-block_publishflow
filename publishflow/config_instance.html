@@ -1,0 +1,40 @@
+<table cellpadding="9" cellspacing="0">
+<tr valign="top">
+    <td align="right">
+        <b><?php print_string('allowfreecategoryselection', 'block_publishflow'); ?>:</b>
+    </td>
+    <td>
+        <?php
+            if (!isset($this->config->allowfreecategoryselection)) $this->config->allowfreecategoryselection = true;
+        	$checked = ($this->config->allowfreecategoryselection) ? "checked=\"checked\"" : '' ;
+        ?>
+        <input type="checkbox" name="allowfreecategoryselection" value="1" <?php echo $checked ?> />
+    </td>
+    <td>
+        <?php print_string('allowfreecategoryselectiondesc', 'block_publishflow'); ?>
+    </td>
+</tr>
+<?php
+if (preg_match('/\\bcatalog\\b/', $CFG->moodlenodetype)){
+?>
+<tr valign="top">
+    <td align="right">
+        <b><?php print_string('deploymentkey', 'block_publishflow'); ?>:</b>
+    </td>
+    <td>
+        <input type="text" name="deploymentkey" value="<?php echo @$this->config->deploymentkey ?>" size="8" maxlength="10" />
+    </td>
+    <td>
+        <?php print_string('deploymentkeydesc', 'block_publishflow'); ?>
+    </td>
+</tr>
+<?php
+}
+?>
+<tr>
+    <td colspan="3" align="center">
+	<input type="hidden" name="sesskey" value="<?php global $USER; echo $USER->sesskey;?>">
+        <input type="submit" value="<?php print_string('savechanges') ?>" />
+    </td>
+</tr>
+</table>

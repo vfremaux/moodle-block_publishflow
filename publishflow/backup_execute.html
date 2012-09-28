@@ -1,0 +1,76 @@
+<?php //$Id: backup_execute.html,v 1.1 2012-06-24 14:07:12 vf Exp $
+    //This page prints the backup todo list to see everything
+
+    //Check login   
+    require_login();
+
+    if (!empty($course->id)) {
+        if (!has_capability('moodle/site:backup', context_course::instance($course->id))) {
+            if (empty($to)) {
+                error("You need to be a teacher or admin user to use this page.", "$CFG->wwwroot/login/index.php");
+            } else {
+                if (!has_capability('moodle/site:backup', context_course::instance($to))) {
+                    error("You need to be a teacher or admin user to use this page.", "$CFG->wwwroot/login/index.php");
+                }
+            }
+        }
+    } else {
+        if (!has_capability('moodle/site:backup', context_system::instance())) {
+            error("You need to be an admin user to use this page.", "$CFG->wwwroot/login/index.php");
+        }
+    }
+
+
+    //Check site
+    if (!$site = get_site()) {
+        error("Site not found!");
+    }
+
+    $preferences = new StdClass;
+    backup_fetch_prefs_from_request($preferences,$count,$course);
+    //Another Info
+    backup_add_static_preferences($preferences);
+
+    if ($count == 0) {
+        notice("No backupable modules are installed!");
+    }
+
+
+    if (empty($to)) {
+        //Start the main table
+        echo "<table cellpadding=\"5\">";
+        //Now print the Backup Name tr
+        echo "<tr>";
+        echo "<td align=\"right\"><b>";
+        echo get_string("name").":";
+        echo "</b></td><td>";
+        echo $preferences->backup_name;
+        echo "</td></tr>";
+        //Start the main tr, where all the backup progress is done
+        echo "<tr>";
+        echo "<td colspan=\"2\">";
+        //Start the main ul
+        echo "<ul>";
+    }
+
+    $errorstr = '';
+    $status = backup_execute($preferences, $errorstr);
+
+    //Ends th main ul
+    echo "</ul>";
+
+    //End the main tr, where all the backup is done
+    echo "</td></tr>";
+
+    //End the main table
+    echo "</table>";
+    if (!$status) {
+        error ("The backup did not complete successfully", "$CFG->wwwroot/course/view.php?id=$course->id");
+    }
+
+    //Print final message
+    print_simple_box(get_string("backupfinished"),"center");
+    echo $OUTPUT->continue_button("$CFG->wwwroot/course/view.php?id=".$preferences->backup_course);    
+
+    $SESSION->backupprefs[$course->id] = null; // unset it so we're clear next time.
+?>

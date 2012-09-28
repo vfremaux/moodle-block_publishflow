@@ -1,0 +1,24 @@
+
+DIV.block_publishflow_coursecontrol{
+	margin-top:5px;
+}
+
+#publishflow-target-select{
+	width:160px;
+	margin-bottom:5px;
+}
+
+#publishflow-category-select{
+	width:160px;
+	margin-bottom:5px;
+}
+
+.pf-backup-step{
+    margin-bottom: 0;
+        padding-bottom: 5px;
+    padding-left: 20px;
+    padding-right: 3px;
+       background-image: url("/blocks/publishflow/pix/tick.png");
+    background-repeat: no-repeat;
+    margin-top: 10px;
+}
