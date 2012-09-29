@@ -1,5 +1,9 @@
 <?php
 
+function xmldb_block_publishflow_install_recovery(){
+	xmldb_block_publishflow_install();
+}
+
 function xmldb_block_publishflow_install(){
     global $USER, $DB;
 

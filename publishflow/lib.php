@@ -638,7 +638,7 @@ function block_publishflow_extra_retrofit_check($userid = null){
 function block_build_factory_menu($block){
 	global $CFG,$DB,$USER,$COURSE,$OUTPUT,$MNET,$PAGE;
 
-	$output = "";
+	$output = '';
 	$context_course = context_course::instance($COURSE->id);
 	$context_system = get_context_instance(CONTEXT_SYSTEM);
               
@@ -648,7 +648,7 @@ function block_build_factory_menu($block){
 	} else {
 		if (!$catalog = $DB->get_record('block_publishflow_catalog', array('type' => 'catalog'))){
 			$output .= $OUTPUT->notification(get_string('nocatalog','block_publishflow'), 'notifyproblem', true);    
-	        return;
+	        return $output;
 	    }
 		$mainhost = $DB->get_record('mnet_host', array('id' => $catalog->platformid));
 	}
@@ -1037,4 +1037,66 @@ function block_build_trainingcenter_menu($block){
     
     return $output;
 }
+
+
+function automate_network_refreshment()
+{    global $DB,$CFG,$USER;
+    
+     $hosts = $DB->get_records('mnet_host', array('deleted' => 0));
+  
+    foreach($hosts as $host){
+        if ($host->applicationid != $DB->get_field('mnet_application', 'id', array('name' => 'moodle'))) continue;
+        if(!($host->name) == "" && !($host->name == "All Hosts")){
+             
+            $hostcatalog = $DB->get_record('block_publishflow_catalog', array('platformid' => $host->id));
+            $caller = new stdClass;
+            $caller->username = $USER->username;
+            $caller->userwwwroot = $host->wwwroot;
+            $caller->remotewwwroot = $CFG->wwwroot;
+            $rpcclient = new mnet_xmlrpc_client();
+            $rpcclient->set_method('blocks/publishflow/rpclib.php/publishflow_updateplatforms');
+            $rpcclient->add_param(null, 'struct');
+            $rpcclient->add_param($host->wwwroot, 'string');
+            $mnet_host = new mnet_peer();
+            $mnet_host->set_wwwroot($host->wwwroot);
+            $rpcclient->send($mnet_host);
+            if (!is_array($rpcclient->response)){
+                $response = json_decode($rpcclient->response);
+            }
+       
+            //We have to check if there is a response with content     
+            if(empty($response)){
+                echo($host->name.get_string('errorencountered', 'block_publishflow').$rpcclient->error[0]);
+            } else {
+            
+                if ($response->status == RPC_FAILURE){
+                    echo '<p>';
+                    echo($host->name.get_string('errorencountered', 'block_publishflow').$response->error);
+                    echo '</p>';
+                }
+    
+                elseif($response->status == RPC_SUCCESS){
+                    $hostcatalog->type = $response->node;
+                    $hostcatalog->lastaccess = time();
+                   
+                    $DB->update_record('block_publishflow_catalog', $hostcatalog);
+    
+                    // purge all previously proxied
+                    $DB->delete_records('block_publishflow_remotecat', array('platformid' => $host->id));
+                    foreach($response->content as $entry){
+                        //If it's a new record, we have to create it
+                        if(!$DB->get_record('block_publishflow_remotecat', array('originalid' => $entry->id, 'platformid' => $host->id))){
+                              $fullentry = array('platformid' => $host->id,'originalid' => $entry->id, 'parentid' => $entry->parentid, 'name' => addslashes($entry->name));
+                              $DB->insert_record('block_publishflow_remotecat', $fullentry);
+                        }
+                    }
+                     echo($host->name.get_string('updateok','block_publishflow'));
+                  } else {
+                     echo($host->name.get_string('clientfailure','block_publishflow'));
+                  }
+            }
+        }
+    }
+}
+
 ?>

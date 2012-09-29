@@ -23,6 +23,7 @@
     $where = required_param('where', PARAM_INT);  
     $category = optional_param('category', 0, PARAM_INT);
     $deploykey = optional_param('deploykey', null,PARAM_TEXT);
+    $forcecache = optional_param('force', 1, PARAM_INT);
 
     $course = $DB->get_record('course', array('id' => "$fromcourse"));
 
@@ -31,7 +32,7 @@
     $system_context = get_context_instance(CONTEXT_COURSE,$fromcourse);
     $PAGE->set_context($system_context); 
     $PAGE->set_button('');
-    $PAGE->set_url('/blocks/publishflow/deploy.php',array('id'=>$id,'fromcourse'=>$fromcourse,'where'=>$where,'what'=>$action,'category'=>$force,'deplykey'=>$deploykey));
+    $PAGE->set_url('/blocks/publishflow/deploy.php',array('id' => $id,'fromcourse' => $fromcourse,'where' => $where,'what' => $action,'category' => $category, 'force' => $forcecache,'deplykey' => $deploykey));
 
     print $OUTPUT->header();
     
@@ -97,10 +98,10 @@ if($where == 0){
 	$parmsoverride = array('category' => $category);
 
 	$rpcclient = new mnet_xmlrpc_client();
-	$rpcclient->set_method('block/publishflow/rpclib.php/delivery_deploy');
+	$rpcclient->set_method('blocks/publishflow/rpclib.php/delivery_deploy');
 	$rpcclient->add_param($caller, 'struct');
 	$rpcclient->add_param(json_encode($course), 'string');
-	$rpcclient->add_param(1, 'int'); // prepared for forcing replacement
+	$rpcclient->add_param($forcecache, 'int'); // prepared for forcing replacement
 	$rpcclient->add_param($parmsoverride,'struct');
 	$rpcclient->add_param(1,'int'); // json response required
 

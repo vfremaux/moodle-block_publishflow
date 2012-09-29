@@ -21,6 +21,8 @@ require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 include_once $CFG->dirroot."/blocks/publishflow/filesystemlib.php";
 include_once $CFG->dirroot."/blocks/publishflow/lib.php";
 require_once($CFG->dirroot."/blocks/publishflow/backup/restore_automation.class.php");
+require_once($CFG->dirroot.'/enrol/locallib.php');
+require_once($CFG->dirroot.'/group/lib.php');
 
 if (!defined('RPC_SUCCESS')) {
     define('RPC_TEST', 100);
@@ -162,7 +164,7 @@ function publishflow_rpc_deploy($callinguser, $idfield, $courseidentifier, $wher
     $caller->remotehostroot = $CFG->wwwroot;
 
     $rpcclient = new mnet_xmlrpc_client();
-    $rpcclient->set_method('block/publishflow/rpclib.php/delivery_deploy');
+    $rpcclient->set_method('blocks/publishflow/rpclib.php/delivery_deploy');
     $rpcclient->add_param($caller, 'struct');
     $rpcclient->add_param(json_encode($course), 'string');
     $rpcclient->add_param(1, 'int'); // prepared for forcing replacement
@@ -266,7 +268,7 @@ function publishflow_rpc_course_exists($callinguser, $idfield, $courseidentifier
         $caller->remotehostroot = $CFG->wwwroot;
         $rpcclient = new mnet_xmlrpc_client();
 
-        $rpcclient->set_method('block/publishflow/rpclib.php/publishflow_rpc_course_exists');
+        $rpcclient->set_method('blocks/publishflow/rpclib.php/publishflow_rpc_course_exists');
         $rpcclient->add_param($caller, 'struct');
         $rpcclient->add_param($idfield, 'string');
         $rpcclient->add_param($courseidentifier, 'string');
@@ -360,7 +362,7 @@ function publishflow_rpc_open_course($callinguser, $idfield, $courseidentifier, 
         $caller->remotehostroot = $CFG->wwwroot;
         $rpcclient = new mnet_xmlrpc_client();
 
-        $rpcclient->set_method('block/publishflow/rpclib.php/publishflow_rpc_open_course');
+        $rpcclient->set_method('blocks/publishflow/rpclib.php/publishflow_rpc_open_course');
         $rpcclient->add_param($caller, 'struct');
         $rpcclient->add_param($idfield, 'string');
         $rpcclient->add_param($courseidentifier, 'string');
@@ -456,7 +458,7 @@ function publishflow_rpc_close_course($callinguser, $idfield, $courseidentifier,
         $caller->remotehostroot = $CFG->wwwroot;
         $rpcclient = new mnet_xmlrpc_client();
 
-        $rpcclient->set_method('block/publishflow/rpclib.php/publishflow_rpc_close_course');
+        $rpcclient->set_method('blocks/publishflow/rpclib.php/publishflow_rpc_close_course');
         $rpcclient->add_param($caller, 'struct');
         $rpcclient->add_param($idfield, 'string');
         $rpcclient->add_param($courseidentifier, 'string');
@@ -790,10 +792,10 @@ function delivery_check_available_backup($courseid, &$loopback = null){
 * @param string $sourcecourseserial The complete course moodle metadata from the origin platform
 */
 function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parmsoverride = null, $json_response = true){
-    global $CFG, $USER,$DB;
+    global $CFG, $USER,$DB,$PAGE;
 
     debug_trace('DEPLOY : Start');
-
+ 
     $response->status = RPC_SUCCESS;
     $response->errors = array();
     $response->error = '';
@@ -821,10 +823,9 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
     // Check the local availability of the archive
 
     
-    $resourcefile=null;
+    $resourcefile = null;
     
-    if(!empty($resource))
-    {
+    if(!empty($resource)){
         $resourcefile = file_storage::get_file_by_id($resource->localfileid);
     }
     
@@ -849,7 +850,7 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
 
                 // Get the archive on back call
                 $rpcclient = new mnet_xmlrpc_client();
-                $rpcclient->set_method('block/publishflow/rpclib.php/delivery_deliver');
+                $rpcclient->set_method('blocks/publishflow/rpclib.php/delivery_deliver');
                 $rpcclient->add_param($caller, 'struct');
                 $rpcclient->add_param($sourcecourse->id, 'int');
                 $rpcclient->add_param($offset, 'int');
@@ -922,7 +923,7 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
 
             // Get the archive on back call
             $rpcclient = new mnet_xmlrpc_client();
-            $rpcclient->set_method('block/publishflow/rpclib.php/delivery_deliver');
+            $rpcclient->set_method('blocks/publishflow/rpclib.php/delivery_deliver');
             $rpcclient->add_param($caller, 'struct');
             $rpcclient->add_param($sourcecourse->id, 'int');
             $rpcclient->add_param(0, 'int'); // transfer offset
@@ -955,11 +956,14 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
                   
                     $temp_file = $CFG->dataroot."/temp/backup/".$backresponse->filename;
                     $destination_file_path = $CFG->dataroot."/temp/backup/".$filename;
+                    if (!is_dir($CFG->dataroot.'/temp/backup')){
+	                    mkdir($CFG->dataroot."/temp/backup/", 0777, true);
+	                }
                     // actually locally copying archive
-                    if (!copy($archivename,$temp_file )){
+                    if (!copy($archivename, $temp_file)){
                         $response->status = RPC_FAILURE;
-                        $response->error = "Local delivery : copy error from [$archivename] to [$realpath] ";
-                        $response->errors[] = "Local delivery : copy error from [$archivename] to [$realpath] ";
+                        $response->error = "Local delivery : copy error from [$archivename] to [$temp_file] ";
+                        $response->errors[] = "Local delivery : copy error from [$archivename] to [$temp_file] ";
                         ini_set('max_execution_time', $maxtime);
                         ini_set('memory_limit', $maxmem);
                         return publishflow_send_response($response, $json_response);
@@ -1006,19 +1010,24 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
     
     $DB->set_field('course', 'idnumber', $sourcecourse->idnumber, array('id' => "{$response->courseid}"));
 
-    // confirm/force guest closure
-//    $DB->set_field('course', 'guest', 0, array('id' => "{$response->courseid}"));
-
-    // confirm/force not enrollable // enrolling will be performed by master teacher
-  //  $DB->set_field('course', 'enrollable', 0, array('id' => "{$response->courseid}"));
-
     // assign the localuser as author in all cases :
     // deployement : deployer will unassign self manually if needed
     // free use deployement : deployer will take control over session
     // retrofit : deployer will take control over new learning path in work
+  
+    $new_course = $DB->get_record('course',array('id'=>$newcourse_id));
+    
     if (!empty($CFG->coursedelivery_defaultrole)){
         $coursecontext = context_course::instance($response->courseid);
-        role_assign($CFG->coursedelivery_defaultrole, $USER->id, 0, $coursecontext->id);
+        
+       // role_assign($CFG->coursedelivery_defaultrole, $USER->id, $coursecontext->id);
+       $manager = new course_enrolment_manager($PAGE,$new_course);
+       $instances = $manager->get_enrolment_instances();
+       $instance = array_pop($instances);
+       $plugins = $manager->get_enrolment_plugins();
+       $plugin = $plugins['manual'] ;
+       $plugin->enrol_user($instance, $USER->id, $CFG->coursedelivery_defaultrole);
+
     }
 
     // give back the information for jumping
@@ -1129,7 +1138,7 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                     while(!$transfercomplete){
                         // Get the archive on back call
                         $rpcclient = new mnet_xmlrpc_client();
-                        $rpcclient->set_method('block/publishflow/rpclib.php/delivery_deliver');
+                        $rpcclient->set_method('blocks/publishflow/rpclib.php/delivery_deliver');
                         $rpcclient->add_param($caller, 'struct');
                         $rpcclient->add_param($sourcecourse->id, 'int');
                         $rpcclient->add_param($offset, 'int');
@@ -1187,7 +1196,7 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
 
                     // Get the archive name on back call
                     $rpcclient = new mnet_xmlrpc_client();
-                    $rpcclient->set_method('block/publishflow/rpclib.php/delivery_deliver');
+                    $rpcclient->set_method('blocks/publishflow/rpclib.php/delivery_deliver');
                     $rpcclient->add_param($caller, 'struct');
                     $rpcclient->add_param($sourcecourse->id, 'int');
 

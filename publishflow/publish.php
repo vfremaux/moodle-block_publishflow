@@ -64,7 +64,7 @@
     $caller->remoteuserhostroot = $userwwwroot;
     $caller->remotehostroot = $CFG->wwwroot;
     $rpcclient = new mnet_xmlrpc_client();
-    $rpcclient->set_method('block/publishflow/rpclib.php/delivery_publish');
+    $rpcclient->set_method('blocks/publishflow/rpclib.php/delivery_publish');
  	$rpcclient->add_param($caller, 'struct');
     $rpcclient->add_param($action, 'string');
     $rpcclient->add_param(json_encode($course), 'string');

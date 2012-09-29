@@ -1,4 +1,4 @@
-<?php //$Id: block_publishflow.php,v 1.5 2012-09-27 14:50:12 wa Exp $
+<?php //$Id: block_publishflow.php,v 1.10 2012-09-29 08:01:56 vf Exp $
 
 /**
 * Controls publication/deployment of courses in a 
@@ -92,8 +92,7 @@ class block_publishflow extends block_base {
         
         $systemcontext = get_context_instance(CONTEXT_SYSTEM);  
         
-        if(has_capability('block/publishflow:managepublishedfiles',$systemcontext))
-        {  
+        if(has_capability('block/publishflow:managepublishedfiles',$systemcontext)){  
             $output  = "<div>";
             $managepublishedfiles = get_string('managepublishedfiles', 'block_publishflow');
             $output  .= "<b><a href='".$filemanagerlink."'>$managepublishedfiles</a></b>";
@@ -140,6 +139,7 @@ class block_publishflow extends block_base {
     
     function makebackupform(){
     	global $COURSE, $CFG;
+
     	if (has_capability('moodle/course:backup', context_course::instance($COURSE->id))){
             $dobackupstr = get_string('dobackup', 'block_publishflow');
 	        $this->content->text .= "<center>";
@@ -149,6 +149,14 @@ class block_publishflow extends block_base {
 	        $this->content->text .= "</form>";
 	        $this->content->text .= "</center>";
 	    }
+    }
+    
+    function cron(){
+        global $CFG;
+
+        include_once $CFG->dirroot."/mnet/xmlrpc/client.php";
+        include_once $CFG->dirroot.'/blocks/publishflow/lib.php';  
+        automate_network_refreshment();        
     }
 }
 

@@ -35,7 +35,6 @@
         'classname'  => '',
         'filename'   => 'rpclib.php',
         'methods'    => array(
-            'publishflow_rpc_check_user',
             'publishflow_rpc_deploy',
             'publishflow_rpc_deploy_wrapped',
             'publishflow_rpc_course_exists',
@@ -47,17 +46,14 @@
             'publishflow_updateplatforms',
             'delivery_get_sessions',
             'delivery_deliver',
-            'delivery_check_available_backup',
             'delivery_deploy',
-            'delivery_publish',
-            'publishflow_send_response'
+            'delivery_publish'
         ),
     ),
 );
 
 $subscribes = array(
     'publishflow' => array(
-        'publishflow_rpc_check_user' => 'blocks/publishflow/rpclib.php/publishflow_rpc_check_user',
         'publishflow_rpc_deploy' => 'blocks/publishflow/rpclib.php/publishflow_rpc_deploy',
         'publishflow_rpc_deploy_wrapped' => 'blocks/publishflow/rpclib.php/publishflow_rpc_deploy_wrapped',
         'publishflow_rpc_course_exists' => 'blocks/publishflow/rpclib.php/publishflow_rpc_course_exists',
@@ -69,10 +65,8 @@ $subscribes = array(
         'publishflow_updateplatforms' => 'blocks/publishflow/rpclib.php/publishflow_updateplatforms',
         'delivery_get_sessions' => 'blocks/publishflow/rpclib.php/delivery_get_sessions',
         'delivery_deliver' => 'blocks/publishflow/rpclib.php/delivery_deliver',
-        'delivery_check_available_backup' => 'blocks/publishflow/rpclib.php/delivery_deliver',
         'delivery_deploy' => 'blocks/publishflow/rpclib.php/delivery_deploy',
-        'delivery_publish' => 'blocks/publishflow/rpclib.php/delivery_publish',
-        'publishflow_send_response' => 'blocks/publishflow/rpclib.php/publishflow_send_response',
+        'delivery_publish' => 'blocks/publishflow/rpclib.php/delivery_publish'
     ),
 );
 ?>

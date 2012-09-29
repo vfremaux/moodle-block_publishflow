@@ -62,5 +62,15 @@ $settings->add(new admin_setting_configselect('coursedelivery_defaultrole',get_s
 $syncstr = get_string('synchonizingnetworkconfig', 'block_publishflow');
 $settings->add(new admin_setting_heading('synchronization', get_string('synchonizingnetworkconfig', 'block_publishflow'), "<a href=\"{$CFG->wwwroot}/blocks/publishflow/netupdate.php\">$syncstr</a>"));
 
+$options = array ('' => get_string('noautomatednetworkrefreshment', 'block_publishflow'),
+                  '86400' => get_string('oneday', 'block_publishflow'),
+                  '25200' => get_string('oneweek', 'block_publishflow'),
+                  '108000' => get_string('onemonth', 'block_publishflow'),
+                  '1' => 'Now (Just for Testing)'
+            );
+
+$settings->add(new admin_setting_configselect('networkrefreshautomation', get_string('networkrefreshautomation', 'block_publishflow'),
+                   get_string('networkrefreshautomation', 'block_publishflow'), '', $options));
+
 
 ?>

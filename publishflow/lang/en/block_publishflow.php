@@ -222,3 +222,10 @@ is open.</p>
 
 $string['publishflow_name'] = 'Publishflow Services' ;
 $string['publishflow_description'] = 'This service binds all functions dedicated to MNET publishing of courses. You need subscribe and publish both sides for course transfers to be enabled.';
+
+//settings 
+$string['networkrefreshautomation']= "Automated Network Refreshment";
+$string['noautomatednetworkrefreshment']= "Disabled";
+$string['oneday']= "Once a day";
+$string['oneweek']= "Once a week";
+$string['onemonth']= "Once a month";
