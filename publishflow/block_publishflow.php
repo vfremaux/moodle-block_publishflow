@@ -6,7 +6,9 @@
 *
 * @package block-publishflow
 * @category blocks
+* @version Moodle 2.x
 * @author Valery Fremaux (valery.fremaux@club-internet.fr)
+* @contributor Wafa Adham (admin@adham.ps)
 *
 */
 
@@ -30,6 +32,7 @@ class block_publishflow extends block_base {
 
     function init() {
         global $CFG;
+
         if (preg_match('/\\bmain\\b/', @$CFG->moodlenodetype))
             $this->title = get_string('deployname', 'block_publishflow');
         elseif (@$CFG->moodlenodetype == 'factory')
@@ -72,7 +75,6 @@ class block_publishflow extends block_base {
     function get_content() {
         // We intend to use the $CFG global variable
         global $CFG, $COURSE, $USER, $VMOODLES, $MNET,$OUTPUT,$DB,$PAGE;
-
 		
         include_once $CFG->dirroot.'/blocks/publishflow/rpclib.php';
         include_once $CFG->dirroot.'/blocks/publishflow/lib.php';
@@ -92,11 +94,12 @@ class block_publishflow extends block_base {
         
         $systemcontext = get_context_instance(CONTEXT_SYSTEM);  
         
+        $footeroutput = '';
         if(has_capability('block/publishflow:managepublishedfiles',$systemcontext)){  
-            $output  = "<div>";
+            $footeroutput = "<div>";
             $managepublishedfiles = get_string('managepublishedfiles', 'block_publishflow');
-            $output  .= "<b><a href='".$filemanagerlink."'>$managepublishedfiles</a></b>";
-            $output  .= "</div>";
+            $footeroutput .= "<a href='".$filemanagerlink."'>$managepublishedfiles</a>";
+            $footeroutput .= "</div>";
         }
     
         if($COURSE->idnumber){
@@ -127,10 +130,9 @@ class block_publishflow extends block_base {
             $output .= $OUTPUT->single_button(new moodle_url($CFG->wwwroot.'/blocks/publishflow/submit.php', $qoptions), get_string('reference', 'block_publishflow'), 'post');
 	    } 
 
-	    // If you like, you can specify a "footer" text that will be printed at the bottom of your block.
-	    // If you don't want a footer, set this variable to an empty string. DO NOT delete the line entirely!
         $this->content->text = $output;
-	    $this->content->footer = '';
+	    $this->content->footer = $footeroutput;
+
 	    // And that's all! :)
 	    return $this->content;
 	}
