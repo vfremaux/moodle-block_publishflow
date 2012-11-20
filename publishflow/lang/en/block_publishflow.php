@@ -1,11 +1,11 @@
 <?php
 
-$string['OKmonitoring'] = 'Network information is up to date. You do not need launchiong this script.';
+$string['OKmonitoring'] = 'Network information is up to date. You do not need launching this script.';
 $string['URL'] = 'Url';
 $string['accesscategory'] = 'Authorized Platforms';
 $string['activities'] = 'Activity(ies) ';
 $string['allowfreecategoryselection'] = 'Free selection of target category';
-$string['allowfreecategoryselectiondesc'] = 'If enabled, the user can choose the final remote category (visible or not) the deployed course will be in, otherwise the preset default category wil be choosen as setup in the rmote configuration.';
+$string['allowfreecategoryselectiondesc'] = 'If enabled, the user can choose the final remote category (visible or not) the deployed course will be in, otherwise the preset default category wil be choosen as setup in the remote configuration.';
 $string['alreadypublished'] = 'This course is already published. You may hide it and update it from a new backup.';
 $string['autobackup'] = 'Automatic Backup';
 $string['backsettings'] = 'Back to the settings page';
@@ -21,11 +21,11 @@ $string['cdpublicwrite'] = 'Public sessions . User identity checked.';
 $string['choosecat'] = 'Category: ';
 $string['choosecatdefault'] = 'Default category';
 $string['choosetarget'] = 'Target: ';
-$string['clientfailure'] = '  :  The client failed to answer, it might be offline or you doesn\'t have the required services enabled.';
+$string['clientfailure'] = ' :  The client failed to answer, it might be offline or it doesn\'t have the required service enabled.';
 $string['close'] = 'Close';
 $string['closedcategory'] = 'Closing Category';
 $string['closedcategory_desc'] = 'Category for archived course sessions';
-$string['closehelper'] = 'We strongly recomend you making <b>a complete backup of the course</b> (including user files and data) and store a copy on your own. Take care that the "Generate a package" process DO NOT perform a complete backup, but only the cpntent of the course for transfering the course structure to other nodes in the network.';
+$string['closehelper'] = 'We strongly recomend you making <b>a complete backup of the course</b> (including user files and data) and store a copy on your own. Take care that the "Generate a package" process DO NOT perform a complete backup, but only the content of the course for transfering the course structure to other nodes in the network.';
 $string['closeprivate'] = 'Private closure';
 $string['closeprivatehelper'] = 'When being closed in "private mode", only administrators and trainers can see the course content. Other users won\'t have any more access. Trainees will still remain enrolled within the session, so opening back the course is straight away possible, using the course settings.';
 $string['closeprotected'] = 'Protected closure';
@@ -37,7 +37,7 @@ $string['collection'] = 'Collection ';
 $string['combined'] = 'Combined Type (factory + catalog)';
 $string['combinedname'] = 'Factory and Catalog';
 $string['completed'] = 'has concluded. It has been assigned the following Unique Identifier : {$a}';
-$string['configenableretrofit'] = 'If this option is enabled, course can be retrofitted to the known course factory node(s) in the network.';
+$string['configenableretrofit'] = 'If this option is enabled, course can be retrofitted to one of the known course factory node(s) in the network.';
 $string['configmoodlenodetype'] = 'Configure Moodle Node Type';
 $string['configsubmitto'] = 'Submit config to';
 $string['confirmupgrade'] = 'Are you sure you want to upgrade your catalog?';
@@ -65,7 +65,7 @@ $string['deploymentkey'] = 'Deployment key';
 $string['deploymentkeydesc'] = 'If a key is setup here, the user qill have to give that key to deploy. Leave blank to disable.';
 $string['deployname'] = 'Course Deployment';
 $string['deploysuccess'] = 'Deployment succeeded.';
-$string['disabledstudentdesc'] = 'Disabled students share all capabilities with students but will not any more allowed to change any content in a course';
+$string['disabledstudentdesc'] = 'Disabled students are based on Student role but will (should) not any more allowed to change any content in a course';
 $string['disabledstudentrole'] = 'Disabled students';
 $string['dobackup'] = 'Do a backup';
 $string['doclose'] = 'Close the course';
@@ -75,8 +75,8 @@ $string['enableretrofit'] = 'Enable retrofeed of courses';
 $string['enterkey'] = 'Key to deploy: ';
 $string['erroradvice'] = ' Errors in you platform catalog ({$a} error(s)). Please run this script before using course factories';
 $string['errorbadblockid'] = 'Bad block ID';
-$string['errorencountered'] = ' has encountered an error : ';
-$string['errormonitoring'] = 'It appears you have : ';
+$string['errorencountered'] = ' has encountered an error: ';
+$string['errormonitoring'] = 'It appears you have: ';
 $string['errorunpublished'] = 'Course has no publishable backup, please make one first.';
 $string['factory'] = 'Factory';
 $string['factoryprefix'] = 'Factory prefix';
@@ -100,7 +100,7 @@ $string['mainuseradvice'] = 'Being a main scope defined user, you do not own any
 $string['managename'] = 'Retrofit and course management';
 $string['managepublishedfiles'] = 'Manage Published Files';
 $string['moodlenodetype'] = 'Moodle Node Type';
-$string['networktransferadvice'] = 'Beware : delivering a complete path package through the network may spend some amount of time. Although most common cases have been addressed with actual settings, the transfer of some particularily big files may fail. Contact your system administrator.';
+$string['networktransferadvice'] = 'Beware: delivering a complete path package through the network may spend some amount of time. Although most common cases have been addressed with actual settings, the transfer of some particularily big files may fail. Contact your system administrator.';
 $string['noassignation'] = 'No assignation';
 $string['nocatalog'] = 'No catalog found in network environment. Please review the block central settings.';
 $string['nodeploytargets'] = 'We found no deployment target for your profile definition';
@@ -111,7 +111,7 @@ $string['notification'] = 'Open with trainees notification';
 $string['notpublishedyet'] = 'Not yet published.';
 $string['open'] = 'Open the course';
 $string['opening'] = 'Opening courses';
-$string['opennotifyhelper'] = 'Using this opening mode, you will give access to the training session workspace and send an opening notification to all registered users in the cource.';
+$string['opennotifyhelper'] = 'Using this opening mode, you will give access to the training session workspace and send an opening notification to all registered users in the course.';
 $string['openwithoutnotifyhelper'] = 'Using this opening mode, you <b>silently</b> open the course session for the users. No mail will be sent.';
 $string['perform'] = 'Perform the upgrade';
 $string['platformlastupdate'] = 'Last Update Perfomed On';
@@ -142,11 +142,11 @@ $string['reopen'] = 'Open again';
 $string['republish'] = 'Update';
 $string['republishconfirm'] = 'You will replace the actually published course with the new content. Continue ?';
 $string['republishtooltip'] = 'Force update';
-$string['retrofeedname'] = 'Retro feed to factory';
-$string['retrofit'] = 'Retrofit in the factory';
-$string['retrofiting'] = 'Retrofit:';
-$string['retrofitsuccess'] = 'Retrofit finished.';
-$string['retrofitting'] = 'Retrofitting the path to the factory';
+$string['retrofeedname'] = 'Retrofeed to factory';
+$string['retrofit'] = 'Retrofeed in the factory';
+$string['retrofiting'] = 'Retrofeed:';
+$string['retrofitsuccess'] = 'Retrofeed finished.';
+$string['retrofitting'] = 'Retrofeeding the path to the factory';
 $string['runningcategory'] = 'Active Category';
 $string['runningcategory_desc'] = 'Category for active sessions';
 $string['sessionopening'] = 'Opening the courses';
@@ -155,8 +155,8 @@ $string['single_short'] = 'Synchronise platforms';
 $string['step'] = 'Step';
 $string['submitname'] = 'Submit name';
 $string['submittodesc'] = 'Submit down';
-$string['synchonizingnetworkconfig'] = 'Adcquiring the network structure';
-$string['synchplatforms'] = '<p>If a new Moodle host has been recently added to your network, you may resync the definition of the access user fields using this script.</p><p>In a publishing network, access to hosts in the network are controlled with dedicated custom user profile fileds.</p>';
+$string['synchonizingnetworkconfig'] = 'Acquiring the network structure';
+$string['synchplatforms'] = '<p>If a new Moodle host has been recently added to your network, you may resync the purpose of this node within the publishing network, and update its category structure local cache.</p>';
 $string['testdeploy'] = 'Test deployement';
 $string['unavailable'] = 'No backup available. You must backup without user data before transfering.';
 $string['unpublish'] = 'Unpublish';
@@ -166,56 +166,43 @@ $string['unpublishtooltip'] = 'Hide the course in the master course catalog';
 $string['unregistered'] = 'This path has not received official agreement. It cannot be published nor deployed.';
 $string['updateok'] = ' has been successfully upgraded';
 $string['warningadvice'] = ' Warnings in your platform catalog ({$a} warning(s)). Please consider running this script soon.';
-$string['warningload'] = 'WARNING: The operation you are about to launch is load heavy. DO NOT trigger it unless you have thought it through!';
+$string['warningload'] = 'WARNING: The operation you are about to launch may consume heavy load. DO NOT trigger it unless you have thought it through!';
 $string['withoutnotification'] = 'Open without notifying the users';
 
 $string['deployfortest_help'] = '
 <h2>Learning Path Deployment</h2>
 <h3>Deployment for testing</h3>
 
-<p>Any LP Author can deploy a Learning Path on his own node.</p>
+<p>A course can be straightely deployed from a Factory to a Learning Area for test purpose.</p>
 
-<p>The deployment will automatically target the "free use" session category.</p>
-';
-
-$string['freeuse_help'] = '
-<h2>Using "free use" learning pathes sessions</h2>
-
-<p>Any user in the Pairformance model can freely have use of learning pathes for a local team. This mode allows any registered and accredited user to deploy and take ownership of a working session instanciating a Learning Path.</p>
-
-<p>This deploymnt will create a complet working space on the user\'s node, copying the full pedagogic scenario to the created workplace. The initiator of the deployment will be enrolled as trainer within the new working place, and will be allowed to enroll trainees.</p>
-
-<p>The "free use" deployment will naturally target the origin node of the requirer.</p>
-
-<p>When the deployment comes to end, you will be invited to browse to the newly created training environment.</p>
+<p>The deployment will automatically target the default deployment category defined in global settings.</p>
 ';
 
 $string['notargets_help'] = '
 <h2>No deployment targets</h2>
 
-<p>The Learning Path deployment system did not find any candidate for installing a working session in. The following situations may be addressed:</p>
+<p>The course deployment system did not find any candidate for installing a working session in. The following situations may be addressed:</p>
 <ul>
-<li>You are not Entity Administrator nor Head Teacher of any of the available training platforms.</li>
+<li>You no deployment capability on any of the available training platforms.</li>
 <li>Some technical issues do avoid physically connecting to the training nodes you are responsible of.</li>
-<li>This learning path cannot be deployed because of being badly referenced.</li>
+<li>This course cannot be deployed because of being badly referenced.</li>
 <ul>
 <p>In any case, contact your tech support.</p> 
 ';
 
 $string['retrofit_help'] = '
 <h2>Course publishflow</h2>
-<h3>Retrofitting courses to factory</h3>
+<h3>Retrofeeding courses to factory</h3>
 
-<p>Retrofitting will copy this course to the designated factory instance in the network</p>
+<p>Retrofeeding will copy this course to the designated factory instance in the network</p>
 
-<p>When launching the retrofitting operation, you will copy the structure and content of this course
-as per the last backup stored in the course files.</p>
+<p>When launching the retrofeeding operation, you will copy the structure and content of this course
+as per the last backup stored in the publishing file area of the course.</p>
 	
-<p>The backup used for retrofitting MUST IGNORE any user related information and data
+<p>The backup used for retrofeeding IGNORES any user related information and data
 of the course, the activities, resources and blocks being reproduced with the same settings than the original.</p>
 
-<p>The retrofitted unit will be available in a predefined category, unless the option of choosing the target category
-is open.</p>
+<p>The retrofed unit will be available in a predefined category.</p>
 ';
 
 //mnet services
@@ -224,8 +211,8 @@ $string['publishflow_name'] = 'Publishflow Services' ;
 $string['publishflow_description'] = 'This service binds all functions dedicated to MNET publishing of courses. You need subscribe and publish both sides for course transfers to be enabled.';
 
 //settings 
-$string['networkrefreshautomation']= "Automated Network Refreshment";
-$string['noautomatednetworkrefreshment']= "Disabled";
-$string['oneday']= "Once a day";
-$string['oneweek']= "Once a week";
-$string['onemonth']= "Once a month";
+$string['networkrefreshautomation'] = "Automated Network Refreshment";
+$string['noautomatednetworkrefreshment'] = "Disabled";
+$string['oneday'] = "Once a day";
+$string['oneweek'] = "Once a week";
+$string['onemonth'] = "Once a month";

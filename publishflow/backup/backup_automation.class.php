@@ -97,35 +97,24 @@ abstract class backup_automation {
         }
 
         if ($status) {
-       
             // This could take a while!
             @set_time_limit(0);
             raise_memory_limit(MEMORY_EXTRA);
 
             $course = $DB->get_record('course',array('id'=>$course_id));
             
-
-
-                // Skip backup of unavailable courses that have remained unmodified in a month
-                 //Check log if there were any modifications to the course content
-                $sqlwhere = "course=:courseid AND time>:time AND ". $DB->sql_like('action', ':action', false, true, true);
-                $params = array('courseid' => $course->id, 'time' => $now-31*24*60*60, 'action' => '%view%');
-                $logexists = $DB->record_exists_select('log', $sqlwhere, $params);
-                    
-                //Now we backup every non-skipped course
-               
-                    print('<div class="pf-backup-step">Backing up '.$course->fullname."</div>");
-
+            // Skip backup of unavailable courses that have remained unmodified in a month
+             //Check log if there were any modifications to the course content
+            $sqlwhere = "course=:courseid AND time>:time AND ". $DB->sql_like('action', ':action', false, true, true);
+            $params = array('courseid' => $course->id, 'time' => $now-31*24*60*60, 'action' => '%view%');
+            $logexists = $DB->record_exists_select('log', $sqlwhere, $params);
                 
-                    //Only make the backup if laststatus isn't 2-UNFINISHED (uncontrolled error)
-                  
-                    backup_automation::launch_automated_backup($course, $admin->id,$destination);
-
-       
-                   
-                    
-           
-           
+            // Now we backup every non-skipped course              
+            print('<div class="pf-backup-step">Backing up '.$course->fullname."</div>");
+        
+            // Only make the backup if laststatus isn't 2-UNFINISHED (uncontrolled error)
+          
+            backup_automation::launch_automated_backup($course, $admin->id,$destination);           
         }
 
         //Everything is finished stop backup_auto_running
@@ -187,7 +176,6 @@ abstract class backup_automation {
         $bc = new backup_controller(backup::TYPE_1COURSE, $course->id, backup::FORMAT_MOODLE, backup::INTERACTIVE_NO, self::MODE_PUBLISHFLOW, $userid);
         
         try {
-
             $settings = array(
                 'users' => 0,
                 'role_assignments' => 0,

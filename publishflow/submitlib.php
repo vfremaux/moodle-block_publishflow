@@ -24,8 +24,7 @@
  *      then a suitable one is constructed.
  */
 if(!function_exists('choose_from_menu_multiple')){
-    function choose_from_menu_multiple($options, $name, $selected=null, $size=5, $nothing='choose', $script='',
-                               $nothingvalue='0', $return=false, $disabled=false, $tabindex=0, $id='') {
+    function choose_from_menu_multiple($options, $name, $selected=null, $size=5, $nothing='choose', $script='',$nothingvalue='0', $return=false, $disabled=false, $tabindex=0, $id='') {
         if ($nothing == 'choose') {
             $nothing = get_string('choose') .'...';
         }
@@ -80,6 +79,8 @@ if(!function_exists('choose_from_menu_multiple')){
 * @return a new idnumber as a string
 */
 function block_publishflow_generate_id($length = 10){
+	global $DB;
+	
     $continue = true;
 
     while ($continue) {

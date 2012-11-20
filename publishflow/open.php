@@ -13,7 +13,7 @@
 */
     include '../../config.php';
     require_once($CFG->dirroot.'/blocks/publishflow/lib.php');
-    require_once($CFG->dirroot.'/local/lib/mailtemplatelib.php');
+    require_once($CFG->dirroot.'/blocks/publishflow/mailtemplatelib.php');
 
 /// get imput params
     $fromcourse = required_param('fromcourse', PARAM_INT);
@@ -24,14 +24,7 @@
 
     require_login($course);
 
-    $navigation = array(
-                    array(
-                        'title' => get_string('opening', 'block_publishflow'), 
-                        'name' => get_string('opening', 'block_publishflow'), 
-                        'url' => NULL, 
-                        'type' => 'course'
-                    )
-                  );
+    $PAGE->navigation->add(get_string('opening', 'block_publishflow'));
     $PAGE->set_title(get_string('deployment', 'block_publishflow'));
     $PAGE->set_heading(get_string('deployment', 'block_publishflow'));
     /* SCANMSG: may be additional work required for $navigation variable */

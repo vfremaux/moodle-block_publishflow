@@ -4,7 +4,6 @@ if (!defined('MOODLE_INTERNAL')) die('You cannot access this script directly');
 
 include_once $CFG->dirroot."/mnet/xmlrpc/client.php";
 include_once $CFG->dirroot."/mnet/lib.php";
-include_once $CFG->libdir."/pear/HTML/AJAX/JSON.php";
 
 if ($action == 'submit'){
 

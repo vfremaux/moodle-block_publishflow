@@ -12,7 +12,6 @@
 */
     include '../../config.php';
     include_once $CFG->dirroot."/mnet/lib.php";
-    include_once $CFG->libdir."/pear/HTML/AJAX/JSON.php";
     include_once $CFG->dirroot."/mnet/xmlrpc/client.php";
     include_once $CFG->dirroot."/blocks/publishflow/submitlib.php";
 
@@ -32,24 +31,11 @@ define('STEP_INITIAL', 0);
 /// check we can do this
 
     require_login($course);    
-    $navigation = array(
-        array(
-            'name' => format_string($course->shortname), 
-            'link' => $CFG->wwwroot."/couse/view.php?id={$course->id}", 
-            'type' => 'url'
-        ),
-        array(
-            'name' => get_string('indexing', 'block_publishflow'), 
-            'link' => NULL, 
-            'type' => 'title'
-        ),
-        array(
-            'name' => get_string('step', 'block_publishflow').($step + 1), 
-            'link' => NULL, 
-            'type' => 'title'
-        )
-      );
 
+	$url = $CFG->wwwroot.'/blocks/publishflow/submit.php?id='.$id;
+	$PAGE->set_url($url);
+	$PAGE->navigation->add(format_string($course->shortname), $CFG->wwwroot."/couse/view.php?id={$course->id}");
+	$PAGE->navigation->add(get_string('indexing', 'block_publishflow'));
     $PAGE->set_title(get_string('indexing', 'block_publishflow'));
     $PAGE->set_heading(get_string('indexing', 'block_publishflow'));
     echo $OUTPUT->header();
@@ -57,7 +43,7 @@ define('STEP_INITIAL', 0);
     $result = 0;
 
     // runs the proper indexing procedure
-    $instance = $DB->get_record('block_instance', array('id' => $id));
+    $instance = $DB->get_record('block_instances', array('id' => $id));
     $theBlock = block_instance('publishflow', $instance);
     if (!isset($theBlock->config->submitto)) $theBlock->config->submitto = 'default';
     $result = include $CFG->dirroot."/blocks/publishflow/submits/{$theBlock->config->submitto}/submit_proc.php";

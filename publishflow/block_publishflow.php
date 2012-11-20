@@ -107,18 +107,18 @@ class block_publishflow extends block_base {
             if ($CFG->moodlenodetype == 'factory'){
             
             /*** PURE FACTORY ****/
-            $output .=  block_build_factory_menu($this);
+	            $output .=  block_build_factory_menu($this);
 	        
             } 
 	        elseif (preg_match('/\\bcatalog\\b/', $CFG->moodlenodetype)) {
 	    
             /*** CATALOG OR CATALOG & FACTORY ****/  
-            $output .=  block_build_catalogandfactory_menu($this);
+	            $output .=  block_build_catalogandfactory_menu($this);
 	    
             } else {
             
             /*** TRAINING CENTER ****/
-			$output .=  block_build_trainingcenter_menu($this);
+				$output .=  block_build_trainingcenter_menu($this);
 	        }
 	    
         } else {            
@@ -136,8 +136,6 @@ class block_publishflow extends block_base {
 	    // And that's all! :)
 	    return $this->content;
 	}
-
-
     
     function makebackupform(){
     	global $COURSE, $CFG;

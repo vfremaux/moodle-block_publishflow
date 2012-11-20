@@ -870,7 +870,7 @@ function block_build_catalogandfactory_menu($block){
         return $output;
     }
 
-    if(has_capability('block/publishflow:deploy', $context_system)||has_capability('block/publishflow:deployeverwhere', $context_system)||block_publishflow_extra_deploy_check()){
+    if(has_capability('block/publishflow:deploy', $context_system) || has_capability('block/publishflow:deployeverywhere', $context_system)||block_publishflow_extra_deploy_check()){
 
         //require_js (array('yui_yahoo', 'yui_event', 'yui_connection'));
         $PAGE->requires->js ('/blocks/publishflow/js/block_js.js');

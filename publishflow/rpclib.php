@@ -710,7 +710,7 @@ function delivery_check_available_backup($courseid, &$loopback = null){
   
     $fs = get_file_storage();
     $coursecontext = get_context_instance(CONTEXT_COURSE,$courseid);
-    $files = $fs->get_area_files($coursecontext->id,'backup','publishflow',0,'timecreated',false);
+    $files = $fs->get_area_files($coursecontext->id,'backup', 'publishflow', 0, 'timecreated', false);
     
     if(count($files)>0)
     {
@@ -718,63 +718,6 @@ function delivery_check_available_backup($courseid, &$loopback = null){
     }
     
     return false;
-    
-  /*
-    $realpath = false;
-
-    // calculate the archive pattern
-
-    $course = $DB->get_record('course', array('id' => $courseid));
-
-    //Calculate the backup word
-    $backup_word = backup_plan_dbops::get_default_backup_filename('moodl2', 'course', $courseid, '1', '0');//backup_get_backup_string($course);
-
-    //Calculate the date recognition/capture patterns
-    $backup_date_pattern = '([0-9]{8}-[0-9]{4})';
-
-    //Calculate the shortname
-    $backup_shortname = clean_filename($course->shortname);
-    if (empty($backup_shortname) or $backup_shortname == '_' ) {
-        $backup_shortname = $course->id;
-    } else {
-        // get rid of all version information for searching archive
-        $backup_shortname = preg_replace('/(_(\d+))+$/' , '', $backup_shortname);
-    }
-
-    //Calculate the final backup filename
-    //The backup word
-    $backup_pattern = $backup_word."-";
-    //The shortname
-    $backup_pattern .= preg_quote(moodle_strtolower($backup_shortname)).".*-";
-    //The date format
-    $backup_pattern .= $backup_date_pattern;
-    //The extension
-    $backup_pattern .= "\\.zip";
-    // Get the last backup in the proper location
-    // backup must have moodle backup filename format
-    $realdir = $CFG->dataroot.'/'.$courseid.'/backupdata';
-
-    if (!file_exists($realdir)) return false;
-
-    if ($DIR = opendir($realdir)){
-        $archives = array();
-        while($entry = readdir($DIR)){
-            if (preg_match("/^$backup_pattern\$/", $entry, $matches)){
-                $archives[$matches[1]] = "{$realdir}/{$entry}";
-            }
-        }
-
-        if (!empty($archives)){
-            // sorts reverse the archives so we can get the latest.
-            krsort($archives);
-            $archnames = array_values($archives);
-            $realpath->path = $archnames[0];
-            $realpath->dir = $realdir;
-        }
-    }
-
-    return $realpath;
-    */
 }
 
 /**
