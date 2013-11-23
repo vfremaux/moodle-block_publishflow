@@ -16,6 +16,11 @@
 * Includes and requires
 */
 
+if (get_config('block_publishflow_late_install')){
+	set_config('block_publishflow_late_install', 0);
+	require_once $CFG->dirroot.'/blocks/publishflow/db/install.php';
+	xmldb_block_publishflow_late_install();
+}
 
 /**
 * Constants

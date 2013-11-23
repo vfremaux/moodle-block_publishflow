@@ -5,7 +5,7 @@ function xmldb_block_publishflow_install_recovery(){
 }
 
 function xmldb_block_publishflow_install(){
-    global $USER, $DB;
+    global $USER, $DB, $CFG;
 
     // We need add a custom role here : disabledstudent
     // A disabled student still is enrolled within a course, but cannot interfere anymore with content 
@@ -74,19 +74,30 @@ function xmldb_block_publishflow_install(){
         }
     }
     
+    set_config('block_publishflow_late_install', 1);
+}
+
+function xmldb_block_publishflow_late_install(){
+    global $USER, $DB;
+
     //MDL-
-    //we need to replace the word "blocks" with word "block"
-    $rpcs = $DB->get_records('mnet_remote_rpc',array('pluginname'=>'publishflow'));
+    //we need to replace the word "block" with word "blocks"
+    $rpcs = $DB->get_records('mnet_remote_rpc', array('pluginname' => 'publishflow'));
     
-    if(!empty($rpcs))
-    {
-        
-        foreach($rpcs as $rpc )
-        {
-            $rpc->xmlrpcpath = str_replace('blocks','block',$rpc->xmlrpcpath);
-            $DB->update_record('mnet_remote_rpc',$rpc);
-        }
-        
+    if(!empty($rpcs)){
+        foreach($rpcs as $rpc ){
+            $rpc->xmlrpcpath = str_replace('block/', 'blocks/', $rpc->xmlrpcpath);
+            $DB->update_record('mnet_remote_rpc', $rpc);
+        }        
     }
+
+    //we need to replace the word "block" with word "blocks"
+    $rpcs = $DB->get_records('mnet_rpc',array('pluginname' => 'publishflow'));
     
+    if(!empty($rpcs)){        
+        foreach($rpcs as $rpc ){
+            $rpc->xmlrpcpath = str_replace('block/', 'blocks/', $rpc->xmlrpcpath);
+            $DB->update_record('mnet_rpc',$rpc);
+        }
+    }
 }

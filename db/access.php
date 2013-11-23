@@ -26,9 +26,8 @@
 //           moodle/site:deleteuser
 //
 // The variable name for the capability definitions array follows the format
-//   $<componenttype>_<component_name>_capabilities
+//   $capabilities
 //
-// For the core capabilities, the variable is $moodle_capabilities.
 
 $capabilities = array(
 

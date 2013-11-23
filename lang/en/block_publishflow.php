@@ -124,6 +124,7 @@ $string['publish'] = 'Publish';
 $string['publishconfirm'] = 'Visibility in master course catalog is immediate. Continue ?';
 $string['publishedhidden'] = 'This course is in the master course catalog, but set to hidden. You may make it visible again.';
 $string['publishflow'] = 'Platform Catalog Renewal';
+$string['publishflow:managepublishedfiles'] = 'Can manage published archives';
 $string['publishflow:addtocourse'] = 'Add the Publication block to the course';
 $string['publishflow:deploy'] = 'Deploy a course onto a training node';
 $string['publishflow:deployeverywhere'] = 'Deploy everywhere';

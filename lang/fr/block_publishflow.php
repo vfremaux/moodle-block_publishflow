@@ -57,7 +57,7 @@ $string['courseopen'] = 'Le cours est désormais ouvert.';
 $string['createdfields'] = 'Nombre de champs créés : ';
 $string['datecreated'] = 'Date de création ';
 $string['defaultplatform'] = 'Local';
-$string['defaultrole'] = 'Role par défaut dans les cours livrés';
+$string['defaultrole'] = 'Rôle par défaut dans les cours livrés';
 $string['defaultrole_desc'] = 'Ce rôle est assigné automatiquement dans le parcours d\'arrivée, à l\'utilisateur qui déploie, publie ou rappatrie en fabrique. Attention, ce réglage agit sur les cours arrivant sur cette plate-forme. Pour régler le rôle des utilisateurs déployant des cours sur une autre plate-forme, le réglage doit être fait sur la plate-forme d\'arrivée.';
 $string['deploy'] = 'Déployer';
 $string['deploycategory'] = 'Catégorie par défaut';
@@ -116,7 +116,7 @@ $string['open'] = 'Ouvrir le cours';
 $string['opening'] = 'Ouverture du cours';
 $string['opennotifyhelper'] = 'Dans ce mode, vous rendez le cours disponible aux stagiares et émettez un avis d\'ouverture à tous les utilisateurs enregistrés dans la session.';
 $string['openwithoutnotifyhelper'] = 'Dans ce mode, vous rendez le cours disponible aux stagiares <b>mais n\'emettez aucun couriel</b> d\'avertissement aux utilisateurs.';
-$string['perform'] = 'Efectuer la mise à jour';
+$string['perform'] = 'Effectuer la mise à jour';
 $string['platformlastupdate'] = 'Dernière mise à jour le ';
 $string['platformname'] = 'Nom de la plate-forme';
 $string['platformstatus'] = 'Type de plate-forme';
@@ -127,6 +127,7 @@ $string['publish'] = 'Publier';
 $string['publishconfirm'] = 'La publication est immédiate dans le catalogue. Voulez-vous continuer ?';
 $string['publishedhidden'] = 'Ce cours est publié mais non visible. Vous pouvez le republier à nouveau.';
 $string['publishflow'] = 'Réactualisation des informations réseau';
+$string['publishflow:managepublishedfiles'] = 'Peut gérer les archives de publication';
 $string['publishflow:addtocourse'] = 'Ajouter le bloc Publication au cours';
 $string['publishflow:deploy'] = 'Déployer un cours sur un satellite de formation';
 $string['publishflow:deployeverywhere'] = 'Déployer un cours partout';
@@ -220,3 +221,10 @@ pas choisir à priori). Il vous appartiendra de reclasser ce cours dans une cat�
 
 $string['publishflow_name'] = 'Infrastructure de publication de cours' ;
 $string['publishflow_description'] = 'Ce service rassemble les fonctions utilisées par l\'infrastructure de transport de cours. Vous devrez publier et abonner chaque côté de la liaison réseau.';
+
+//settings 
+$string['networkrefreshautomation'] = "Rafraichissement automatique de la structure réseau";
+$string['noautomatednetworkrefreshment'] = "Désactivé";
+$string['oneday'] = "Une fois par jour";
+$string['oneweek'] = "Une fois par semaine";
+$string['onemonth'] = "Une fois par mois";

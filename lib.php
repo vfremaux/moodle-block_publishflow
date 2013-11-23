@@ -5,6 +5,22 @@ require_once($CFG->dirroot."/blocks/publishflow/backup/restore_automation.class.
 *
 */
 
+/**
+ * Constants.
+ */
+if (!defined('RPC_SUCCESS')) {
+	define('RPC_TEST', 100);
+	define('RPC_SUCCESS', 200);
+	define('RPC_FAILURE', 500);
+	define('RPC_FAILURE_USER', 501);
+	define('RPC_FAILURE_CONFIG', 502);
+	define('RPC_FAILURE_DATA', 503); 
+	define('RPC_FAILURE_CAPABILITY', 510);
+	define('MNET_FAILURE', 511);
+	define('RPC_FAILURE_RECORD', 520);
+	define('RPC_FAILURE_RUN', 521);
+}
+
 // fakes a debug library if missing
 if (!function_exists('debug_trace')){
 	function debug_trace($str){
