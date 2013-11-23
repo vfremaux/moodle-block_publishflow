@@ -101,7 +101,7 @@ abstract class backup_automation {
             @set_time_limit(0);
             raise_memory_limit(MEMORY_EXTRA);
 
-            $course = $DB->get_record('course',array('id'=>$course_id));
+            $course = $DB->get_record('course', array('id' => $course_id));
             
             // Skip backup of unavailable courses that have remained unmodified in a month
              //Check log if there were any modifications to the course content
@@ -313,7 +313,7 @@ abstract class backup_automation {
         $storage =  $config->backup_auto_storage;
         $dir =      $config->backup_auto_destination;
 
-        $backupword = str_replace(' ', '_', moodle_strtolower(get_string('backupfilename')));
+        $backupword = str_replace(' ', '_', textlib::strtolower(get_string('backupfilename')));
         $backupword = trim(clean_filename($backupword), '_');
 
         if (!file_exists($dir) || !is_dir($dir) || !is_writable($dir)) {
@@ -323,7 +323,7 @@ abstract class backup_automation {
         // Clean up excess backups in the course backup filearea
         if ($storage == 0 || $storage == 2) {
             $fs = get_file_storage();
-            $context = get_context_instance(CONTEXT_COURSE, $course->id);
+            $context = context_course::instance($course->id);
             $component = 'backup';
             $filearea = 'publishflow';
             $itemid = 0;

@@ -10,30 +10,25 @@
 	 **/
 
 	require_once('../../config.php');
-    global $CFG;
 
-	$full = get_string('single_full','block_publishflow');
-	$short = get_string('single_short','block_publishflow');
-
-   
+    $systemcontext = context_system::instance();
     
-	$navlinks[] = array('name' => $full, 'link' => "$CFG->wwwroot", 'type' => 'misc');
-	$navigation = build_navigation($navlinks);
-    
-    $system_context = get_context_instance(CONTEXT_SYSTEM);
-    
-	$PAGE->set_context($system_context);
-    $PAGE->set_title($full);
-	$PAGE->set_heading($short);
-	/* SCANMSG: may be additional work required for $navigation variable */
+	$PAGE->set_context($systemcontext);
+    $PAGE->set_title(get_string('netupdate', 'block_publishflow'));
+	$PAGE->set_heading(get_string('pluginname', 'block_publishflow'));
+	$PAGE->navbar->add(get_string('pluginname', 'block_publishflow'));
+	$PAGE->navbar->add(get_string('setup', 'block_publishflow'), $CFG->wwwroot.'/admin/settings.php?section=blocksettingpublishflow');
+	$PAGE->navbar->add(get_string('single_short','block_publishflow'));
+	$PAGE->set_pagelayout('admin');
 	$PAGE->set_focuscontrol('');
 	$PAGE->set_cacheable(false);
 	$PAGE->set_url('/blocks/publishflow/netupdate.php');
   
     $PAGE->set_button('');
+
 	echo $OUTPUT->header();
 
-	echo $OUTPUT->box(get_string('warningload','block_publishflow'));
+	echo $OUTPUT->box(get_string('warningload','block_publishflow'), 'publishflow-notification');
 
 	$hosts = $DB->get_records_select('mnet_host', " deleted = 0 AND wwwroot != '$CFG->wwwroot' ");
 
@@ -53,7 +48,7 @@
     $table->cellspacing = 0;
     $table->width = '60%';
 	$table->size = array('30%','30%','30%');
-    $table->head = array(get_string('platformname', 'block_publishflow'), get_string('platformstatus','block_publishflow'),get_string('platformlastupdate','block_publishflow'));
+    $table->head = array(get_string('platformname', 'block_publishflow'), get_string('platformstatus','block_publishflow'), get_string('platformlastupdate','block_publishflow'));
     $table->wrap = array('nowrap', 'nowrap','nowrap');
     $table->align = array('center', 'center','center');
 
@@ -103,7 +98,7 @@
 		}
 	}
 	echo html_writer::table($table);
-	echo('<br/>');
+	echo '<br/>';
 
 	if(!($errors == 0)){
 		echo $OUTPUT->box(get_string('errormonitoring','block_publishflow').'<br/>'.get_string('erroradvice','block_publishflow', $errors));
@@ -113,13 +108,13 @@
 		echo $OUTPUT->box(get_string('OKmonitoring','block_publishflow'));
 	}
 
-    echo('<center>');
+    echo '<center><p>';
     $button = new single_button(new moodle_url('/blocks/publishflow/doupgrade.php'), get_string('perform','block_publishflow'), '');
     $button->disabled = '';
     echo $OUTPUT->render($button);
-    echo('</center>');
+    echo '</p></center>';
 
-    echo('<br/>');
+    echo '<br/>';
 
     echo $OUTPUT->footer($COURSE);
 

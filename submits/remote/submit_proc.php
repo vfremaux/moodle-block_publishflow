@@ -1,5 +1,14 @@
 <?php
 
+/**
+* Unachieved. Not functional
+* the prurpose would be to fetch an adequate publication identifier from a remote source
+* in which the course colume has been referenced. Then publishing might send the complete
+* content to that remote source.
+*
+* This needs more work and integration opportunities. 
+*/
+
 switch($step){
     case AUTHORING :{
         $select = " wwwroot LIKE '{$CFG->mainhostprefix}%' ";
@@ -43,7 +52,7 @@ switch($step){
         $form->step = $step + 1;
     }
     break;
-    case COMPLETED :{
+    case STEP_COMPLETED :{
         $form = data_submitted();
         $form->step = $step + 1;
         $result = include($CFG->dirroot.'/blocks/publishflow/submits/remote/submit.controller.php');
@@ -55,4 +64,3 @@ if ($result != -1)
     include $CFG->dirroot.'/blocks/publishflow/submits/remote/submit_step'.$form->step.'.html';
 echo $OUTPUT->container_end();
 
-?>

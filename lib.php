@@ -5,6 +5,22 @@ require_once($CFG->dirroot."/blocks/publishflow/backup/restore_automation.class.
 *
 */
 
+/**
+ * Constants.
+ */
+if (!defined('RPC_SUCCESS')) {
+	define('RPC_TEST', 100);
+	define('RPC_SUCCESS', 200);
+	define('RPC_FAILURE', 500);
+	define('RPC_FAILURE_USER', 501);
+	define('RPC_FAILURE_CONFIG', 502);
+	define('RPC_FAILURE_DATA', 503); 
+	define('RPC_FAILURE_CAPABILITY', 510);
+	define('MNET_FAILURE', 511);
+	define('RPC_FAILURE_RECORD', 520);
+	define('RPC_FAILURE_RUN', 521);
+}
+
 // fakes a debug library if missing
 if (!function_exists('debug_trace')){
 	function debug_trace($str){
@@ -161,6 +177,7 @@ function publishflow_course_close($course, $mode, $rpccall = false){
 */
 function publishflow_backup_generate_preferences($course) {
     global $CFG,$DB;
+    
     $preferences = new StdClass;
     $preferences->backup_unique_code = time();
     $preferences->backup_name = backup_get_zipfile_name($course, $preferences->backup_unique_code);
@@ -243,7 +260,8 @@ function publishflow_backup_generate_preferences($course) {
 */
 function publishflow_backup_check_mods(&$course, $backupprefs){
 	global $CFG,$DB;
-    if ($allmods = $DB->get_records("modules") ) {
+	
+    if ($allmods = $DB->get_records('modules') ) {
         foreach ($allmods as $mod) {
             $modname = $mod->name;
             $modfile = $CFG->dirroot.'/mod/'.$modname.'/backuplib.php';
@@ -297,19 +315,18 @@ function publishflow_backup_check_mods(&$course, $backupprefs){
 function publishflow_local_deploy($category, $sourcecourse){
     global $CFG, $USER, $DB;
 
-    include_once $CFG->dirroot."/backup/restorelib.php";
-    include_once $CFG->dirroot."/backup/lib.php";
+    include_once $CFG->dirroot.'/backup/restorelib.php';
+    include_once $CFG->dirroot.'/backup/lib.php';
 
     $deploycat = $DB->get_record('course_categories', array('id' => $category));
     
     //lets get the publishflow published file. 
     $coursecontextid = get_context_instance(CONTEXT_COURSE,$sourcecourse->id)->id;
     $fs = get_file_storage();
-    $backupfiles = $fs->get_area_files($coursecontextid,'backup','publishflow',0,"timecreated",false);
+    $backupfiles = $fs->get_area_files($coursecontextid,'backup', 'publishflow', 0, 'timecreated', false);
     
-    if(!$backupfiles)
-    {
-        print_error("course is not published,please publish first.");
+    if (!$backupfiles) {
+        print_error('errornotpublished', 'block_publishflow');
     }
 
     

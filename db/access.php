@@ -26,9 +26,8 @@
 //           moodle/site:deleteuser
 //
 // The variable name for the capability definitions array follows the format
-//   $<componenttype>_<component_name>_capabilities
+//   $capabilities
 //
-// For the core capabilities, the variable is $moodle_capabilities.
 
 $capabilities = array(
 
@@ -40,18 +39,20 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
+
     'block/publishflow:managepublishedfiles' => array(
         'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'contextlevel' => CONTEXT_COURSE,
         'legacy' => array(
             'coursecreator' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW
         )
     ),
 
     'block/publishflow:deploy' => array(
         'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'contextlevel' => CONTEXT_COURSE,
         'legacy' => array(
             'coursecreator' => CAP_ALLOW,
             'manager' => CAP_ALLOW
@@ -60,14 +61,14 @@ $capabilities = array(
 
     'block/publishflow:publish' => array(
         'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'contextlevel' => CONTEXT_COURSE,
         'legacy' => array(
             'coursecreator' => CAP_ALLOW,
             'manager' => CAP_ALLOW
         )
     ),
 
-    'block/publishflow:addtocourse' => array(
+    'block/publishflow:addinstance' => array(
         'captype'      => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'riskbitmask'  => RISK_SPAM,
@@ -98,4 +99,3 @@ $capabilities = array(
         )
     ),
 );
-?>

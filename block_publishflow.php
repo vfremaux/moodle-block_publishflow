@@ -1,4 +1,4 @@
-<?php //$Id: block_publishflow.php,v 1.10 2012-09-29 08:01:56 vf Exp $
+<?php //$Id: block_publishflow.php,v 1.1.1.1 2013-02-13 08:42:03 mo2dlemaster Exp $
 
 /**
 * Controls publication/deployment of courses in a 
@@ -16,6 +16,11 @@
 * Includes and requires
 */
 
+if (get_config('block_publishflow_late_install')){
+	set_config('block_publishflow_late_install', 0);
+	require_once $CFG->dirroot.'/blocks/publishflow/db/install.php';
+	xmldb_block_publishflow_late_install();
+}
 
 /**
 * Constants
@@ -90,7 +95,7 @@ class block_publishflow extends block_base {
         $this->content = new stdClass;
         
         // Making bloc content
-        $filemanagerlink= $CFG->wwwroot."/blocks/publishflow/pffilesedit.php?id=".$COURSE->id;
+        $filemanagerlink = $CFG->wwwroot."/blocks/publishflow/pffilesedit.php?id=".$COURSE->id;
         
         $systemcontext = get_context_instance(CONTEXT_SYSTEM);  
         
@@ -123,11 +128,16 @@ class block_publishflow extends block_base {
 	    
         } else {            
 	        // this is an unregistered course that has no IDNumber reference. This causes a problem for instance identification            
+	        $output .= $OUTPUT->box_start('noticebox');
 	        $output .= $OUTPUT->notification(get_string('unregistered','block_publishflow'), 'notifyproblem', true);
+	        // @TODO add help button $output .= $OUTPUT->help_button();
             $qoptions['fromcourse'] = $COURSE->id;
             $qoptions['what'] = 'submit';
             $qoptions['id'] = $this->instance->id;
+            $output .= '<p>';
             $output .= $OUTPUT->single_button(new moodle_url($CFG->wwwroot.'/blocks/publishflow/submit.php', $qoptions), get_string('reference', 'block_publishflow'), 'post');
+            $output .= '</p>';
+	        $output .= $OUTPUT->box_end();
 	    } 
 
         $this->content->text = $output;
@@ -159,5 +169,3 @@ class block_publishflow extends block_base {
         automate_network_refreshment();        
     }
 }
-
-?>

@@ -10,5 +10,3 @@ if(!empty($CFG->foreignindex_hostid)){
 
 $idnumber = '';
 $step = STEP_COMPLETED;
-
-?>
