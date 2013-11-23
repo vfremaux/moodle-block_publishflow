@@ -24,9 +24,9 @@
  *      then a suitable one is constructed.
  */
 if(!function_exists('choose_from_menu_multiple')){
-    function choose_from_menu_multiple($options, $name, $selected=null, $size=5, $nothing='choose', $script='',$nothingvalue='0', $return=false, $disabled=false, $tabindex=0, $id='') {
+    function choose_from_menu_multiple($options, $name, $selected = null, $size = 5, $nothing = 'choose', $script = '', $nothingvalue = '0', $return = false, $disabled = false, $tabindex = 0, $id = '') {
         if ($nothing == 'choose') {
-            $nothing = get_string('choose') .'...';
+            $nothing = get_string('choose').'...';
         }
         $attributes = ($script) ? 'onchange="'. $script .'"' : '';
         if ($disabled) {
@@ -95,5 +95,3 @@ function block_publishflow_generate_id($length = 10){
     }
     return $idnumber;
 }
-
-?>

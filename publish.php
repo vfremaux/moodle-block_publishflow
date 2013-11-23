@@ -16,43 +16,46 @@
     include_once $CFG->dirroot."/mnet/xmlrpc/client.php";
 
 /// get imput params
+
     $fromcourse = required_param('fromcourse', PARAM_INT);
     $action = required_param('what', PARAM_TEXT);
     $where = required_param('where', PARAM_INT); // Where is an mnet_host id
     $force = optional_param('forcerepublish', 0, PARAM_INT); // If we have to replace
+
+	$url = new moodle_url('/blocks/publishflow/publish.php', array('fromcourse' => $fromcourse, 'what' => $action, 'where' => $where, 'forcerepublish' => $force));
+
 /// check we can do this
+
     $course = $DB->get_record('course', array('id' => "$fromcourse"));
+    $context = context_course::instance($course->id);
 
     require_login($course);
 
-    $navigation = array(
-                    array(
-                        'title' => get_string('publishing', 'block_publishflow'), 
-                        'name' => get_string('publishing', 'block_publishflow'), 
-                        'url' => NULL, 
-                        'type' => 'course'
-                    )
-                  );
+    $PAGE->set_url($url);
+    $PAGE->set_context($context);
     $PAGE->set_title(get_string('deployment', 'block_publishflow'));
     $PAGE->set_heading(get_string('deployment', 'block_publishflow'));
-
+	$PAGE->navbar->add(get_string('pluginname', 'block_publishflow'));
+	$PAGE->navbar->add(get_string('publishing', 'block_publishflow'));
     
-    $PAGE->set_url('/blocks/publishflow/publish.php',array('fromcourse'=>$fromcourse,'what'=>$action,'where'=>$where,'forcerepublish'=>$force));
-
-    /* SCANMSG: may be additional work required for $navigation variable */
     echo $OUTPUT->header();
+
 /// get context objects
+
     $mnethost = $DB->get_record('mnet_host', array('id' => $where));
     // if ($CFG->debug)
     //    echo "[$action from $fromcourse at $where]";
 
 /// start triggering the remote deployment
+
     if (empty($CFG->coursedeliveryislocal)){
         echo "<center>";
         echo $OUTPUT->box(get_string('networktransferadvice', 'block_publishflow'));
         echo "<br/>";
     }    
+
 /// start triggering the remote deployment
+
     if (!empty($USER->mnethostid)){
         $userhost = $DB->get_record('mnet_host', array('id' => $USER->mnethostid));
         $userwwwroot = $userhost->wwwroot;
@@ -72,16 +75,19 @@
     $mnet_host = new mnet_peer();
     $mnet_host->set_wwwroot($mnethost->wwwroot);
     if (!$rpcclient->send($mnet_host)){
-        print_object($rpcclient);
+    	if ($CFG->debug | DEBUG_DEVELOPER)){
+	        print_object($rpcclient);
+	    }
         print_error('failed', 'block_publishflow');        
     }
 
     $response = json_decode($rpcclient->response);
 
     // print_object($response);
+	echo $OUTPUT->box_start('plublishpanel');
 
     if ($response->status == 100){ // Test point
-        notice ("Remote test point : ".$response->teststatus);
+        echo $OUTPUT->notification("Remote test point : ".$response->teststatus);
     }
     if ($response->status == 200){
         $remotecourseid = $response->courseid;
@@ -102,6 +108,7 @@
                 break;      
             }
         }
+
         print_string('publishsuccess', 'block_publishflow');
         echo '<br/>';
         echo '<br/>';
@@ -111,10 +118,10 @@
             echo "<a href=\"{$mnethost->wwwroot}/course/view.php?id={$remotecourseid}\">".get_string('jumptothecourse', 'block_publishflow').'</a> - ';
         }
     } else {
-        notice("Remote error : ".$response->error);
+        echo $OUTPUT->notification("Remote error : ".$response->error);
     }
     echo " <a href=\"/course/view.php?id={$course->id}\">".get_string('backtocourse', 'block_publishflow').'</a>';
     echo '</center>';
-
+	echo $OUTPUT->box_end();
+	
     echo $OUTPUT->footer();
-?>

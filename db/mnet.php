@@ -69,4 +69,3 @@ $subscribes = array(
         'delivery_publish' => 'blocks/publishflow/rpclib.php/delivery_publish'
     ),
 );
-?>

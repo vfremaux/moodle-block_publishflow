@@ -33,9 +33,13 @@ class block_publishflow_edit_form extends block_edit_form {
       
 
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
+
         $mform->addElement('checkbox', 'config_allowfreecategoryselection', get_string('allowfreecategoryselection', 'block_publishflow'));
+		$mform->setType('config_allowfreecategoryselection', PARAM_BOOL);
+		
         if (preg_match('/\\bcatalog\\b/', $CFG->moodlenodetype)){   
             $mform->addElement('text', 'config_deploymentkeydesc', get_string('deploymentkeydesc', 'block_publishflow'));   
+			$mform->setType('config_deploymentkeydesc', PARAM_TEXT);
         }
     }
 }

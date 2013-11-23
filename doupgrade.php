@@ -49,6 +49,7 @@
     $hosts = $DB->get_records('mnet_host', array('deleted' => 0));
 
 	foreach($hosts as $host){
+		if ($host->wwwroot == $CFG->wwwroot) continue; // do not try to deal with yourself
 		if ($host->applicationid != $DB->get_field('mnet_application', 'id', array('name' => 'moodle'))) continue;
 		if(!($host->name) == "" && !($host->name == "All Hosts")){
              

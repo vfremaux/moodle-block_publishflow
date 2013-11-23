@@ -12,7 +12,8 @@
 */
 include_once $CFG->libdir."/accesslib.php";
 include_once $CFG->dirroot."/mnet/xmlrpc/client.php";
-/*include_once $CFG->dirroot."/backup/lib.php";
+require_once($CFG->libdir . '/xmlize.php'); // needed explicitely as all situations do not provide it
+/*
 include_once $CFG->dirroot."/backup/restorelib.php";
 include_once $CFG->dirroot."/backup/backuplib.php";
 */

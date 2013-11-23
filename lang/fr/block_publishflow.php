@@ -1,5 +1,13 @@
 <?php
 
+$string['publishflow:managepublishedfiles'] = 'Peut gérer les archives de publication';
+$string['publishflow:addinstance'] = 'Ajouter le bloc Publication au cours';
+$string['publishflow:deploy'] = 'Déployer un cours sur un satellite de formation';
+$string['publishflow:deployeverywhere'] = 'Déployer un cours partout';
+$string['publishflow:manage'] = 'Gérer la session de formation et la disponibilité de l\'espace';
+$string['publishflow:publish'] = 'Publier les cours dans le catalogue';
+$string['publishflow:retrofit'] = 'Réalimenter la fabrique avec le cours';
+
 $string['OKmonitoring'] = 'Les données sur le réseau sont à jour. Vous n\'avez pas besoin de cette opération.';
 $string['URL'] = 'URL d\'accès ';
 $string['accesscategory'] = 'Plates-formes autorisées';
@@ -57,7 +65,7 @@ $string['courseopen'] = 'Le cours est désormais ouvert.';
 $string['createdfields'] = 'Nombre de champs créés : ';
 $string['datecreated'] = 'Date de création ';
 $string['defaultplatform'] = 'Local';
-$string['defaultrole'] = 'Role par défaut dans les cours livrés';
+$string['defaultrole'] = 'Rôle par défaut dans les cours livrés';
 $string['defaultrole_desc'] = 'Ce rôle est assigné automatiquement dans le parcours d\'arrivée, à l\'utilisateur qui déploie, publie ou rappatrie en fabrique. Attention, ce réglage agit sur les cours arrivant sur cette plate-forme. Pour régler le rôle des utilisateurs déployant des cours sur une autre plate-forme, le réglage doit être fait sur la plate-forme d\'arrivée.';
 $string['deploy'] = 'Déployer';
 $string['deploycategory'] = 'Catégorie par défaut';
@@ -104,6 +112,7 @@ $string['managename'] = 'Réédition et gestion de session';
 $string['managepublishedfiles'] = 'Gérer les archives';
 $string['moodlenodetype'] = 'Type de noeud Moodle';
 $string['networktransferadvice'] = 'Le transfert et le déploiement d\'un volume de formation par le réseau peut être long. Bien que les réglages des serveurs aient été testés et ajustés pour les cas les plus probables de transferts, il est tout à fait possible que certaines archives ne puissent pas être traitées avec les paramètres actuels. Contacter l\'administrateur système dans ce cas.';
+$string['netupdate'] = 'Mise à jour des données du réseau';
 $string['noassignation'] = 'Aucune assignation';
 $string['nocatalog'] = 'La fabrique ne trouve aucun catalogue. Revoir les paramètres centraux du réseau de publication.';
 $string['nodeploytargets'] = 'Votre situation et vos droits n\'ont pas permis de trouver une cible pour le déployement de parcours';
@@ -112,11 +121,12 @@ $string['nofactory'] = 'Fabrique introuvable. Le système est mal configuré pou
 $string['normalmoodle'] = 'Moodle standard';
 $string['notification'] = 'Ouverture avec notification aux stagiaires';
 $string['notpublishedyet'] = 'Ce parcours n\'est pas encore publié.';
+$string['netupdate'] = 'Mise à jour des données du réseau';
 $string['open'] = 'Ouvrir le cours';
 $string['opening'] = 'Ouverture du cours';
 $string['opennotifyhelper'] = 'Dans ce mode, vous rendez le cours disponible aux stagiares et émettez un avis d\'ouverture à tous les utilisateurs enregistrés dans la session.';
 $string['openwithoutnotifyhelper'] = 'Dans ce mode, vous rendez le cours disponible aux stagiares <b>mais n\'emettez aucun couriel</b> d\'avertissement aux utilisateurs.';
-$string['perform'] = 'Efectuer la mise à jour';
+$string['perform'] = 'Effectuer la mise à jour';
 $string['platformlastupdate'] = 'Dernière mise à jour le ';
 $string['platformname'] = 'Nom de la plate-forme';
 $string['platformstatus'] = 'Type de plate-forme';
@@ -127,12 +137,6 @@ $string['publish'] = 'Publier';
 $string['publishconfirm'] = 'La publication est immédiate dans le catalogue. Voulez-vous continuer ?';
 $string['publishedhidden'] = 'Ce cours est publié mais non visible. Vous pouvez le republier à nouveau.';
 $string['publishflow'] = 'Réactualisation des informations réseau';
-$string['publishflow:addtocourse'] = 'Ajouter le bloc Publication au cours';
-$string['publishflow:deploy'] = 'Déployer un cours sur un satellite de formation';
-$string['publishflow:deployeverywhere'] = 'Déployer un cours partout';
-$string['publishflow:manage'] = 'Gérer la session de formation et la disponibilité de l\'espace';
-$string['publishflow:publish'] = 'Publier les cours dans le catalogue';
-$string['publishflow:retrofit'] = 'Réalimenter la fabrique avec le cours';
 $string['publishflowbackups'] = 'Sauvegardes publiables';
 $string['publishflowbackupsadvice'] = 'Notez que supprimer les fichiers physiques d\'archive dans cette zone peut provoquer un dysfonctionnement du déploiement de ce cours.';
 $string['publishing'] = 'Publication';
@@ -154,6 +158,7 @@ $string['sessionopening'] = 'Ouverture de session : ';
 $string['single_full'] = 'Synchroniser les types de plates-formes du réseau et les catégories';
 $string['single_short'] = 'Synchroniser les plates-formes';
 $string['step'] = 'Etape ';
+$string['setup'] = 'Configuration';
 $string['submitname'] = 'Submit name';
 $string['submittodesc'] = 'Submit down';
 $string['synchonizingnetworkconfig'] = '';
@@ -220,3 +225,10 @@ pas choisir à priori). Il vous appartiendra de reclasser ce cours dans une cat�
 
 $string['publishflow_name'] = 'Infrastructure de publication de cours' ;
 $string['publishflow_description'] = 'Ce service rassemble les fonctions utilisées par l\'infrastructure de transport de cours. Vous devrez publier et abonner chaque côté de la liaison réseau.';
+
+//settings 
+$string['networkrefreshautomation'] = "Rafraichissement automatique de la structure réseau";
+$string['noautomatednetworkrefreshment'] = "Désactivé";
+$string['oneday'] = "Une fois par jour";
+$string['oneweek'] = "Une fois par semaine";
+$string['onemonth'] = "Une fois par mois";

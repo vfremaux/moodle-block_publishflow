@@ -13,4 +13,3 @@ include_once $CFG->dirroot.'/blocks/publishflow/submitlib.php';
 $idnumber = block_publishflow_generate_id();
 $step = STEP_COMPLETED;
 
-?>

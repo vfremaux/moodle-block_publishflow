@@ -19,44 +19,50 @@ $settings->add(new admin_setting_configselect('moodlenodetype', get_string('mood
 $settings->add(new admin_setting_configcheckbox('enableretrofit', get_string('enableretrofit', 'block_publishflow'),
                    get_string('configenableretrofit', 'block_publishflow'), 1));
 
-$settings->add(new admin_setting_configcheckbox('coursedeliveryislocal',get_string('islocal','block_publishflow'),
-		    get_string('coursedeliveryislocal','block_publishflow'),0));
+$settings->add(new admin_setting_configcheckbox('coursedeliveryislocal', get_string('islocal','block_publishflow'),
+		    get_string('coursedeliveryislocal','block_publishflow'), 0));
 
 $options2 = array('private' => get_string('cdprivate','block_publishflow'),
 		  'publicwrite' => get_string('cdpublicwrite','block_publishflow'),
 		  'publicread' => get_string('cdpublicread', 'block_publishflow')
 		  );
 
-$settings->add(new admin_setting_configselect('coursedelivery_publicsessions',get_string('publicsessions','block_publishflow'),
-		    get_string('publicsessions_desc','block_publishflow'),'private',$options2));
+$settings->add(new admin_setting_configselect('coursedelivery_publicsessions', get_string('publicsessions','block_publishflow'),
+		    get_string('publicsessions_desc','block_publishflow'), 'private', $options2));
 
 
 $courses = $DB->get_records_menu('course', null, 'shortname', 'id,shortname');
 
-$settings->add(new admin_setting_configselect('coursedelivery_coursefordelivery',get_string('coursefordelivery','block_publishflow'),
+$settings->add(new admin_setting_configselect('coursedelivery_coursefordelivery', get_string('coursefordelivery','block_publishflow'),
 		    get_string('coursefordelivery_desc','block_publishflow'),'',$courses));
-
 
 $categoriesoptions = $DB->get_records_menu('course_categories', null, '', 'id, name');
 $categoriesoptions[0] = get_string('leavehere', 'block_publishflow');
 
-$settings->add(new admin_setting_configselect('coursedelivery_deploycategory',get_string('deploycategory','block_publishflow'),
+$settings->add(new admin_setting_configselect('coursedelivery_deploycategory', get_string('deploycategory','block_publishflow'),
 		    get_string('deploycategory_desc','block_publishflow'),'',$categoriesoptions));
 
-$settings->add(new admin_setting_configselect('coursedelivery_runningcategory',get_string('runningcategory','block_publishflow'),
+$settings->add(new admin_setting_configselect('coursedelivery_runningcategory', get_string('runningcategory','block_publishflow'),
 		    get_string('runningcategory_desc','block_publishflow'),'',$categoriesoptions));
 
-$settings->add(new admin_setting_configselect('coursedelivery_closedcategory',get_string('closedcategory','block_publishflow'),
+$settings->add(new admin_setting_configselect('coursedelivery_closedcategory', get_string('closedcategory','block_publishflow'),
 		    get_string('closedcategory_desc','block_publishflow'),'',$categoriesoptions));
 
-$settings->add(new admin_setting_configtext('mainhostprefix',get_string('mainhostprefix','block_publishflow'),
+$settings->add(new admin_setting_configtext('mainhostprefix', get_string('mainhostprefix','block_publishflow'),
 		    get_string('mainhostprefix_desc','block_publishflow'),''));
 
-$settings->add(new admin_setting_configtext('factoryprefix',get_string('factoryprefix','block_publishflow'),
+$settings->add(new admin_setting_configtext('factoryprefix', get_string('factoryprefix','block_publishflow'),
 		    get_string('factoryprefix_desc','block_publishflow'),''));
 
-$roleoptions = array_merge(array('0' => get_string('noassignation', 'block_publishflow')), $DB->get_records_menu('role', null, 'id,name'));
-$settings->add(new admin_setting_configselect('coursedelivery_defaultrole',get_string('defaultrole','block_publishflow'),
+$systemcontext = context_system::instance();
+$roles = role_fix_names(get_all_roles(), $systemcontext, ROLENAME_ORIGINAL);
+$rolenames = array();
+foreach($roles as $r){
+	$rolenames[$r->id] = $r->localname;
+}
+$roleoptions = array_merge(array('0' => get_string('noassignation', 'block_publishflow')), $rolenames);
+
+$settings->add(new admin_setting_configselect('coursedelivery_defaultrole', get_string('defaultrole','block_publishflow'),
 		    get_string('defaultrole_desc','block_publishflow'), 0, $roleoptions));
 
 $syncstr = get_string('synchonizingnetworkconfig', 'block_publishflow');
@@ -73,4 +79,3 @@ $settings->add(new admin_setting_configselect('networkrefreshautomation', get_st
                    get_string('networkrefreshautomation', 'block_publishflow'), '', $options));
 
 
-?>

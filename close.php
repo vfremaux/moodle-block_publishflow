@@ -15,31 +15,34 @@
     include_once $CFG->dirroot.'/blocks/publishflow/lib.php';
 
 /// get imput params
+
     $fromcourse = required_param('fromcourse', PARAM_INT);
     $action = required_param('what', PARAM_TEXT);
     $step = optional_param('step', COURSE_CLOSE_CHOOSE_MODE, PARAM_TEXT);
+
+    $url = new moodle_url($CFG->wwwroot.'/blocks/publishflow/close.php', array('fromcourse' => $fromcourse, 'what' => $action, 'step' => $step));
+
 /// check we can do this
+
     $course = $DB->get_record('course', array('id' => "$fromcourse"));
+    $context = context_course::instance($course->id);
 
-    require_login($course);
+    require_course_login($course, false);
 
-    $navigation = array(
-                    array(
-                        'title' => get_string('closing', 'block_publishflow'), 
-                        'name' => get_string('closing', 'block_publishflow'), 
-                        'url' => NULL, 
-                        'type' => 'course'
-                    )
-                  );
+    $PAGE->set_url($url);
+    $PAGE->set_context($context);
     $PAGE->set_title(get_string('deployment', 'block_publishflow'));
     $PAGE->set_heading(get_string('deployment', 'block_publishflow'));
-    /* SCANMSG: may be additional work required for $navigation variable */
+    $PAGE->navbar->add(get_string('pluginname', 'block_publishflow'));
+    $PAGE->navbar->add(get_string('closing', 'block_publishflow'));
+
     echo $OUTPUT->header();
+
 /// start triggering the remote deployment
 
     $strdoclose = get_string('doclose', 'block_publishflow');
-    $url = $CFG->wwwroot."/blocks/publishflow/close.php?what=close&amp;fromcourse={$course->id}";
-    echo $OUTPUT->box_start();
+
+    echo $OUTPUT->box_start('publishpanel');
 
     switch($step){
          case COURSE_CLOSE_CHOOSE_MODE:
@@ -75,4 +78,3 @@
     echo $OUTPUT->box_end();
 
     echo $OUTPUT->footer();
-?>

@@ -19,16 +19,25 @@
     $fromcourse = required_param('fromcourse', PARAM_INT);
     $action = required_param('what', PARAM_TEXT);
     $step = optional_param('step', COURSE_OPEN_CHOOSE_OPTIONS, PARAM_INT);
+    
+    $url = new moodle_url($CFG->wwwroot.'/blocks/publishflow/open.php', array('fromcourse' => $fromcourse, 'what' => $action, 'step' => $step));
+
 /// check we can do this
+
     $course = $DB->get_record('course', array('id' => "$fromcourse"));
+    $context = context_course::instance($course->id);
 
-    require_login($course);
+    require_course_login($course, false);
 
-    $PAGE->navigation->add(get_string('opening', 'block_publishflow'));
-    $PAGE->set_title(get_string('deployment', 'block_publishflow'));
-    $PAGE->set_heading(get_string('deployment', 'block_publishflow'));
-    /* SCANMSG: may be additional work required for $navigation variable */
+    $PAGE->set_url($url);
+    $PAGE->set_context($context);
+    $PAGE->set_title(get_string('opening', 'block_publishflow'));
+    $PAGE->set_heading(get_string('opening', 'block_publishflow'));
+    $PAGE->navbar->add(get_string('pluginname', 'block_publishflow'));
+    $PAGE->navbar->add(get_string('opening', 'block_publishflow'));
+
     echo $OUTPUT->header();
+
 /// get context objects
     // if ($CFG->debug)
     //    echo "[$action from $fromcourse]";
