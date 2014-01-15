@@ -121,7 +121,6 @@ $string['nofactory'] = 'Fabrique introuvable. Le système est mal configuré pou
 $string['normalmoodle'] = 'Moodle standard';
 $string['notification'] = 'Ouverture avec notification aux stagiaires';
 $string['notpublishedyet'] = 'Ce parcours n\'est pas encore publié.';
-$string['netupdate'] = 'Mise à jour des données du réseau';
 $string['open'] = 'Ouvrir le cours';
 $string['opening'] = 'Ouverture du cours';
 $string['opennotifyhelper'] = 'Dans ce mode, vous rendez le cours disponible aux stagiares et émettez un avis d\'ouverture à tous les utilisateurs enregistrés dans la session.';

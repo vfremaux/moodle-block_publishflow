@@ -260,7 +260,7 @@ function publishflow_backup_generate_preferences($course) {
 */
 function publishflow_backup_check_mods(&$course, $backupprefs){
 	global $CFG,$DB;
-	
+
     if ($allmods = $DB->get_records('modules') ) {
         foreach ($allmods as $mod) {
             $modname = $mod->name;
@@ -1116,4 +1116,3 @@ function automate_network_refreshment()
     }
 }
 
-?>

@@ -69,4 +69,3 @@ if (!function_exists('get_mail_template')){
         return array();
     }
 }
-?>

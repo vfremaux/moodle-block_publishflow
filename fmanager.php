@@ -13,12 +13,9 @@
     
   
   $course_id = required_param('id',PARAM_INT);
-  DebugBreak();
   
-  
-  if(!$course = $DB->get_record('course',array('id'=>$course_id)))
-  {
-      print_error("invalid course");
+  if(!$course = $DB->get_record('course', array('id'=>$course_id))){
+      print_error('invalid course');
   }
   
   $full = "Course backup - ".$course->fullname;
@@ -37,8 +34,4 @@
 
   print $OUTPUT->header();
   
-
-
   print $OUTPUT->footer();
-  
-?>

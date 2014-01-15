@@ -53,7 +53,7 @@ class block_publishflow extends block_base {
     }
 
     function applicable_formats() {
-        return array('course' => true, 'site' => false, 'all' => false);
+        return array('course' => true, 'site' => false, 'all' => false, 'my' => false);
     }
 
     function specialization() {
