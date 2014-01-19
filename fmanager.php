@@ -15,7 +15,7 @@
   $course_id = required_param('id',PARAM_INT);
   
   if(!$course = $DB->get_record('course', array('id'=>$course_id))){
-      print_error('invalid course');
+      print_error('coursemisconf');
   }
   
   $full = "Course backup - ".$course->fullname;
