@@ -27,10 +27,10 @@ global $CFG;
  
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2013112400;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->version   = 2014031900;        // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2011112900;        // Requires this Moodle version
 $plugin->component = 'block_publishflow'; // Full name of the plugin (used for diagnostics)
 $plugin->maturity = MATURITY_BETA; 
 $plugin->cron = ((empty($CFG->networkrefreshautomation))?0:$CFG->networkrefreshautomation); 
-$plugin->release = '2.4.0 (Build 2013112400)';
+$plugin->release = '2.4.0 (Build 2014031900)';
 

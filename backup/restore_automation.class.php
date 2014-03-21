@@ -87,6 +87,7 @@ class restore_automation {
         }
         
         //create the base course.
+        $data = new StdClass();
         $data->fullname = "Course restore in progress...";
         $data->shortname= "course_shortname".(rand(0,293736));
         $data->category = $course_category_id;    

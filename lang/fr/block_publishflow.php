@@ -1,7 +1,8 @@
 <?php
 
+// Capabilities
 $string['publishflow:managepublishedfiles'] = 'Peut gérer les archives de publication';
-$string['publishflow:addinstance'] = 'Ajouter le bloc Publication au cours';
+$string['publishflow:addinstance'] = 'Ajouter un bloc de "Publication de cours"';
 $string['publishflow:deploy'] = 'Déployer un cours sur un satellite de formation';
 $string['publishflow:deployeverywhere'] = 'Déployer un cours partout';
 $string['publishflow:manage'] = 'Gérer la session de formation et la disponibilité de l\'espace';
@@ -121,7 +122,6 @@ $string['nofactory'] = 'Fabrique introuvable. Le système est mal configuré pou
 $string['normalmoodle'] = 'Moodle standard';
 $string['notification'] = 'Ouverture avec notification aux stagiaires';
 $string['notpublishedyet'] = 'Ce parcours n\'est pas encore publié.';
-$string['netupdate'] = 'Mise à jour des données du réseau';
 $string['open'] = 'Ouvrir le cours';
 $string['opening'] = 'Ouverture du cours';
 $string['opennotifyhelper'] = 'Dans ce mode, vous rendez le cours disponible aux stagiares et émettez un avis d\'ouverture à tous les utilisateurs enregistrés dans la session.';
@@ -152,7 +152,7 @@ $string['retrofeedname'] = 'Réalimenation de la fabrique';
 $string['retrofit'] = 'Réalimenter dans la fabrique';
 $string['retrofitsuccess'] = 'Réalimentation terminée.';
 $string['retrofitting'] = 'Réalimentation :';
-$string['runningcategory'] = 'Catgorie des formations actives';
+$string['runningcategory'] = 'Catégorie des formations actives';
 $string['runningcategory_desc'] = 'Catégorie des formations ouvertes.';
 $string['sessionopening'] = 'Ouverture de session : ';
 $string['single_full'] = 'Synchroniser les types de plates-formes du réseau et les catégories';
