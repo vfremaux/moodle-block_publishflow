@@ -61,15 +61,6 @@
 			print_error('badkey', 'block_publishflow', $CFG->wwwroot."/course/view.php?id=$fromcourse");
 		}
 	}
-
-    $navigation = array(
-	    array(
-	        'title' => get_string('deploying', 'block_publishflow'), 
-	        'name' => get_string('deploying', 'block_publishflow'), 
-	        'url' => NULL, 
-	        'type' => 'course'
-	    )
-    );
    
     $mnethost = $DB->get_record('mnet_host', array('id' => $where));
 
@@ -115,16 +106,14 @@
 		$mnet_host = new mnet_peer();
 		$mnet_host->set_wwwroot($mnethost->wwwroot);
 		if (!$rpcclient->send($mnet_host)){
-			if ($CFG->debug | DEBUG_DEVELOPER){
-			    print_object($rpcclient);
-			}
-		    print_error('failed', 'block_publishflow');        
+	    	$debugout = ($CFG->debug | DEBUG_DEVELOPER) ? var_export($rpcclient) : '' ;
+	        print_error('failed', 'block_publishflow', $CFG->wwwroot.'/course/view.php?id='.$fromcourse, '', $debugout);
 		}
 	
 		$response = json_decode($rpcclient->response);
 	
 		// print_object($response);
-		echo $OUPUT->box_start('plublishpanel');
+		echo $OUTPUT->box_start('plublishpanel');
 		echo '<center>';
 		if ($response->status == 200){
 		    $remotecourseid = $response->courseid;
@@ -141,6 +130,6 @@
 		}
 		echo " <a href=\"/course/view.php?id={$course->id}\">".get_string('backtocourse', 'block_publishflow').'</a>';
 		echo '</center>';
-		echo $OUPUT->box_end();
+		echo $OUTPUT->box_end();
 	}
     echo $OUTPUT->footer();

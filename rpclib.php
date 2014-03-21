@@ -508,7 +508,7 @@ function publishflow_updateplatforms($callinguser, $platformroot){
     global $CFG,$DB;
 
     $nodetype = $CFG->moodlenodetype;
-    $records = $DB->get_records('course_categories', array('visible' => '1'), '', 'name,id,parent');
+    $records = $DB->get_records('course_categories', array('visible' => '1'), '', 'name,id,parent,sortorder');
     
     $response = new stdclass;
     if($nodetype == ''){
@@ -524,12 +524,12 @@ function publishflow_updateplatforms($callinguser, $platformroot){
         $response->node = $CFG->moodlenodetype;
 
         foreach($records as $record){
-            $values = array('id' => $record->id, 'name' => $record->name, 'parentid' => $record->parent);
+            $values = array('id' => $record->id, 'name' => $record->name, 'parentid' => $record->parent, 'sortorder' => $record->sortorder);
             $response->content[] = $values;
         }
     }
 
-    debug_trace(json_encode($response));
+    // debug_trace(json_encode($response));
 
     return json_encode($response);
 }
@@ -964,14 +964,20 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
     if (!empty($CFG->coursedelivery_defaultrole)){
         $coursecontext = context_course::instance($response->courseid);
         
-       // role_assign($CFG->coursedelivery_defaultrole, $USER->id, $coursecontext->id);
-       $manager = new course_enrolment_manager($PAGE,$new_course);
-       $instances = $manager->get_enrolment_instances();
-       $instance = array_pop($instances);
-       $plugins = $manager->get_enrolment_plugins();
-       $plugin = $plugins['manual'] ;
-       $plugin->enrol_user($instance, $USER->id, $CFG->coursedelivery_defaultrole);
+		// role_assign($CFG->coursedelivery_defaultrole, $USER->id, $coursecontext->id);
+		/*
+		$manager = new course_enrolment_manager($PAGE, $new_course);
+		$instances = $manager->get_enrolment_instances();
+		$instance = array_pop($instances);
+		$plugins = $manager->get_enrolment_plugins();
+		$plugin = $plugins['manual'] ;
+		*/
+		$enrolplugin = enrol_get_plugin('manual');
 
+	    if ($enrols = $DB->get_records('enrol', array('enrol' => 'manual', 'courseid' => $newcourse_id, 'status' => ENROL_INSTANCE_ENABLED), 'sortorder ASC')) {
+	    	$enrol = reset($enrols);
+       		$enrolplugin->enrol_user($enrol, $USER->id, $CFG->coursedelivery_defaultrole);
+	    }
     }
 
     // give back the information for jumping

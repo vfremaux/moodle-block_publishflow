@@ -73,4 +73,3 @@
             break;
     }
     echo $OUTPUT->footer();
-?>

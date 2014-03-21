@@ -57,9 +57,8 @@ class block_publishflow extends block_base {
     }
 
     function specialization() {
-    	if (!empty($this->config)){
-	    	$this->config_save($this->config);
-	    }
+    	$unused = 0;
+    	$this->config_save($unused);
     }
 
     function has_config() {
@@ -74,6 +73,17 @@ class block_publishflow extends block_base {
         return true;
     }
 
+    function config_save($data) {
+    	global $DB, $CFG;
+
+    	// transfer the automationrefresh value to the cron attribute of the block
+    	
+    	$blockrec = $DB->get_record('block', array('name' => 'publishflow'));
+    	$blockrec->cron = 0 + @$CFG->coursedelivery_networkrefreshautomation;
+    	$DB->update_record('block', $blockrec);
+    	
+    }
+
     // Apart from the constructor, there is only ONE function you HAVE to define, get_content().
     // Let's take a walkthrough! :)
 
@@ -85,7 +95,7 @@ class block_publishflow extends block_base {
         include_once $CFG->dirroot.'/blocks/publishflow/lib.php';
         
         $output = '';
-		//require_once($CFG->libdir.'/pear/HTML/AJAX/JSON.php');
+
         $context_course = context_course::instance($COURSE->id);
 
         if($this->content !== NULL) {
@@ -164,8 +174,31 @@ class block_publishflow extends block_base {
     function cron(){
         global $CFG;
 
+		mtrace("\nStarting renewing remote catalogs");
         include_once $CFG->dirroot."/mnet/xmlrpc/client.php";
         include_once $CFG->dirroot.'/blocks/publishflow/lib.php';  
         automate_network_refreshment();        
+		mtrace("Finishing renewing remote catalogs");
     }
+
+	static function check_jquery(){
+		global $CFG, $PAGE, $OUTPUT;
+		
+		if ($CFG->version >= 2013051400) return; // Moodle 2.5 natively loads JQuery
+
+		$current = '1.8.2';
+		
+		if (empty($OUTPUT->jqueryversion)){
+			$OUTPUT->jqueryversion = '1.8.2';
+			$PAGE->requires->js('/blocks/publishflow/js/jquery-'.$current.'.min.js', true);
+		} else {
+			if ($OUTPUT->jqueryversion < $current){
+				debugging('the previously loaded version of jquery is lower than required. This may cause issues to publishflow. Programmers might consider upgrading JQuery version in the component that preloads JQuery library.', DEBUG_DEVELOPER, array('notrace'));
+			}
+		}
+    	$PAGE->requires->js('/blocks/publishflow/js/block_js.js', true);
+		
+	}
 }
+
+block_publishflow::check_jquery();

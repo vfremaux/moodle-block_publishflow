@@ -75,10 +75,8 @@
     $mnet_host = new mnet_peer();
     $mnet_host->set_wwwroot($mnethost->wwwroot);
     if (!$rpcclient->send($mnet_host)){
-    	if ($CFG->debug | DEBUG_DEVELOPER)){
-	        print_object($rpcclient);
-	    }
-        print_error('failed', 'block_publishflow');        
+    	$debugout = ($CFG->debug | DEBUG_DEVELOPER) ? var_export($rpcclient) : '' ;
+        print_error('failed', 'block_publishflow', $CFG->wwwroot.'/course/view.php?id='.$fromcourse, '', $debugout);
     }
 
     $response = json_decode($rpcclient->response);

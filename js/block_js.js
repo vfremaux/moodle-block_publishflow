@@ -1,3 +1,4 @@
+
 function doStuff(hosts, wwwroot){
 
 	if(hosts == 0){ //required to autopopulate the first list.
@@ -6,48 +7,24 @@ function doStuff(hosts, wwwroot){
 		var platformid = hosts.options[hosts.selectedIndex].value;
 	}
 	
-	var params = "platformid="+platformid;
-	var url = wwwroot+'/blocks/publishflow/ajax/categorybuilder.php?'+params;	
+	var urlbase = wwwroot+'/blocks/publishflow/ajax/categorybuilder.php';	
 
-	var responseSuccess = function(o){
-		var response = o.responseText;
-		var list = document.getElementById('category-div');	
-		var jsonBuff = o.responseText.substring(o.responseText.indexOf('{'));
-	
-		if (jsonBuff == ''){
-		    var response = new Object();
-		    response.success == false;
-		    response.data = new Object();
-		    response.data.text = 'Server response error'; 
-		} else {
-		    var catArray = JSON.parse(response,null);
-		}
+	$.post(
+		urlbase, 
+		{
+			platformid: platformid,
+		},
+		function(data, status) {
 		
-		var html = '<select  name="category"  size="1">';
-		for (i = 0; i < catArray.length; i++) {
-		    html = html+'<option value='+catArray[i].id+'>'+catArray[i].name+'</option>';
+		    var catArray = JSON.parse(data,null);
+			
+			var html = '<select  name="category"  size="1">';
+			for (i = 0; i < catArray.length; i++) {
+			    html = html+'<option value='+catArray[i].orid+'>'+catArray[i].name+'</option>';
+			}
+			html = html+'</select>';
+			$('#category-div').html(html);
 		}
-		html = html+'</select>';
-		list.innerHTML = html;
-	};
-	
-	var responseFailure = function(o){
-	alert('FAIL');
-	};
-	
-	var AjaxObject = {	
-	  processResult:function(o){},
-	
-	  startRequest:function(){    	    
-	      YAHOO.util.Connect.asyncRequest('GET', url, callback, params);
-	  }
-	};
-	
-	var callback = {
-		success:responseSuccess,
-		failure:responseFailure,
-		scope: AjaxObject
-	};
-		
-	AjaxObject.startRequest();
+	);
+
 }

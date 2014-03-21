@@ -317,6 +317,10 @@ function publishflow_local_deploy($category, $sourcecourse){
 
     include_once $CFG->dirroot.'/backup/restorelib.php';
     include_once $CFG->dirroot.'/backup/lib.php';
+    
+    if (!$category){
+    	$category = $CFG->coursedelivery_deploycategory;
+    }
 
     $deploycat = $DB->get_record('course_categories', array('id' => $category));
     
@@ -329,6 +333,15 @@ function publishflow_local_deploy($category, $sourcecourse){
         print_error('errornotpublished', 'block_publishflow');
     }
 
+	$origtime = ini_get('max_execution_time');
+	$origmem = ini_get('memory_limit');
+	
+	$maxtime = '240';
+	$maxmem = '512M';
+
+    ini_set('max_execution_time', $maxtime);
+    ini_set('memory_limit', $maxmem);
+    // confirm/force guest closure
     
     $file = array_pop ($backupfiles);
     $newcourse_id =  restore_automation::run_automated_restore($file->get_id(),null,$category) ;
@@ -377,13 +390,14 @@ function publishflow_local_deploy($category, $sourcecourse){
 
     import_backup_file_silently($realpath, $course_header->course_id, true, false, array('restore_course_files' => 1));
     */
+
+    ini_set('max_execution_time', $origtime);
+    ini_set('memory_limit', $origmem);
+
     // confirm/force idnumber in new course
+    $response = new StdClass();
     $response->courseid = $newcourse_id;
     $DB->set_field('course', 'idnumber', $sourcecourse->idnumber, array('id' => "{$newcourse_id}"));
-
-    ini_set('max_execution_time', $maxtime);
-    ini_set('memory_limit', $maxmem);
-    // confirm/force guest closure
 
     //$DB->set_field('course', 'guest', 0, array('id' => "{$newcourse_id}"));
 
@@ -422,15 +436,15 @@ function publishflow_get_remote_categories($hostid, &$cats, $parent = 0, $maxdep
 			return;
 		}
 	}
-   	if ($catmenu = $DB->get_records_select('block_publishflow_remotecat', " parentid = $parent AND platformid = $hostid ")){
+   	if ($catmenu = $DB->get_records_select('block_publishflow_remotecat', " parentid = ? AND platformid = ? ", array($parent, $hostid), 'sortorder')){
 		foreach($catmenu as $cat){
 		
         	$catentry = new stdClass();
-			$catentry->id = $cat->originalid;
+			$catentry->orid = $cat->originalid;
 			$catentry->name = str_repeat("&nbsp;", $depth).$cat->name;			
 			$cats[] = $catentry;
 			$depth++;
-			publishflow_get_remote_categories($hostid, $cats, $catentry->id, $maxdepth);
+			publishflow_get_remote_categories($hostid, $cats, $catentry->orid, $maxdepth);
 			$depth--;
 		}
 	}
@@ -1056,8 +1070,8 @@ function block_build_trainingcenter_menu($block){
 }
 
 
-function automate_network_refreshment()
-{    global $DB,$CFG,$USER;
+function automate_network_refreshment(){
+    global $DB, $CFG, $USER;
     
      $hosts = $DB->get_records('mnet_host', array('deleted' => 0));
   
@@ -1103,7 +1117,7 @@ function automate_network_refreshment()
                     foreach($response->content as $entry){
                         //If it's a new record, we have to create it
                         if(!$DB->get_record('block_publishflow_remotecat', array('originalid' => $entry->id, 'platformid' => $host->id))){
-                              $fullentry = array('platformid' => $host->id,'originalid' => $entry->id, 'parentid' => $entry->parentid, 'name' => addslashes($entry->name));
+                              $fullentry = array('platformid' => $host->id,'originalid' => $entry->id, 'parentid' => $entry->parentid, 'name' => $entry->name, 'sortorder' => $entry->sortorder);
                               $DB->insert_record('block_publishflow_remotecat', $fullentry);
                         }
                     }

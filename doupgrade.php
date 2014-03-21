@@ -91,7 +91,7 @@
 					foreach($response->content as $entry){
 						//If it's a new record, we have to create it
 						if(!$DB->get_record('block_publishflow_remotecat', array('originalid' => $entry->id, 'platformid' => $host->id))){
-						  	$fullentry = array('platformid' => $host->id,'originalid' => $entry->id, 'parentid' => $entry->parentid, 'name' => addslashes($entry->name));
+						  	$fullentry = array('platformid' => $host->id,'originalid' => $entry->id, 'parentid' => $entry->parentid, 'name' => $entry->name, 'sortorder' => $entry->sortorder);
 						  	$DB->insert_record('block_publishflow_remotecat', $fullentry);
 						}
 					}

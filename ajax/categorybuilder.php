@@ -17,31 +17,12 @@
 	//This means we are in "local" mode, so we need to check the right table
 	
     if ($platformid == 0){
+    	
+    	$catresults = array();
       
 	  	$catmenu = $DB->get_records('course_categories', array('parent' => 0), 'id', 'id,name');	
 	   	foreach($catmenu as $cat){
-			$catentry = new stdClass;
-			$catentry->orid = $cat->id;
-			$catentry->name = $cat->name;
-			$catresults[] = $catentry;
-			// If the node isn't a leaf, we go deeper.
-			if ($subcats = $DB->get_records('course_categories', array('parent' => $cat->id), 'id', 'id,name')){
-			    foreach($subcats as $sub){
-				  	$catentry = new stdClass;
-				  	$catentry->orid = $sub->id;
-				  	$catentry->name = '- - '.$sub->name;
-				  	$catresults[] = $catentry;
-					// We won't go any deeper, as each level increases the select width
-				  	if ($subcats2 = $DB->get_records('course_categories', array('parent' => $sub->id), 'id', 'id,name')){
-				    	foreach($subcats2 as $sub){
-						  	$catentry = new stdClass;
-						  	$catentry->orid = $sub->id;
-						  	$catentry->name = '- - - - '.$sub->name;
-						  	$catresults[] = $catentry;
-				    	}				
-					}
-			    }		
-			}
+	    	add_local_category_results($catresults, $cat);
 		}
 	} else {
 		// get local image of remote known categories		
@@ -53,4 +34,22 @@
 
 	echo(json_encode($catresults));
 
-?>
+	function add_local_category_results(& $catresults, $cat){
+		global $DB;
+		
+		static $indent = ''; 
+	
+		$catentry = new stdClass;
+		$catentry->orid = $cat->id;
+		$catentry->name = $indent.$cat->name;
+		$catresults[] = $catentry;
+		// If the node isn't a leaf, we go deeper.
+		if ($subcats = $DB->get_records('course_categories', array('parent' => $cat->id), 'sortorder', 'id,name')){
+		    foreach($subcats as $sub){
+		    	$indent = $indent.'- ';
+		    	add_local_category_results($catresults, $sub);
+		    	$indent = preg_replace('/$- /', '', $indent);
+		    }
+		}
+	}
+

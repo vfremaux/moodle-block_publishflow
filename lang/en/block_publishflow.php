@@ -1,7 +1,8 @@
 <?php
 
-$string['publishflow:managepublishedfiles'] = 'Can manage published archives';
-$string['publishflow:addinstance'] = 'Add the Publication block to the course';
+// Capabilities
+$string['publishflow:managepublishedfiles'] = 'Manage published archives';
+$string['publishflow:addinstance'] = 'Add a "Publishflow" block';
 $string['publishflow:deploy'] = 'Deploy a course onto a training node';
 $string['publishflow:deployeverywhere'] = 'Deploy everywhere';
 $string['publishflow:manage'] = 'Manage the training session';
