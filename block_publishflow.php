@@ -1,4 +1,4 @@
-<?php //$Id: block_publishflow.php,v 1.1.1.1 2013-02-13 08:42:03 mo2dlemaster Exp $
+<?php 
 
 /**
 * Controls publication/deployment of courses in a 
