@@ -33,8 +33,8 @@ $settings->add(new admin_setting_configselect('coursedelivery_publicsessions', g
 
 $courses = $DB->get_records_menu('course', null, 'shortname', 'id,shortname');
 
-$settings->add(new admin_setting_configselect('coursedelivery_coursefordelivery', get_string('coursefordelivery','block_publishflow'),
-		    get_string('coursefordelivery_desc','block_publishflow'),'',$courses));
+// $settings->add(new admin_setting_configselect('coursedelivery_coursefordelivery', get_string('coursefordelivery','block_publishflow'),
+// 		    get_string('coursefordelivery_desc','block_publishflow'),'',$courses));
 
 $categoriesoptions = $DB->get_records_menu('course_categories', null, '', 'id, name');
 $categoriesoptions[0] = get_string('leavehere', 'block_publishflow');

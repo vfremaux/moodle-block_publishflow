@@ -751,12 +751,14 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
         return publishflow_send_response($auth_response, $json_response, true);
     }
 
+	/*
     if (!isset($CFG->coursedelivery_coursefordelivery) || !$course = $DB->get_record('course', array('id' => $CFG->coursedelivery_coursefordelivery))){
         $response->status = RPC_FAILURE_CONFIG;
         $response->errors[] = "Target configuration seems to be undone.";
         $response->error = "Target configuration seems to be undone.";
         return publishflow_send_response($response, $json_response);
     }
+    */
 
     // first bump up server execution characteristics
     $maxtime = ini_get('max_execution_time');
@@ -1052,12 +1054,15 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                 $DB->set_field('course', 'visible', 0, array('idnumber' => $sourcecourse->idnumber)); 
             }
 
+			/**
             if (!isset($CFG->coursedelivery_coursefordelivery) || !$course = $DB->get_record('course', array('id' => $CFG->coursedelivery_coursefordelivery))){
                 $response->status = RPC_FAILURE_CONFIG;
                 $response->errors[] = "Target configuration seems being empty.";
                 $response->error = "Target configuration seems being empty.";
                 return publishflow_send_response($response, $json_response);
             }
+            */
+
             // first bump up server execution characteristics
             $maxtime = ini_get('max_execution_time');
             $maxmem = ini_get('memory_limit');
@@ -1065,7 +1070,7 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
             ini_set('memory_limit', '150M');
 
             // Check the local availability of the archive
-            $realpath = '';//$CFG->dataroot.'/'.$CFG->coursedelivery_coursefordelivery.'/'.$sourcecourse->idnumber.'.zip';
+            $realpath = ''; //$CFG->dataroot.'/'.$CFG->coursedelivery_coursefordelivery.'/'.$sourcecourse->idnumber.'.zip';
             // If we force replace with a new one, delete old local archive.
             if ($forcereplace){
                 unlink($realpath);
