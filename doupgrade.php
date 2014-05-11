@@ -32,7 +32,7 @@
     $navlinks[] = array('name' => $full, 'link' => "$CFG->wwwroot", 'type' => 'misc');
     $navigation = build_navigation($navlinks);
 
-    $system_context = get_context_instance(CONTEXT_SYSTEM);
+    $system_context = context_system::instance();
     $PAGE->set_context($system_context); 
     $PAGE->set_title($full);
     

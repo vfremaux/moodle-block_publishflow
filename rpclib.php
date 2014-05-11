@@ -231,7 +231,7 @@ function publishflow_rpc_course_exists($callinguser, $idfield, $courseidentifier
             $extresponse->status = RPC_FAILURE_RECORD;
             $extresponse->errors[] = 'Unkown course.';
             $extresponse->error = 'Unkown course.';
-            debug_trace("Unkown course based on $idfield with $courseidentifier ");
+            // debug_trace("Unkown course based on $idfield with $courseidentifier ");
             publishflow_send_response($extresponse, $json_response);
         }
         $extresponse->status = RPC_SUCCESS;
@@ -300,7 +300,7 @@ function publishflow_rpc_course_exists($callinguser, $idfield, $courseidentifier
 }
 
 function publishflow_rpc_course_exists_wrapped($wrap){
-    debug_trace("WRAP : ".json_encode($wrap));    
+    // debug_trace("WRAP : ".json_encode($wrap));    
     return publishflow_rpc_course_exists(@$wrap['callinguser'], @$wrap['idfield'], @$wrap['courseidentifier'], @$wrap['whereroot'], @$wrap['json_response']);
 }
 
@@ -334,7 +334,7 @@ function publishflow_rpc_open_course($callinguser, $idfield, $courseidentifier, 
             $extresponse->status = RPC_FAILURE_RECORD;
             $extresponse->errors[] = 'Unkown course.';
             $extresponse->error = 'Unkown course.';
-            debug_trace("Unkown course based on $idfield with $courseidentifier ");
+            // debug_trace("Unkown course based on $idfield with $courseidentifier ");
             publishflow_send_response($extresponse, $json_response);
         }
         publishflow_session_open($course, $mode); // mode stands for notify signal
@@ -395,7 +395,7 @@ function publishflow_rpc_open_course($callinguser, $idfield, $courseidentifier, 
 }
 
 function publishflow_rpc_open_course_wrapped($wrap){
-    debug_trace("WRAP : ".json_encode($wrap));    
+    // debug_trace("WRAP : ".json_encode($wrap));    
     return publishflow_rpc_open_course(@$wrap['callinguser'], @$wrap['idfield'], @$wrap['courseidentifier'], @$wrap['whereroot'], @$wrap['mode'], @$wrap['json_response']);
 }
 
@@ -405,6 +405,7 @@ function publishflow_rpc_open_course_wrapped($wrap){
 */
 function publishflow_rpc_close_course($callinguser, $idfield, $courseidentifier, $whereroot, $mode, $json_response = true){
     global $CFG,$DB;
+    
     $extresponse->status = RPC_SUCCESS;
     $extresponse->errors = array();
     $extresponse->error = '';
@@ -428,7 +429,7 @@ function publishflow_rpc_close_course($callinguser, $idfield, $courseidentifier,
             $extresponse->status = RPC_FAILURE_RECORD;
             $extresponse->errors[] = 'Unkown course.';
             $extresponse->error = 'Unkown course.';
-            debug_trace("Unkown course based on $idfield with $courseidentifier ");
+            // debug_trace("Unkown course based on $idfield with $courseidentifier ");
             publishflow_send_response($extresponse, $json_response);
         }
         if ($err = publishflow_course_close($course, $mode, true)){
@@ -490,7 +491,7 @@ function publishflow_rpc_close_course($callinguser, $idfield, $courseidentifier,
 }
 
 function publishflow_rpc_close_course_wrapped($wrap){
-    debug_trace("WRAP : ".json_encode($wrap));    
+    // debug_trace("WRAP : ".json_encode($wrap));    
     return publishflow_rpc_close_course(@$wrap['callinguser'], @$wrap['idfield'], @$wrap['courseidentifier'], @$wrap['whereroot'], @$wrap['mode'], @$wrap['json_response']);
 }
 
@@ -633,14 +634,14 @@ function delivery_deliver($callinguser, $lp_catalogcourseid, $transferoffset = 0
     $response->status = RPC_SUCCESS;
     $response->errors = array();
     $response->error = '';
-    debug_trace('DELIVER : Start');
+    // debug_trace('DELIVER : Start');
 
     // Check username and origin of the query    
     if ($auth_response = publishflow_rpc_check_user((array)$callinguser)){
         return publishflow_send_response($auth_response, $json_response, true);
     }
 
-    debug_trace('DELIVER : Passed auth');
+    // debug_trace('DELIVER : Passed auth');
 
     // Check availability of the course
     if (!$course = $DB->get_record('course', array('id' => $lp_catalogcourseid))){
@@ -655,7 +656,7 @@ function delivery_deliver($callinguser, $lp_catalogcourseid, $transferoffset = 0
    
     if (!empty($loopback)) return publishflow_send_response($loopback, $json_response);
 
-    debug_trace('DELIVER : Post loopback');
+    // debug_trace('DELIVER : Post loopback');
 
     if (empty($file)){
         $response->status = RPC_FAILURE;
@@ -710,7 +711,7 @@ function delivery_check_available_backup($courseid, &$loopback = null){
     global $CFG,$DB;
   
     $fs = get_file_storage();
-    $coursecontext = get_context_instance(CONTEXT_COURSE,$courseid);
+    $coursecontext = context_course::instance($courseid);
     $files = $fs->get_area_files($coursecontext->id,'backup', 'publishflow', 0, 'timecreated', false);
     
     if(count($files)>0)
@@ -738,7 +739,7 @@ function delivery_check_available_backup($courseid, &$loopback = null){
 function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parmsoverride = null, $json_response = true){
     global $CFG, $USER,$DB,$PAGE;
 
-    debug_trace('DEPLOY : Start');
+    // debug_trace('DEPLOY : Start');
  
     $response->status = RPC_SUCCESS;
     $response->errors = array();
@@ -751,12 +752,14 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
         return publishflow_send_response($auth_response, $json_response, true);
     }
 
+	/*
     if (!isset($CFG->coursedelivery_coursefordelivery) || !$course = $DB->get_record('course', array('id' => $CFG->coursedelivery_coursefordelivery))){
         $response->status = RPC_FAILURE_CONFIG;
         $response->errors[] = "Target configuration seems to be undone.";
         $response->error = "Target configuration seems to be undone.";
         return publishflow_send_response($response, $json_response);
     }
+	*/
 
     // first bump up server execution characteristics
     $maxtime = ini_get('max_execution_time');
@@ -779,7 +782,7 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
 
 
         // We de not have a package at remote side
-        debug_trace('DEPLOY : Up to fetch a course back');
+        // debug_trace('DEPLOY : Up to fetch a course back');
         $mnet_host = new mnet_peer();
         $mnet_host->set_wwwroot($callinguser['remotehostroot']);
 
@@ -817,7 +820,7 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
                 }
                 $backresponse = json_decode($rpcclient->response);
                 // Local test point. Stops after first chunk is transferred
-                debug_trace('DEPLOY : XML-RPC backcall succeeded');
+                // debug_trace('DEPLOY : XML-RPC backcall succeeded');
                 /// Processing XML-RPC response
                 // XML-RPC worked well, and answers with remote test status
                 if ($backresponse->status == RPC_TEST){
@@ -890,7 +893,7 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
             }
             $backresponse = json_decode($rpcclient->response);
             // Local test point
-            debug_trace('DEPLOY : XML-RPC backcall succeeded for local delivery ');
+            // debug_trace('DEPLOY : XML-RPC backcall succeeded for local delivery ');
             /// Processing XML-RPC response
             // XML-RPC worked well, but remote procedure may fail
             if ($backresponse->status == RPC_SUCCESS){
@@ -931,7 +934,7 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
         }
     }
     // Restores a new course silently, giving sufficient parameters and force category
-    debug_trace('DEPLOY : Starting deployment process');
+    // debug_trace('DEPLOY : Starting deployment process');
 
     if (empty($parmsoverride['category'])){    
         $deploycat = $DB->get_record('course_categories', array('id' => @$CFG->coursedelivery_deploycategory));
@@ -1052,12 +1055,15 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                 $DB->set_field('course', 'visible', 0, array('idnumber' => $sourcecourse->idnumber)); 
             }
 
+			/**
             if (!isset($CFG->coursedelivery_coursefordelivery) || !$course = $DB->get_record('course', array('id' => $CFG->coursedelivery_coursefordelivery))){
                 $response->status = RPC_FAILURE_CONFIG;
                 $response->errors[] = "Target configuration seems being empty.";
                 $response->error = "Target configuration seems being empty.";
                 return publishflow_send_response($response, $json_response);
             }
+            */
+
             // first bump up server execution characteristics
             $maxtime = ini_get('max_execution_time');
             $maxmem = ini_get('memory_limit');
@@ -1065,7 +1071,7 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
             ini_set('memory_limit', '150M');
 
             // Check the local availability of the archive
-            $realpath = '';//$CFG->dataroot.'/'.$CFG->coursedelivery_coursefordelivery.'/'.$sourcecourse->idnumber.'.zip';
+            $realpath = ''; //$CFG->dataroot.'/'.$CFG->coursedelivery_coursefordelivery.'/'.$sourcecourse->idnumber.'.zip';
             // If we force replace with a new one, delete old local archive.
             if ($forcereplace){
                 unlink($realpath);

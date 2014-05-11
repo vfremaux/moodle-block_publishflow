@@ -325,7 +325,7 @@ function publishflow_local_deploy($category, $sourcecourse){
     $deploycat = $DB->get_record('course_categories', array('id' => $category));
     
     //lets get the publishflow published file. 
-    $coursecontextid = get_context_instance(CONTEXT_COURSE,$sourcecourse->id)->id;
+    $coursecontextid = context_course::instance($sourcecourse->id)->id;
     $fs = get_file_storage();
     $backupfiles = $fs->get_area_files($coursecontextid,'backup', 'publishflow', 0, 'timecreated', false);
     
@@ -671,7 +671,7 @@ function block_build_factory_menu($block){
 
 	$output = '';
 	$context_course = context_course::instance($COURSE->id);
-	$context_system = get_context_instance(CONTEXT_SYSTEM);
+	$context_system = context_system::instance();
               
 	//We are going to define where the catalog is. There can only be one catalog in the neighbourhood.
 	if(@$CFG->moodlenodetype == 'factory,catalog'){
@@ -884,7 +884,7 @@ function block_build_catalogandfactory_menu($block){
 	// first check we have backup
               
     $context_course = context_course::instance($COURSE->id);
-    $context_system = get_context_instance(CONTEXT_SYSTEM);
+    $context_system = context_system::instance();
   
     $output = '';                    
     $realpath = delivery_check_available_backup($COURSE->id);
@@ -993,7 +993,7 @@ function block_build_trainingcenter_menu($block){
 
     // students usually do not see this block
     $context_course = context_course::instance($COURSE->id);
-    $context_system = get_context_instance(CONTEXT_SYSTEM);
+    $context_system = context_system::instance();
     $output = '';
     if (!has_capability('block/publishflow:retrofit', $context_course) && !has_capability('block/publishflow:manage', $context_course) && !block_publishflow_extra_retrofit_check()){
        // $this->content->footer = '';

@@ -107,7 +107,7 @@ class block_publishflow extends block_base {
         // Making bloc content
         $filemanagerlink = $CFG->wwwroot."/blocks/publishflow/pffilesedit.php?id=".$COURSE->id;
         
-        $systemcontext = get_context_instance(CONTEXT_SYSTEM);  
+        $systemcontext = context_system::instance();  
         
         $footeroutput = '';
         if(has_capability('block/publishflow:managepublishedfiles',$systemcontext)){  

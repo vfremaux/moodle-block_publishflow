@@ -30,7 +30,7 @@
 
     require_login($course);
             
-    $system_context = get_context_instance(CONTEXT_COURSE,$fromcourse);
+    $system_context = context_course::instance($fromcourse);
     $PAGE->set_context($system_context); 
     $PAGE->set_button('');
     $PAGE->set_url('/blocks/publishflow/deploy.php',array('id' => $id,'fromcourse' => $fromcourse,'where' => $where,'what' => $action,'category' => $category, 'force' => $forcecache,'deplykey' => $deploykey));

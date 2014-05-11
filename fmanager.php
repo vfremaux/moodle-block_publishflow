@@ -14,13 +14,13 @@
   
   $course_id = required_param('id',PARAM_INT);
   
-  if(!$course = $DB->get_record('course', array('id'=>$course_id))){
+  if(!$course = $DB->get_record('course', array('id' => $course_id))){
       print_error('coursemisconf');
   }
   
   $full = "Course backup - ".$course->fullname;
   
-  $system_context = get_context_instance(CONTEXT_COURSE,$course_id);
+  $system_context = context_course::instance($course_id);
   $PAGE->set_context($system_context); 
   $PAGE->set_title($full);
 
