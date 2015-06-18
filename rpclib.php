@@ -404,8 +404,8 @@ function publishflow_rpc_open_course_wrapped($wrap){
 *
 */
 function publishflow_rpc_close_course($callinguser, $idfield, $courseidentifier, $whereroot, $mode, $json_response = true){
-    global $CFG,$DB;
-    
+    global $CFG, $DB;
+
     $extresponse->status = RPC_SUCCESS;
     $extresponse->errors = array();
     $extresponse->error = '';
@@ -509,7 +509,7 @@ function publishflow_updateplatforms($callinguser, $platformroot){
     global $CFG,$DB;
 
     $nodetype = $CFG->moodlenodetype;
-    $records = $DB->get_records('course_categories', array('visible' => '1'), '', 'name,id,parent,sortorder');
+    $records = $DB->get_records('course_categories', array('visible' => '1'), '', 'name, id, parent, sortorder');
     
     $response = new stdclass;
     if($nodetype == ''){
@@ -967,14 +967,6 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
     if (!empty($CFG->coursedelivery_defaultrole)){
         $coursecontext = context_course::instance($response->courseid);
         
-		// role_assign($CFG->coursedelivery_defaultrole, $USER->id, $coursecontext->id);
-		/*
-		$manager = new course_enrolment_manager($PAGE, $new_course);
-		$instances = $manager->get_enrolment_instances();
-		$instance = array_pop($instances);
-		$plugins = $manager->get_enrolment_plugins();
-		$plugin = $plugins['manual'] ;
-		*/
 		$enrolplugin = enrol_get_plugin('manual');
 
 	    if ($enrols = $DB->get_records('enrol', array('enrol' => 'manual', 'courseid' => $newcourse_id, 'status' => ENROL_INSTANCE_ENABLED), 'sortorder ASC')) {
@@ -1305,5 +1297,3 @@ function publishflow_send_response($response, $json_response = true, $isjson = f
         }
     }    
 }
-
-?>

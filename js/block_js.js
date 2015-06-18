@@ -1,5 +1,5 @@
 
-function doStuff(hosts, wwwroot){
+function doStuff(hosts, wwwroot) {
 
 	if(hosts == 0){ //required to autopopulate the first list.
 		var platformid = hosts;
