@@ -65,7 +65,7 @@ function xmldb_block_publishflow_upgrade($oldversion=0) {
 
         foreach ($configs as $oldconf => $newconf) {
             if (!empty($oldconf)) {
-                set_config($newconf, $CFG->$oldconf, 'block_publishflow');
+                set_config($newconf, @$CFG->$oldconf, 'block_publishflow');
                 set_config($oldconf, null);
             }
         }

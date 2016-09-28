@@ -15,22 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details.
+ * Version information for the block_publishflow plugin.
  *
- * @package     block_publishflow
- * @category    blocks
- * @author      valery fremaux <valery.fremaux@gmail.com>
- * @copyright   2011 onwards Valery Fremaux (http://www.mylearningfactory.com)
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_publishflow
+ * @category   blocks
+ * @copyright  2013 Valery Fremaux (valery.fremaux@gmail.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2014031900;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2015111100;        // Requires this Moodle version.
-$plugin->component = 'block_publishflow'; // Full name of the plugin (used for diagnostics).
+$plugin->version   = 2016060600;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->requires  = 2016051900;        // Requires this Moodle version
+$plugin->component = 'block_publishflow'; // Full name of the plugin (used for diagnostics)
 $plugin->maturity = MATURITY_BETA;
-$plugin->release = '3.0.0 (Build 2014031900)';
+$plugin->release = '3.1.0 (Build 2014031900)';
 
-// Non moodle attributes.
-$plugin->codeincrement = '3.0.0000';
+// Not moodle attributes.
+$plugin->codeincrement = '3.1.0000';
