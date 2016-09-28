@@ -163,6 +163,7 @@ $string['submitname'] = 'Submit name';
 $string['submittodesc'] = 'Submit down';
 $string['synchonizingnetworkconfig'] = 'Acquiring the network structure';
 $string['synchplatforms'] = '<p>If a new Moodle host has been recently added to your network, you may resync the purpose of this node within the publishing network, and update its category structure local cache.</p>';
+$string['task_discover'] = 'Cron discovering and update of network affinities';
 $string['testdeploy'] = 'Test deployement';
 $string['unavailable'] = 'No backup available. You must backup without user data before transfering.';
 $string['unpublish'] = 'Unpublish';

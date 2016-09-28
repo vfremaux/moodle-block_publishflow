@@ -1,6 +1,6 @@
 <?php
 //
-// Capability definitions for the block vmoodle.
+// Capability definitions for the block publishflow.
 //
 // The capabilities are loaded into the database table when the module is
 // installed or updated. Whenever the capability definitions are updated,

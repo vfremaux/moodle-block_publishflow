@@ -158,6 +158,7 @@ $string['runningcategory_desc'] = 'Catégorie des formations ouvertes.';
 $string['sessionopening'] = 'Ouverture de session : ';
 $string['single_full'] = 'Synchroniser les types de plates-formes du réseau et les catégories';
 $string['single_short'] = 'Synchroniser les plates-formes';
+$string['task_discover'] = 'Découverte et mise à jour du réseau de publication';
 $string['step'] = 'Etape ';
 $string['setup'] = 'Configuration';
 $string['submitname'] = 'Submit name';

@@ -18,8 +18,7 @@ include_once $CFG->dirroot."/backup/restorelib.php";
 include_once $CFG->dirroot."/backup/backuplib.php";
 */
 
-require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');       
-include_once $CFG->dirroot."/blocks/publishflow/filesystemlib.php";
+require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 include_once $CFG->dirroot."/blocks/publishflow/lib.php";
 require_once($CFG->dirroot."/blocks/publishflow/backup/restore_automation.class.php");
 require_once($CFG->dirroot.'/enrol/locallib.php');
@@ -198,7 +197,7 @@ function publishflow_rpc_deploy($callinguser, $idfield, $courseidentifier, $wher
 }
 
 function publishflow_rpc_deploy_wrapped($wrap){
-    debug_trace("WRAP : ".json_encode($wrap));    
+    debug_trace("WRAP : ".json_encode($wrap));
     return publishflow_rpc_deploy(@$wrap['callinguser'], @$wrap['idfield'], @$wrap['courseidentifier'], @$wrap['whereroot'], @$wrap['parmsoverride'], @$wrap['json_response']);
 }
 
@@ -250,7 +249,7 @@ function publishflow_rpc_course_exists($callinguser, $idfield, $courseidentifier
 
         if ($remotedeleted = $DB->get_field('mnet_host', 'deleted', array('wwwroot' => $whereroot))){
             $extresponse->status = RPC_FAILURE_RECORD;
-            $extresponse->error = 'Unkown whereroot.';        
+            $extresponse->error = 'Unkown whereroot.';
             publishflow_send_response($extresponse, $json_response);
         }
 
@@ -318,7 +317,7 @@ function publishflow_rpc_open_course($callinguser, $idfield, $courseidentifier, 
     if ($auth_response = publishflow_rpc_check_user((array)$callinguser, 'block/publishflow:deploy')){
         return publishflow_send_response($auth_response, $json_response, true);
     }
-    if ($whereroot == $CFG->wwwroot || empty($whereroot)){
+    if ($whereroot == $CFG->wwwroot || empty($whereroot)) {
         switch($idfield){
             case 'id':
                 $course = $DB->get_record('course', array('id' => $courseidentifier));
