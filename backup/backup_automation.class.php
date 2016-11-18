@@ -313,7 +313,7 @@ abstract class backup_automation {
         $storage =  $config->backup_auto_storage;
         $dir =      $config->backup_auto_destination;
 
-        $backupword = str_replace(' ', '_', core_text::strtolower(get_string('backupfilename')));
+        $backupword = str_replace(' ', '_', textlib::strtolower(get_string('backupfilename')));
         $backupword = trim(clean_filename($backupword), '_');
 
         if (!file_exists($dir) || !is_dir($dir) || !is_writable($dir)) {
