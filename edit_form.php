@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,31 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * minimalistic edit form
  *
- * @package   block_private_files
- * @copyright 2010 Petr Skoda (http://skodak.org)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_publishflow
+ * @category   blocks
+ * @author     Valery Fremaux (valery.fremaux@edunao.com)
+ * @copyright  2008 Valery Fremaux
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
 
 require_once("$CFG->libdir/formslib.php");
 
 class block_publishflow_edit_form extends block_edit_form {
     function specific_definition($mform) {
         global $CFG,$DB;
-      
 
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
 
         $mform->addElement('checkbox', 'config_allowfreecategoryselection', get_string('allowfreecategoryselection', 'block_publishflow'));
-		$mform->setType('config_allowfreecategoryselection', PARAM_BOOL);
-		
-        if (preg_match('/\\bcatalog\\b/', $CFG->moodlenodetype)){   
+        $mform->setType('config_allowfreecategoryselection', PARAM_BOOL);
+
+        if (preg_match('/\\bcatalog\\b/', $CFG->moodlenodetype)) {
             $mform->addElement('text', 'config_deploymentkeydesc', get_string('deploymentkeydesc', 'block_publishflow'));   
-			$mform->setType('config_deploymentkeydesc', PARAM_TEXT);
+            $mform->setType('config_deploymentkeydesc', PARAM_TEXT);
         }
     }
 }

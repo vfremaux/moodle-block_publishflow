@@ -17,12 +17,13 @@
 
 /**
  * Manage backup files
- * @package   moodlecore
- * @copyright 2010 Dongsheng Cai <dongsheng@moodle.com>
+ * @package   block_publishflow
+ * @category  blocks
+ * @copyright 2008 Valery Fremaux <valery.fremaux@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('../../config.php');
+require('../../config.php');
 require_once(dirname(__FILE__) . '/pffilesedit_form.php');
 require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 require_once($CFG->dirroot . '/repository/lib.php');
@@ -43,6 +44,8 @@ $filearea = 'publishflow';
 $returnurl = optional_param('returnurl', new moodle_url('/course/view.php', array('id' => $course->id)), PARAM_URL);
 
 $url = new moodle_url('/blocks/publishflow/pffilesedit.php', array('id' => $course->id));
+
+// Security.
 
 require_course_login($course, false);
 //require_capability('moodle/restore:uploadfile', $context);

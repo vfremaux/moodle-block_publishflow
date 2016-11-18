@@ -15,19 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    block_publishflow
- * @category   blocks
- * @author     Valery Fremaux (valery.fremaux@edunao.com)
- * @copyright  2008 Valery Fremaux
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Definition of block publishflow scheduled tasks.
  *
- * Maybe useless redirector.
+ * @package   block_publishflow
+ * @category  blocks
+ * @author    Valery Fremaux <valery.fremaux@gmail.com>, <valery@edunao.com>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('../../config.php');
-require_once($CFG->dirroot.'/blocks/publishflow/lib.php');
+defined('MOODLE_INTERNAL') || die();
 
-$id = required_param('id',PARAM_INT);   // course
-
-redirect(new moodle_url('/course/view.php', array('id' => $id)));
-
+$tasks = array(
+    array(
+        'classname' => 'block_publishflow\task\discover_task',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '1',
+        'day' => '1,15',
+        'month' => '*',
+        'dayofweek' => '*',
+        'disabled' => 0,
+    )
+);

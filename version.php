@@ -15,22 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the block_quiz_results plugin.
+ * Version details.
  *
- * @package    block
- * @subpackage publishflow
- * @copyright  2013 Valery Fremaux (valery.fremaux@gmail.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     block_publishflow
+ * @category    blocks
+ * @author      Valery Fremaux (valery.fremaux@gmail.com)
+ * @copyright   2013 Valery Fremaux (http://www.mylearningfactory.com)
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $CFG;
- 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2014031900;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2011112900;        // Requires this Moodle version
-$plugin->component = 'block_publishflow'; // Full name of the plugin (used for diagnostics)
-$plugin->maturity = MATURITY_BETA; 
-$plugin->cron = ((empty($CFG->networkrefreshautomation))?0:$CFG->networkrefreshautomation); 
-$plugin->release = '2.7.0 (Build 2014031900)';
+$plugin->version   = 2016060600;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->requires  = 2014050800;        // Requires this Moodle version.
+$plugin->component = 'block_publishflow'; // Full name of the plugin (used for diagnostics).
+$plugin->maturity = MATURITY_RC;
+$plugin->release = '2.7.0 (Build 2016060600)';
 
+// Non moodle attributes.
+$plugin->codeincrement = '2.7.0000';

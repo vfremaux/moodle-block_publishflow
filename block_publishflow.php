@@ -1,14 +1,29 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Controls publication/deployment of courses in a 
  * distributed moodle configuration.
  *
- * @package block-publishflow
+ * @package block_publishflow
  * @category blocks
- * @version Moodle 2.x
  * @author Valery Fremaux (valery.fremaux@club-internet.fr)
- * @contributor Wafa Adham (admin@adham.ps)
- *
+ * @author Wafa Adham (admin@adham.ps)
  */
 
 if (get_config('block_publishflow_late_install')) {
@@ -33,7 +48,9 @@ class block_publishflow extends block_base {
     function init() {
         global $CFG;
 
-        if (preg_match('/\\bmain\\b/', @$CFG->moodlenodetype))
+        $config = get_config('block_publishflow');
+
+        if (preg_match('/\\bmain\\b/', @$config->moodlenodetype))
             $this->title = get_string('deployname', 'block_publishflow');
         elseif (@$CFG->moodlenodetype == 'factory')
             $this->title = get_string('publishname', 'block_publishflow');
@@ -52,8 +69,8 @@ class block_publishflow extends block_base {
     }
 
     function specialization() {
-    	$unused = 0;
-    	$this->config_save($unused);
+        $unused = 0;
+        $this->config_save($unused);
     }
 
     function has_config() {
@@ -73,8 +90,10 @@ class block_publishflow extends block_base {
 
         // transfer the automationrefresh value to the cron attribute of the block
 
+        $config = get_config('block_publishflow');
+
         $blockrec = $DB->get_record('block', array('name' => 'publishflow'));
-        $blockrec->cron = 0 + @$CFG->coursedelivery_networkrefreshautomation;
+        $blockrec->cron = 0 + @$config->coursedelivery_networkrefreshautomation;
         $DB->update_record('block', $blockrec);
     }
 
@@ -83,16 +102,18 @@ class block_publishflow extends block_base {
 
     function get_content() {
         // We intend to use the $CFG global variable
-        global $CFG, $COURSE, $USER, $VMOODLES, $MNET,$OUTPUT,$DB,$PAGE;
+        global $CFG, $COURSE, $USER, $VMOODLES, $MNET, $OUTPUT, $DB, $PAGE;
+
+        $config = get_config('block_publishflow');
 
         include_once $CFG->dirroot.'/blocks/publishflow/rpclib.php';
         include_once $CFG->dirroot.'/blocks/publishflow/lib.php';
-        
+
         $output = '';
 
         $context_course = context_course::instance($COURSE->id);
 
-        if($this->content !== NULL) {
+        if ($this->content !== null) {
             return $this->content;
         }
 
@@ -104,20 +125,20 @@ class block_publishflow extends block_base {
         $systemcontext = context_system::instance();
 
         $footeroutput = '';
-        if (has_capability('block/publishflow:managepublishedfiles',$systemcontext)) {
+        if (has_capability('block/publishflow:managepublishedfiles', $systemcontext)) {
             $footeroutput = "<div>";
             $managepublishedfiles = get_string('managepublishedfiles', 'block_publishflow');
-            $footeroutput .= "<a href='".$filemanagerlink."'>$managepublishedfiles</a>";
-            $footeroutput .= "</div>";
+            $footeroutput .= '<a href="'.$filemanagerlink.'">'.$managepublishedfiles.'</a>';
+            $footeroutput .= '</div>';
         }
     
         if($COURSE->idnumber){
 
-            if ($CFG->moodlenodetype == 'factory'){
-            
+            if ($config->moodlenodetype == 'factory') {
+
             /*** PURE FACTORY ****/
                 $output .=  block_build_factory_menu($this);
-            } elseif (preg_match('/\\bcatalog\\b/', $CFG->moodlenodetype)) {
+            } elseif (preg_match('/\\bcatalog\\b/', $config->moodlenodetype)) {
 
             /*** CATALOG OR CATALOG & FACTORY ****/  
                 $output .=  block_build_catalogandfactory_menu($this);
@@ -127,8 +148,8 @@ class block_publishflow extends block_base {
                 $output .=  block_build_trainingcenter_menu($this);
             }
 
-        } else {            
-            // this is an unregistered course that has no IDNumber reference. This causes a problem for instance identification            
+        } else {
+            // this is an unregistered course that has no IDNumber reference. This causes a problem for instance identification
             $output .= $OUTPUT->box_start('noticebox');
             $output .= $OUTPUT->notification(get_string('unregistered','block_publishflow'), 'notifyproblem', true);
             // @TODO add help button $output .= $OUTPUT->help_button();
@@ -136,7 +157,7 @@ class block_publishflow extends block_base {
             $qoptions['what'] = 'submit';
             $qoptions['id'] = $this->instance->id;
             $output .= '<p>';
-            $output .= $OUTPUT->single_button(new moodle_url($CFG->wwwroot.'/blocks/publishflow/submit.php', $qoptions), get_string('reference', 'block_publishflow'), 'post');
+            $output .= $OUTPUT->single_button(new moodle_url('/blocks/publishflow/submit.php', $qoptions), get_string('reference', 'block_publishflow'), 'post');
             $output .= '</p>';
             $output .= $OUTPUT->box_end();
         } 
@@ -147,50 +168,36 @@ class block_publishflow extends block_base {
         // And that's all! :)
         return $this->content;
     }
-    
+
+    public function get_required_javascript() {
+        global $CFG, $PAGE;
+
+        $PAGE->requires->jquery();
+    }
+
     function makebackupform(){
         global $COURSE, $CFG;
 
         if (has_capability('moodle/course:backup', context_course::instance($COURSE->id))){
             $dobackupstr = get_string('dobackup', 'block_publishflow');
-            $this->content->text .= "<center>";
-            $this->content->text .= "<form name=\"makebackup\" action=\"{$CFG->wwwroot}/blocks/publishflow/backup.php\" method=\"GET\">";
-            $this->content->text .= "<input type=\"hidden\" name=\"id\" value=\"{$COURSE->id}\" />";
-            $this->content->text .= "<input type=\"submit\" name=\"go_btn\" value=\"$dobackupstr\" />";
-            $this->content->text .= "</form>";
-            $this->content->text .= "</center>";
+            $this->content->text .= '<center>';
+            $backupurl = new moodle_url('/blocks/publishflow/backup.php');
+            $this->content->text .= '<form name="makebackup" action="'.$backupurl.'" method="GET">';
+            $this->content->text .= '<input type="hidden" name="id" value="'.$COURSE->id.'" />';
+            $this->content->text .= '<input type="submit" name="go_btn" value="'.$dobackupstr.'" />';
+            $this->content->text .= '</form>';
+            $this->content->text .= '</center>';
         }
     }
-    
-    function cron(){
+
+    static function crontask() {
         global $CFG;
 
-        mtrace("\nStarting renewing remote catalogs");
-        include_once $CFG->dirroot."/mnet/xmlrpc/client.php";
-        include_once $CFG->dirroot.'/blocks/publishflow/lib.php';  
-        automate_network_refreshment();        
-        mtrace("Finishing renewing remote catalogs");
+        mtrace("\nStarting renewing remote catalogs...");
+        include_once $CFG->dirroot.'/mnet/xmlrpc/client.php';
+        include_once $CFG->dirroot.'/blocks/publishflow/lib.php';
+        automate_network_refreshment();
+        mtrace("Finishing renewing remote catalogs\n");
     }
 
-    static function check_jquery() {
-        global $CFG, $PAGE, $OUTPUT;
-
-        if ($CFG->version >= 2013051400) {
-            return; // Moodle 2.5 natively loads JQuery
-        }
-
-        $current = '1.8.2';
-
-        if (empty($OUTPUT->jqueryversion)){
-            $OUTPUT->jqueryversion = '1.8.2';
-            $PAGE->requires->js('/blocks/publishflow/js/jquery-'.$current.'.min.js', true);
-        } else {
-            if ($OUTPUT->jqueryversion < $current){
-                debugging('the previously loaded version of jquery is lower than required. This may cause issues to publishflow. Programmers might consider upgrading JQuery version in the component that preloads JQuery library.', DEBUG_DEVELOPER, array('notrace'));
-            }
-        }
-        $PAGE->requires->js('/blocks/publishflow/js/block_js.js', true);
-    }
 }
-
-block_publishflow::check_jquery();
