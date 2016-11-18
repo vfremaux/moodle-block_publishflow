@@ -24,6 +24,7 @@
  * This page updates the catalog
  *
  */
+defined('MOODLE_INTERNAL') || die();
 
 require_once('../../config.php');
 require_once($CFG->dirroot.'/mnet/xmlrpc/client.php');
