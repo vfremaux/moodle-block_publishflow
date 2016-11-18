@@ -19,17 +19,18 @@
  *
  * @package     block_publishflow
  * @category    blocks
- * @copyright   2013 Valery Fremaux (valery.fremaux@gmail.com)
+ * @author      Valery Fremaux (valery.fremaux@gmeil.com)
+ * @copyright   2013 Valery Fremaux (http://www.mylearningfactory.com)
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2016060600;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2014110400;        // Requires this Moodle version.
+$plugin->requires  = 2015050500;        // Requires this Moodle version.
 $plugin->component = 'block_publishflow'; // Full name of the plugin (used for diagnostics).
 $plugin->maturity = MATURITY_RC;
-$plugin->release = '2.8.0 (Build 2016060600)';
+$plugin->release = '2.9.0 (Build 2016060600)';
 
 // Non moodle attributes.
-$plugin->codeincrement = '2.8.0000';
+$plugin->codeincrement = '2.9.0000';
