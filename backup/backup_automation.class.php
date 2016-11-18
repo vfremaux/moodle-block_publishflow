@@ -309,11 +309,11 @@ abstract class backup_automation {
      */
     public static function remove_excess_publishflow_backups($course) {
         $config = get_config('backup');
-        $keep =    1; // (int)$config->backup_auto_keep;
+        $keep =    1;// (int)$config->backup_auto_keep;
         $storage =  $config->backup_auto_storage;
         $dir =      $config->backup_auto_destination;
 
-        $backupword = str_replace(' ', '_', textlib::strtolower(get_string('backupfilename')));
+        $backupword = str_replace(' ', '_', core_text::strtolower(get_string('backupfilename')));
         $backupword = trim(clean_filename($backupword), '_');
 
         if (!file_exists($dir) || !is_dir($dir) || !is_writable($dir)) {
