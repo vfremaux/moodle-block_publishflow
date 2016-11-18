@@ -309,7 +309,7 @@ abstract class backup_automation {
      */
     public static function remove_excess_publishflow_backups($course) {
         $config = get_config('backup');
-        $keep =    1;// (int)$config->backup_auto_keep;
+        $keep =    1; // (int)$config->backup_auto_keep;
         $storage =  $config->backup_auto_storage;
         $dir =      $config->backup_auto_destination;
 
