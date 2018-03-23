@@ -34,9 +34,7 @@ class block_publishflow_renderer extends plugin_renderer_base {
      * @param object $block the block instance
      */
     public function factory_menu($block, $deployoptions) {
-        global $CFG, $DB, $USER, $COURSE, $OUTPUT, $MNET, $PAGE;
-
-        $config = get_config('block_publishflow');
+        global $CFG, $DB, $USER, $COURSE;
 
         $template = new StdClass;
         $template->courseid = $COURSE->id;
@@ -46,19 +44,21 @@ class block_publishflow_renderer extends plugin_renderer_base {
 
         // We are going to define where the catalog is. There can only be one catalog in the neighbourhood.
         if (!$catalog = $DB->get_record('block_publishflow_catalog', array('type' => 'catalog'))) {
-            $template->nocatalognotif = $OUTPUT->notification(get_string('nocatalog','block_publishflow'), 'notifyproblem', true);
+            $notif = get_string('nocatalog', 'block_publishflow');
+            $template->nocatalognotif = $this->output->notification($notif, 'notifyproblem', true);
             return $this->output->render_from_template('block_publishflow/factory', $template);
         }
         $mainhost = $DB->get_record('mnet_host', array('id' => $catalog->platformid));
 
         if (has_capability('block/publishflow:publish', $coursecontext) || block_publishflow_extra_publish_check()) {
-            // First check we have backup.
 
+            // First check we have backup.
             $template->canpublish = true;
             $realpath = delivery_check_available_backup($COURSE->id);
             if (empty($realpath)) {
                 $template->dobackupstr = get_string('dobackup', 'block_publishflow');
-                $template->unavailablenotif = $OUTPUT->notification(get_string('unavailable','block_publishflow'), 'notifyproblem', true);
+                $notif = get_string('unavailable', 'block_publishflow');
+                $template->unavailablenotif = $this->output->notification($notif, 'notifyproblem', true);
 
                 $template->formurl = new moodle_url('/blocks/publishflow/backup.php');
                 return $this->output->render_from_template('block_publishflow/factory', $template);
@@ -66,10 +66,6 @@ class block_publishflow_renderer extends plugin_renderer_base {
 
             // Check for published status. We use get remote sessions here.
             include_once($CFG->dirroot."/mnet/xmlrpc/client.php");
-            if (!$MNET){
-                $MNET = new mnet_environment();
-                $MNET->init();
-            }
 
             // We have to check for sessions in some catalog.
             $rpcclient = new mnet_xmlrpc_client();
@@ -84,9 +80,10 @@ class block_publishflow_renderer extends plugin_renderer_base {
             $mnethost = new mnet_peer();
             $mnethost->set_wwwroot($mainhost->wwwroot);
             if (!$rpcclient->send($mnethost)) {
-               $template->rpcerror = get_string('unavailable', 'block_publishflow');
+                $template->rpcerror = get_string('unavailable', 'block_publishflow');
                 if ($CFG->debug) {
-                    $template->rpcdebug = $OUTPUT->notification('Publish Status Call Error : ' . implode("\n", $rpcclient->error), 'notifyproblem');
+                    $notif = 'Publish Status Call Error : ' . implode("\n", $rpcclient->error);
+                    $template->rpcdebug = $OUTPUT->notification($notif), 'notifyproblem');
                 }
             }
 
@@ -99,8 +96,8 @@ class block_publishflow_renderer extends plugin_renderer_base {
                 $visiblesessions = array();
                 if (!empty($sessions->sessions)) {
                     foreach ($sessions->sessions as $session) {
-                        $published = ($published == UNPUBLISHED) ? PUBLISHED_HIDDEN : $published ; // Capture published.
-                        if ($session->visible) { 
+                        $published = ($published == UNPUBLISHED) ? PUBLISHED_HIDDEN : $published; // Capture published.
+                        if ($session->visible) {
                             $published = PUBLISHED_VISIBLE; // Locks visible.
                             $visiblesessions[] = $session;
                         }
@@ -113,13 +110,15 @@ class block_publishflow_renderer extends plugin_renderer_base {
 
                 switch ($published) {
                     case PUBLISHED_VISIBLE :
-                        // if a course is already published, we should propose to replace it with a new
-                        // volume content. This will be done hiding all previous references to that Learning Path
-                        // and installing the new one in catalog. 
-                        // Older course sessions will not be affected by this, as their own content will not
-                        // be changed.
-                        // Learning Objects availability is guaranteed by the LOR not being able to discard
-                        // validated material. 
+                        /*
+                         * if a course is already published, we should propose to replace it with a new
+                         * volume content. This will be done hiding all previous references to that Learning Path
+                         * and installing the new one in catalog.
+                         * Older course sessions will not be affected by this, as their own content will not
+                         * be changed.
+                         * Learning Objects availability is guaranteed by the LOR not being able to discard
+                         * validated material.
+                         */
                         $template->alreadypublishedstr = get_string('alreadypublished', 'block_publishflow');
                         foreach ($visiblesessions as $session) {
                             $sessiontpl = new StdClass;
@@ -160,7 +159,7 @@ class block_publishflow_renderer extends plugin_renderer_base {
                         $tooltip = get_string('publishtooltip', 'block_publishflow');
                         $options['what'] = 'publish';
                         $options['forcerepublish'] = 0;
-                        break ;
+                        break;
                     }
 
                     default :
@@ -195,9 +194,6 @@ class block_publishflow_renderer extends plugin_renderer_base {
                     has_capability('block/publishflow:deployeverywhere', $systemcontext)) {
 
                 $template->candeployfortest = true;
-                $hostsavailable = $DB->get_records('block_publishflow_catalog', array('type' => 'learningarea'));
-                $fieldsavailable = $DB->get_records_select('user_info_field', 'shortname like \'access%\'');
-                $userhost = $DB->get_record('mnet_host', array('id' => $USER->mnethostid));
                 $template->deploystr = get_string('deploy', 'block_publishflow');
                 $template->deployforteststr = get_string('deployfortest', 'block_publishflow');
                 $template->deployfortesthelpicon = $OUTPUT->help_icon('deployfortest', 'block_publishflow', false);
@@ -218,7 +214,7 @@ class block_publishflow_renderer extends plugin_renderer_base {
      * @param object $block the block instance
      */
     public function catalog_and_factory_menu($block, $deployoptions) {
-        global $CFG, $DB, $USER, $COURSE, $PAGE;
+        global $CFG, $COURSE;
 
         if (is_dir($CFG->dirroot.'/local/vmoodle')) {
             include_once($CFG->dirroot.'/local/vmoodle/xlib.php');
@@ -231,7 +227,8 @@ class block_publishflow_renderer extends plugin_renderer_base {
         if (empty($realpath)) {
             $template->backup = false;
             $template->dobackupstr = get_string('dobackup', 'block_publishflow');
-            $template->unavailablenotif = $this->output->notification(get_string('unavailable', 'block_publishflow'), 'notifyproblem', true);
+            $notif = get_string('unavailable', 'block_publishflow');
+            $template->unavailablenotif = $this->output->notification($notif, 'notifyproblem', true);
             $template->formurl = new moodle_url('/blocks/publishflow/backup.php');
             $template->courseid = $COURSE->id;
             return $this->output->render_from_template('block_publishflow/catalogfactory', $template);
@@ -241,7 +238,7 @@ class block_publishflow_renderer extends plugin_renderer_base {
 
         // Make the form and the list.
         $template->formurl = new moodle_url('/blocks/publishflow/deploy.php');
-        $template->lbockid = $block->instance->id;
+        $template->blockid = $block->instance->id;
         $template->courseid = $COURSE->id;
         $template->choosetargetstr = get_string('choosetarget', 'block_publishflow');
 
@@ -272,15 +269,14 @@ class block_publishflow_renderer extends plugin_renderer_base {
      * "training center" behaviour
      * @param object $block the block instance
      */
-    public function trainingcenter_menu($block) {
-        global $CFG, $DB, $USER, $COURSE, $OUTPUT, $PAGE;
+    public function trainingcenter_menu() {
+        global $DB, $COURSE, $OUTPUT;
 
         $config = get_config('block_publishflow');
 
         // students usually do not see this block
 
         $coursecontext = context_course::instance($COURSE->id);
-        $systemcontext = context_system::instance();
 
         $template = new StdClass;
         $template->courseid = $COURSE->id;
@@ -296,7 +292,7 @@ class block_publishflow_renderer extends plugin_renderer_base {
              * there should be only one factiry. The first in the way will be considered
              * further records will be ignored
              */
-            $factoriesavailable = $DB->get_records_select('block_publishflow_catalog'," type LIKE '%factory%' ");
+            $factoriesavailable = $DB->get_records_select('block_publishflow_catalog', " type LIKE '%factory%' ");
 
             // Alternative strategy.
             if (!$factoriesavailable) {
@@ -321,7 +317,7 @@ class block_publishflow_renderer extends plugin_renderer_base {
                 if (empty($realpath)) {
                     $template->backup = false;
                     $template->dobackupstr = get_string('dobackup', 'block_publishflow');
-                    $template->unavailablenotif .= $OUTPUT->notification(get_string('unavailable','block_publishflow'), 'notifyproblem', true);
+                    $template->unavailablenotif .= $OUTPUT->notification(get_string('unavailable', 'block_publishflow'), 'notifyproblem', true);
                     $template->formurl = new moodle_url('/blocks/publishflow/backup.php');
 
                     return $this->output->render_from_template('block_publishflow/trainingcenter', $template);
@@ -354,10 +350,12 @@ class block_publishflow_renderer extends plugin_renderer_base {
                     $template->controlurl = new moodle_url('/blocks/publishflow/close.php', $params);
                 } else if ($COURSE->category == $config->deploycategory) {
                     $template->controlstr = get_string('open', 'block_publishflow');
-                    $template->controlurl = new moodle_url('/blocks/publishflow/open.php', array('fromcourse' => $COURSE->id, 'what' => 'open'));
+                    $params = array('fromcourse' => $COURSE->id, 'what' => 'open');
+                    $template->controlurl = new moodle_url('/blocks/publishflow/open.php', $params);
                 } else if ($COURSE->category == $config->closedcategory) {
                     $template->controlstr = get_string('reopen', 'block_publishflow');
-                    $template->controlurl = new moodle_url('/blocks/publishflow/open.php', array('fromcourse' => $COURSE->id, 'what' => 'open'));
+                    $params = array('fromcourse' => $COURSE->id, 'what' => 'open');
+                    $template->controlurl = new moodle_url('/blocks/publishflow/open.php', $params);
                 }
             }
         }

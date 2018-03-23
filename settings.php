@@ -25,7 +25,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-if (!defined('COURSESESSIONS_PRIVATE')){
+if (!defined('COURSESESSIONS_PRIVATE')) {
     define('COURSESESSIONS_PRIVATE', 0);
     define('COURSESESSIONS_PROTECTED', 1);
     define('COURSESESSIONS_PUBLIC', 2);
@@ -57,51 +57,51 @@ $default = 1;
 $settings->add(new admin_setting_configcheckbox($key, $label, $desc, $default));
 
 $key = 'block_publishflow/coursedeliveryislocal';
-$label = get_string('configcoursedeliveryislocal','block_publishflow');
-$desc = get_string('configcoursedeliveryislocal_desc','block_publishflow');
+$label = get_string('configcoursedeliveryislocal', 'block_publishflow');
+$desc = get_string('configcoursedeliveryislocal_desc', 'block_publishflow');
 $default = 0;
 $settings->add(new admin_setting_configcheckbox($key, $label, $desc, $default));
 
-$options2 = array('private' => get_string('cdprivate','block_publishflow'),
-          'publicwrite' => get_string('cdpublicwrite','block_publishflow'),
-          'publicread' => get_string('cdpublicread', 'block_publishflow')
-          );
+$options2 = array('private' => get_string('cdprivate', 'block_publishflow'),
+    'publicwrite' => get_string('cdpublicwrite', 'block_publishflow'),
+    'publicread' => get_string('cdpublicread', 'block_publishflow')
+);
 
 $key = 'block_publishflow/publicsessions';
-$label = get_string('configpublicsessions','block_publishflow');
-$desc = get_string('configpublicsessions_desc','block_publishflow');
+$label = get_string('configpublicsessions', 'block_publishflow');
+$desc = get_string('configpublicsessions_desc', 'block_publishflow');
 $default = 'private';
 $settings->add(new admin_setting_configselect($key, $label, $desc, $default, $options2));
 
-include_once($CFG->dirroot.'/lib/coursecatlib.php');
+require_once($CFG->dirroot.'/lib/coursecatlib.php');
 $catlist = coursecat::make_categories_list();
 
 $key = 'block_publishflow/deploycategory';
-$label = get_string('configdeploycategory','block_publishflow');
-$desc = get_string('configdeploycategory_desc','block_publishflow');
+$label = get_string('configdeploycategory', 'block_publishflow');
+$desc = get_string('configdeploycategory_desc', 'block_publishflow');
 $settings->add(new admin_setting_configselect($key, $label, $desc,'',$catlist));
 
 $key = 'block_publishflow/runningcategory';
-$label = get_string('configrunningcategory','block_publishflow');
-$desc = get_string('configrunningcategory_desc','block_publishflow');
+$label = get_string('configrunningcategory', 'block_publishflow');
+$desc = get_string('configrunningcategory_desc', 'block_publishflow');
 $catlist2 = $catlist;
 $catlist2[0] = get_string('leavehere', 'block_publishflow');
 $settings->add(new admin_setting_configselect($key, $label, $desc,'',$catlist2));
 
 $key = 'block_publishflow/closedcategory';
-$label = get_string('configclosedcategory','block_publishflow');
-$desc = get_string('configclosedcategory_desc','block_publishflow');
+$label = get_string('configclosedcategory', 'block_publishflow');
+$desc = get_string('configclosedcategory_desc', 'block_publishflow');
 $settings->add(new admin_setting_configselect($key, $label, $desc,'',$catlist2));
 
-// This is a site level setting that is shared with other components (vmoodle)
+// This is a site level setting that is shared with other components (vmoodle).
 $key = 'mainhostprefix';
-$label = get_string('configmainhostprefix','block_publishflow');
-$desc = get_string('configmainhostprefix_desc','block_publishflow');
+$label = get_string('configmainhostprefix', 'block_publishflow');
+$desc = get_string('configmainhostprefix_desc', 'block_publishflow');
 $settings->add(new admin_setting_configtext($key, $label, $desc,''));
 
 $key = 'block_publishflow/factoryprefix';
-$label = get_string('configfactoryprefix','block_publishflow');
-$desc = get_string('configfactoryprefix_desc','block_publishflow');
+$label = get_string('configfactoryprefix', 'block_publishflow');
+$desc = get_string('configfactoryprefix_desc', 'block_publishflow');
 $settings->add(new admin_setting_configtext($key, $label, $desc,''));
 
 $systemcontext = context_system::instance();
@@ -113,18 +113,18 @@ foreach ($roles as $r) {
 $roleoptions = array_merge(array('0' => get_string('noassignation', 'block_publishflow')), $rolenames);
 
 $key = 'block_publishflow/defaultrole';
-$label = get_string('configdefaultrole','block_publishflow');
-$desc = get_string('configdefaultrole_desc','block_publishflow');
+$label = get_string('configdefaultrole', 'block_publishflow');
+$desc = get_string('configdefaultrole_desc', 'block_publishflow');
 $settings->add(new admin_setting_configselect($key, $label, $desc, 0, $roleoptions));
 
 $key = 'block_publishflow/deployprofilefield';
-$label = get_string('configdeployprofilefield','block_publishflow');
-$desc = get_string('configdeployprofilefield_desc','block_publishflow');
+$label = get_string('configdeployprofilefield', 'block_publishflow');
+$desc = get_string('configdeployprofilefield_desc', 'block_publishflow');
 $settings->add(new admin_setting_configtext($key, $label, $desc, ''));
 
 $key = 'block_publishflow/deployprofilefieldvalue';
-$label = get_string('configdeployprofilefieldvalue','block_publishflow');
-$desc = get_string('configdeployprofilefieldvalue_desc','block_publishflow');
+$label = get_string('configdeployprofilefieldvalue', 'block_publishflow');
+$desc = get_string('configdeployprofilefieldvalue_desc', 'block_publishflow');
 $settings->add(new admin_setting_configtext($key, $label, $desc, ''));
 
 $str = get_string('validatescript', 'block_publishflow');
@@ -134,8 +134,8 @@ $html = '<a href="'.$validateurl.'" target="_blank">'.$str.'</a>';
 $settings->add(new admin_setting_heading('scriptinghdr', $label, $html));
 
 $key = 'block_publishflow/postprocessing';
-$label = get_string('configpostprocessing','block_publishflow');
-$desc = get_string('configpostprocessing_desc','block_publishflow');
+$label = get_string('configpostprocessing', 'block_publishflow');
+$desc = get_string('configpostprocessing_desc', 'block_publishflow');
 $settings->add(new admin_setting_configtextarea($key, $label, $desc, ''));
 
 $str = get_string('synchonizingnetworkconfig', 'block_publishflow');

@@ -68,15 +68,24 @@ switch ($step) {
 
         echo $OUTPUT->heading(get_string('closepublic', 'block_publishflow'));
         print_string('closepublichelper', 'block_publishflow');
-        echo "<p align=\"right\"><a href=\"{$url}&amp;step=".COURSE_CLOSE_EXECUTE."&amp;mode=".COURSE_CLOSE_PUBLIC."\">$strdoclose</a></p>";
+        echo '<p align="right">';
+        $params = array('fromcourse' => $fromcourse, 'what' => $action, 'step' => COURSE_CLOSE_EXECUTE, 'mode' => COURSE_CLOSE_PUBLIC);
+        $linkurl = new moodle_url('/blocks/publishflow/close.php', $params);
+        echo '<a href="'.$linkurl.'">'.$strdoclose.'</a></p>';
 
         echo $OUTPUT->heading(get_string('closeprotected', 'block_publishflow'));
         print_string('closeprotectedhelper', 'block_publishflow');
-        echo "<p align=\"right\"><a href=\"{$url}&amp;step=".COURSE_CLOSE_EXECUTE."&amp;mode=".COURSE_CLOSE_PROTECTED."\">$strdoclose</a></p>";
+        $params = array('fromcourse' => $fromcourse, 'what' => $action,
+                        'step' => COURSE_CLOSE_EXECUTE, 'mode' => COURSE_CLOSE_PROTECTED);
+        $linkurl = new moodle_url('/blocks/publishflow/close.php', $params);
+        echo '<p align="right"><a href="'.$linkurl.'">'.$strdoclose.'</a></p>';
 
         echo $OUTPUT->heading(get_string('closeprivate', 'block_publishflow'));
         print_string('closeprivatehelper', 'block_publishflow');
-        echo "<p align=\"right\"><a href=\"{$url}&amp;step=".COURSE_CLOSE_EXECUTE."&amp;mode=".COURSE_CLOSE_PRIVATE."\">$strdoclose</a></p>";
+        $params = array('fromcourse' => $fromcourse, 'what' => $action,
+                        'step' => COURSE_CLOSE_EXECUTE, 'mode' => COURSE_CLOSE_PRIVATE);
+        $linkurl = new moodle_url('/blocks/publishflow/close.php', $params);
+        echo '<p align="right"><a href="'.$linkurl.'">'.$strdoclose.'</a></p>';
 
         echo '<p align="center"><center>';
         $opts['id'] = $course->id;
@@ -89,7 +98,8 @@ switch ($step) {
         $mode = required_param('mode', PARAM_INT);
         publishflow_course_close($course, $mode);
         echo $OUTPUT->box(get_string('courseclosed', 'block_publishflow'), 'center');
-        echo " <a href=\"/course/view.php?id={$course->id}\">".get_string('backtocourse', 'block_publishflow').'</a>';
+        $courseurl = new moodle_url('/course/view.php', array('id' => $course->id));
+        echo ' <a href="'.$courseurl.'">'.get_string('backtocourse', 'block_publishflow').'</a>';
         echo '</center>';
         break;
     }

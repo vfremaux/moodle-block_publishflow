@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->dirroot.'/blocks/publishflow/db/upgrade.php');
 
 function xmldb_block_publishflow_install_recovery() {
@@ -24,8 +25,8 @@ function xmldb_block_publishflow_install_recovery() {
 function xmldb_block_publishflow_install() {
     global $USER, $DB, $CFG;
 
-    // We need add a custom role here : disabledstudent
-    // A disabled student still is enrolled within a course, but cannot interfere anymore with content 
+    // We need add a custom role here : disabledstudent.
+    // A disabled student still is enrolled within a course, but cannot interfere anymore with content.
     $rolename = get_string('disabledstudentrole', 'block_publishflow');
     $roledesc = get_string('disabledstudentdesc', 'block_publishflow');
 
@@ -102,19 +103,18 @@ function xmldb_block_publishflow_install() {
 function xmldb_block_publishflow_late_install() {
     global $USER, $DB;
 
-    //MDL-
-    //we need to replace the word "block" with word "blocks"
+    // We need to replace the word "block" with word "blocks".
     $rpcs = $DB->get_records('mnet_remote_rpc', array('pluginname' => 'publishflow'));
 
     if (!empty($rpcs)) {
-        foreach ($rpcs as $rpc ) {
+        foreach ($rpcs as $rpc) {
             $rpc->xmlrpcpath = str_replace('block/', 'blocks/', $rpc->xmlrpcpath);
             $DB->update_record('mnet_remote_rpc', $rpc);
         }
     }
 
     // We need to replace the word "block" with word "blocks".
-    $rpcs = $DB->get_records('mnet_rpc',array('pluginname' => 'publishflow'));
+    $rpcs = $DB->get_records('mnet_rpc', array('pluginname' => 'publishflow'));
 
     if (!empty($rpcs)) {
         foreach ($rpcs as $rpc) {

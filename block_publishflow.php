@@ -20,8 +20,9 @@
  *
  * @package block_publishflow
  * @category blocks
- * @author Valery Fremaux (valery.fremaux@club-internet.fr)
+ * @author Valery Fremaux (valery.fremaux@gmail.com)
  * @author Wafa Adham (admin@adham.ps)
+ * @copyright 2008 onwards Valery Fremaux (http://www.myLearningFactory.com)
  */
 defined('MOODLE_INTERNAL') || die();
 
@@ -165,37 +166,37 @@ class block_publishflow extends block_base {
         }
 
         if ($config->moodlenodetype == 'factory') {
-            /* ** PURE FACTORY *** */
+            /* PURE FACTORY */
             if (has_capability('block/publishflow:publish', $coursecontext) ||
                         has_capability('block/publishflow:deployeverywhere', $systemcontext) ||
                                 block_publishflow_extra_deploy_check()) {
                 $deploymentoptions = $this->get_deployment_options();
-                $output .=  $renderer->factory_menu($this, $deploymentoptions);
+                $output .= $renderer->factory_menu($this, $deploymentoptions);
             }
         } else if (preg_match('/\\bcatalog\\b/', $config->moodlenodetype)) {
 
-        /* ** CATALOG OR CATALOG & FACTORY *** */
+            /* CATALOG OR CATALOG & FACTORY. */
             if (has_capability('block/publishflow:deploy', $coursecontext) ||
                             has_capability('block/publishflow:deployeverywhere', $systemcontext) ||
                                     block_publishflow_extra_deploy_check()) {
                 $deploymentoptions = $this->get_deployment_options();
-                $output .=  $renderer->catalog_and_factory_menu($this, $deploymentoptions);
+                $output .= $renderer->catalog_and_factory_menu($this, $deploymentoptions);
             }
         } else if ($config->moodlenodetype == 'learningarea') {
 
-        /* ** TRAINING CENTER *** */
+            /* TRAINING CENTER */
             if (has_capability('block/publishflow:retrofit', $coursecontext) ||
                         has_capability('block/publishflow:manage', $coursecontext) ||
                                 has_capability('block/publishflow:deployeverywhere', $systemcontext) ||
                                         block_publishflow_extra_deploy_check()) {
-                $output .=  $renderer->trainingcenter_menu($this);
+                $output .= $renderer->trainingcenter_menu($this);
             }
         }
 
         $this->content->text = $output;
         $this->content->footer = $footeroutput;
 
-        // And that's all! :)
+        // And that's all! :).
         return $this->content;
     }
 
@@ -289,28 +290,30 @@ class block_publishflow extends block_base {
                     }
                 }
 
-                //If we cant deploy everywhere, we see if we are Remote Course Creator. Then, the access fields are use for further checking
+                // If we cant deploy everywhere, we see if we are Remote Course Creator.
+                // Then, the access fields are use for further checking.
                 if (!has_capability('block/publishflow:deployeverywhere', $systemcontext)) {
                     if (has_capability('block/publishflow:deploy', $coursecontext) ||
                             block_publishflow_extra_deploy_check()) {
                         // Check remotely for each host.
                         $rpcclient = new mnet_xmlrpc_client();
                         $rpcclient->set_method('blocks/publishflow/rpclib.php/publishflow_rpc_check_user');
+
                         $user = new Stdclass;
                         $user->username = $USER->username;
                         $user->remoteuserhostroot = $userhostroot;
                         $user->remotehostroot = $CFG->wwwroot;
+
                         $rpcclient->add_param($user, 'struct');
                         $rpcclient->add_param('block/publishflow:deploy', 'string');
                         $rpcclient->add_param('any', 'string'); // Any context remotely.
                         $rpcclient->add_param(true, 'boolean'); // Require json response.
-                        $mnet_host = new mnet_peer();
+                        $mnethost = new mnet_peer();
                         $mnethost->set_wwwroot($platform->wwwroot);
                         if (!$rpcclient->send($mnethost)) {
                             if (debugging(DEBUG_DEVELOPER)) {
-                                print_object($rpcclient);
+                                // print_object($rpcclient);
                             }
-                            // print_error('failed', 'block_publishflow');
                         }
                         $response = json_decode($rpcclient->response);
                         if ($response->status == RPC_SUCCESS) {

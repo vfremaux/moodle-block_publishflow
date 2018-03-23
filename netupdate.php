@@ -61,7 +61,7 @@ $table->tablealign = 'center';
 $table->cellpadding = 5;
 $table->cellspacing = 0;
 $table->width = '60%';
-$table->size = array('30%','30%','30%');
+$table->size = array('30%', '30%', '30%');
 $table->head = array(get_string('platformname', 'block_publishflow'),
                      get_string('platformstatus', 'block_publishflow'),
                      get_string('platformlastupdate', 'block_publishflow'));
@@ -70,7 +70,7 @@ $table->align = array('center', 'center', 'center');
 
 $id = 0;
 
-//We need to check each host
+// We need to check each host.
 foreach ($hosts as $host) {
 
     // Ignore non moodles.
@@ -102,12 +102,12 @@ foreach ($hosts as $host) {
     }
 
     if (empty($catalogrecord->lastaccess)) {
-        // No last access is an error
+        // No last access is an error.
         $divtime = $diverror;
         $errors++;
         $catalogrecord->lastaccess = time();
-    } else if ($catalogrecord->lastaccess < time()- (14 * DAYSECS)) {
-        // Too old record is a warning
+    } else if ($catalogrecord->lastaccess < time() - (14 * DAYSECS)) {
+        // Too old record is a warning.
         $divtime = $divwarning;
         $warnings++;
     }

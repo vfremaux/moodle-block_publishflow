@@ -54,7 +54,7 @@ if (!defined('RPC_SUCCESS')) {
 $full = get_string('single_full', 'block_publishflow');
 $short = get_string('single_short', 'block_publishflow');
 
-$PAGE->set_context($systemcontext); 
+$PAGE->set_context($systemcontext);
 $PAGE->set_title($full);
 $PAGE->set_heading($short);
 $PAGE->navbar->add($full);
@@ -85,8 +85,9 @@ foreach ($hosts as $host) {
     }
 }
 
-echo('<center>');
-echo $OUTPUT->single_button(new moodle_url('/blocks/publishflow/netupdate.php'), get_string('backsettings','block_publishflow'), 'get');
-echo('</center>');
+echo '<center>';
+$buttonurl = new moodle_url('/blocks/publishflow/netupdate.php');
+echo $OUTPUT->single_button($buttonurl, get_string('backsettings', 'block_publishflow'), 'get');
+echo '</center>';
 
 echo $OUTPUT->footer($COURSE);

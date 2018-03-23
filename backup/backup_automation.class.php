@@ -62,7 +62,7 @@ abstract class backup_automation {
      * @global moodle_database $DB
      */
     public static function run_publishflow_coursebackup($courseid) {
-        global $CFG, $DB, $USER;
+        global $DB, $USER;
 
         $fs = get_file_storage();
 
@@ -74,9 +74,9 @@ abstract class backup_automation {
         echo '<pre>';
         mtrace(get_string('backupstatecheck', 'block_publishflow'));
 
-        $state = backup_automation::get_automated_backup_state($rundirective);
+        $state = self::get_automated_backup_state($rundirective);
 
-        if ($state === backup_automation::STATE_RUNNING) {
+        if ($state === self::STATE_RUNNING) {
             echo '<div class="pf-backup-step">RUNNING</div>';
             if ($rundirective == self::RUN_IMMEDIATELY) {
                 mtrace(get_string('backupinprogress', 'block_publishflow'));
@@ -86,7 +86,7 @@ abstract class backup_automation {
             echo '</pre>';
             return false;
         }
-        backup_automation::set_state_running();
+        self::set_state_running();
 
         $admin = get_admin();
         if (!$admin) {
@@ -124,7 +124,7 @@ abstract class backup_automation {
 
         // Only make the backup if laststatus isn't 2-UNFINISHED (uncontrolled error).
 
-        if (backup_automation::launch_automated_backup($course, $admin->id)) {
+        if (self::launch_automated_backup($course, $admin->id)) {
 
             // Get result in user_tohub filearea and move it to publishflow backup area.
 
@@ -164,7 +164,7 @@ abstract class backup_automation {
         }
 
         // Everything is finished stop backup_auto_running.
-        backup_automation::set_state_running(false);
+        self::set_state_running(false);
 
         echo '<div class="pf-backup-step" style="color:#009922;font-weight:bold;">Course backup complete.</div>';
 
@@ -237,7 +237,6 @@ abstract class backup_automation {
 
         try {
             $settings = array(
-                /* 'users' => 0, */
                 'role_assignments' => 0,
                 'user_files' => 0,
                 'activities' => 1,
@@ -260,7 +259,8 @@ abstract class backup_automation {
             $id = $bc->get_id();
             $users = $bc->get_plan()->get_setting('users')->get_value();
             $anonymised = $bc->get_plan()->get_setting('anonymize')->get_value();
-            $bc->get_plan()->get_setting('filename')->set_value(backup_plan_dbops::get_default_backup_filename($format, $type, $id, $users, $anonymised));
+            $filename = backup_plan_dbops::get_default_backup_filename($format, $type, $id, $users, $anonymised);
+            $bc->get_plan()->get_setting('filename')->set_value($filename);
 
             $bc->set_status(backup::STATUS_AWAITING);
 
@@ -310,14 +310,14 @@ abstract class backup_automation {
              * for backups of type backup::MODE_AUTOMATED
              */
             $timetosee = 60 * 90; // Time to consider in order to clean the semaphore.
-            $params = array( 'purpose'   => self::MODE_MANUAL, 'timetolook' => (time() - $timetosee));
+            $params = array('purpose' => self::MODE_MANUAL, 'timetolook' => (time() - $timetosee));
             if ($DB->record_exists_select('backup_controllers',
                 "operation = 'backup' AND type = 'course' AND purpose = :purpose AND timemodified > :timetolook", $params)) {
-                return self::STATE_RUNNING; // Recent activity found, still running
+                return self::STATE_RUNNING; // Recent activity found, still running.
             } else {
                 // No recent activity found, let's clean the semaphore.
-                echo '<div>No backup activity found in last ' . (int)$timetosee/60 . ' minutes. Cleaning running status</div>';
-                backup_automation::set_state_running(false);
+                echo '<div>No backup activity found in last '.((int)$timetosee / 60).' minutes. Cleaning running status</div>';
+                self::set_state_running(false);
             }
         }
         return self::STATE_OK;
@@ -351,9 +351,9 @@ abstract class backup_automation {
      */
     public static function remove_excess_publishflow_backups($course) {
         $config = get_config('backup');
-        $keep =    1; // (int)$config->backup_auto_keep;
-        $storage =  $config->backup_auto_storage;
-        $dir =      $config->backup_auto_destination;
+        $keep = 1;
+        $storage = $config->backup_auto_storage;
+        $dir = $config->backup_auto_destination;
 
         $backupword = str_replace(' ', '_', core_text::strtolower(get_string('backupfilename')));
         $backupword = trim(clean_filename($backupword), '_');

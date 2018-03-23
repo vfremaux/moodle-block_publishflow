@@ -15,13 +15,13 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Implements a result page for driving the publish 
- * transaction.
- * @package blocks-publishflow
+ * Implements a result page for driving the publish transaction.
+ * @package block_publishflow
  * @category blocks
- *
+ * @author Valery Fremaux (valery.fremaux@gmail.com)
+ * @author Wafa Adham (admin@adham.ps)
+ * @copyright 2008 onwards Valery Fremaux (http://www.myLearningFactory.com)
  */
-
 require('../../config.php');
 require_once($CFG->dirroot.'/mnet/lib.php');
 require_once($CFG->dirroot.'/mnet/xmlrpc/client.php');
@@ -59,14 +59,14 @@ $mnethost = $DB->get_record('mnet_host', array('id' => $where));
 // Start triggering the remote deployment.
 
 if (empty($CFG->coursedeliveryislocal)) {
-    echo "<center>";
+    echo '<center>';
     echo $OUTPUT->box(get_string('networktransferadvice', 'block_publishflow'));
-    echo "<br/>";
+    echo '<br/>';
 }
 
 // Start triggering the remote deployment.
 
-if (!empty($USER->mnethostid)){
+if (!empty($USER->mnethostid)) {
     $userhost = $DB->get_record('mnet_host', array('id' => $USER->mnethostid));
     $userwwwroot = $userhost->wwwroot;
 } else {
@@ -82,26 +82,28 @@ $rpcclient->add_param($caller, 'struct');
 $rpcclient->add_param($action, 'string');
 $rpcclient->add_param(json_encode($course), 'string');
 $rpcclient->add_param($force, 'int');
-$mnet_host = new mnet_peer();
-$mnet_host->set_wwwroot($mnethost->wwwroot);
-if (!$rpcclient->send($mnet_host)) {
-    $debugout = ($CFG->debug | DEBUG_DEVELOPER) ? var_export($rpcclient) : '' ;
-    print_error('failed', 'block_publishflow', $CFG->wwwroot.'/course/view.php?id='.$fromcourse, '', $debugout);
+$mnethost = new mnet_peer();
+$mnethost->set_wwwroot($mnethost->wwwroot);
+if (!$rpcclient->send($mnethost)) {
+    $debugout = ($CFG->debug | DEBUG_DEVELOPER) ? var_export($rpcclient) : '';
+    print_error('failed', 'block_publishflow', new moodle_url('/course/view.php', array('id' => $fromcourse)), '', $debugout);
 }
 
 $response = json_decode($rpcclient->response);
 
 echo $OUTPUT->box_start('plublishpanel');
 
-if ($response->status == 100){ // Test point
+if ($response->status == 100) {
+    // Test point.
     echo $OUTPUT->notification("Remote test point : ".$response->teststatus);
 }
-if ($response->status == 200){
+
+if ($response->status == 200) {
     $remotecourseid = $response->courseid;
 
-    switch($action){
-        case 'publish':{
-            // confirm/force published status in course record if not done, to avoid strange access effects
+    switch($action) {
+        case 'publish': {
+            // Confirm/force published status in course record if not done, to avoid strange access effects.
             if (!empty($CFG->coursepublishedcategory)){
                 $DB->set_field('course', 'category', $CFG->coursepublishedcategory, array('id' => "{$fromcourse}"));
             }
@@ -109,26 +111,30 @@ if ($response->status == 200){
         }
         case 'unpublish': {
             $lpcontext = context_course::instance($fromcourse);
-            if (!empty($CFG->coursesuspendedcategory)){
+            if (!empty($CFG->coursesuspendedcategory)) {
                 $DB->set_field('course', 'category', $CFG->coursesuspendedcategory, array('id' => "{$fromcourse}"));
             }
-            break
+            break;
         }
     }
 
     print_string('publishsuccess', 'block_publishflow');
     echo '<br/>';
     echo '<br/>';
-    if ($USER->mnethostid != $mnethost->id){
-        echo "<a href=\"/auth/mnet/jump.php?hostid={$mnethost->id}&amp;wantsurl=".urlencode('/course/view.php?id='.$remotecourseid)."\">".get_string('jumptothecourse', 'block_publishflow').'</a> - ';
+    if ($USER->mnethostid != $mnethost->id) {
+        $params = array('hostid' => $mnethost->id, 'wantsurl' => '/course/view.php?id='.$remotecourseid);
+        $linkrl = new moodle_url('/auth/mnet/jump.php', $params);
+        echo '<a href="'.$linkurl.'">'.get_string('jumptothecourse', 'block_publishflow').'</a> - ';
     } else {
-        echo "<a href=\"{$mnethost->wwwroot}/course/view.php?id={$remotecourseid}\">".get_string('jumptothecourse', 'block_publishflow').'</a> - ';
+        $label = get_string('jumptothecourse', 'block_publishflow');
+        echo "<a href=\"{$mnethost->wwwroot}/course/view.php?id={$remotecourseid}\">".$label.'</a> - ';
     }
 } else {
     echo $OUTPUT->notification("Remote error : ".$response->error);
 }
 
-echo " <a href=\"/course/view.php?id={$course->id}\">".get_string('backtocourse', 'block_publishflow').'</a>';
+$courseurl = new moodle_url('/course/view.php', array('id' => $course->id));
+echo ' <a href="'.$courseurl.'">'.get_string('backtocourse', 'block_publishflow').'</a>';
 echo '</center>';
 echo $OUTPUT->box_end();
 

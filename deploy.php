@@ -15,10 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Implements a result page for driving the deploy 
- * transaction.
- * @package blocks_publishflow
+ * Implements a result page for driving the deploy transaction.
+ * @package block_publishflow
  * @category blocks
+ * @author Valery Fremaux (valery.fremaux@gmail.com)
+ * @author Wafa Adham (admin@adham.ps)
+ * @copyright 2008 onwards Valery Fremaux (http://www.myLearningFactory.com)
  */
 require('../../config.php');
 require_once($CFG->dirroot.'/mnet/lib.php');
@@ -28,19 +30,19 @@ require_once($CFG->dirroot.'/blocks/publishflow/lib.php');
 $id = required_param('id', PARAM_INT); // The block ID.
 $fromcourse = required_param('fromcourse', PARAM_INT);
 $action = required_param('what', PARAM_TEXT);
-$where = required_param('where', PARAM_INT);  
+$where = required_param('where', PARAM_INT);
 $category = optional_param('category', 0, PARAM_INT);
-$deploykey = optional_param('deploykey', null,PARAM_TEXT);
+$deploykey = optional_param('deploykey', null, PARAM_TEXT);
 $forcecache = optional_param('force', 1, PARAM_INT);
 
 $course = $DB->get_record('course', array('id' => "$fromcourse"));
 
-// Security. 
+// Security.
 
 require_login($course);
 
-$system_context = context_course::instance($fromcourse);
-$PAGE->set_context($system_context); 
+$systemcontext = context_course::instance($fromcourse);
+$PAGE->set_context($systemcontext); 
 $PAGE->set_button('');
 $params = array('id' => $id,
                 'fromcourse' => $fromcourse,
@@ -66,11 +68,11 @@ $theblock = block_instance('publishflow', $instance);
 // Check we can do this.
 $course = $DB->get_record('course', array('id' => "$fromcourse"));
 
-/*  if (!has_capability('block/publishflow:deployeverwhere', context_system::instance())) {
-    // check on remote host the deploy capability
-    // TODO
+if (!has_capability('block/publishflow:deployeverwhere', contextsystem::instance())) {
+    // TODO : Check on remote host the deploy capability.
+    assert(1);
 }
-*/
+
 
 // Check the deploykey.
 if (!empty($theblock->config->deploymentkey)) {
@@ -98,8 +100,8 @@ if ($where == 0) {
     echo '</center>';
     echo $OUTPUT->box_end();
 } else {
-    /// start triggering the remote deployment
-    if (!empty($USER->mnethostid)){
+    // Start triggering the remote deployment.
+    if (!empty($USER->mnethostid)) {
         $userhost = $DB->get_record('mnet_host', array('id' => $USER->mnethostid));
         $userwwwroot = $userhost->wwwroot;
     } else {
@@ -117,13 +119,13 @@ if ($where == 0) {
     $rpcclient->set_method('blocks/publishflow/rpclib.php/delivery_deploy');
     $rpcclient->add_param($caller, 'struct');
     $rpcclient->add_param(json_encode($course), 'string');
-    $rpcclient->add_param($forcecache, 'int'); // prepared for forcing replacement
-    $rpcclient->add_param($parmsoverride,'struct');
-    $rpcclient->add_param(1,'int'); // json response required
+    $rpcclient->add_param($forcecache, 'int'); // Prepared for forcing replacement.
+    $rpcclient->add_param($parmsoverride, 'struct');
+    $rpcclient->add_param(1, 'int'); // Json response required.
 
-    $mnet_host = new mnet_peer();
-    $mnet_host->set_wwwroot($mnethost->wwwroot);
-    if (!$rpcclient->send($mnet_host)){
+    $mnethost = new mnet_peer();
+    $mnethost->set_wwwroot($mnethost->wwwroot);
+    if (!$rpcclient->send($mnethost)) {
         $debugout = ($CFG->debug | DEBUG_DEVELOPER) ? var_export($rpcclient) : '';
         print_error('failed', 'block_publishflow', new moodle_url('/course/view.php', array('id' => $fromcourse, '', $debugout)));
     }
@@ -132,12 +134,12 @@ if ($where == 0) {
 
     echo $OUTPUT->box_start('plublishpanel');
     echo '<center>';
-    if ($response->status == 200){
+    if ($response->status == 200) {
         $remotecourseid = $response->courseid;
         print_string('deploysuccess', 'block_publishflow');
         echo '<br/>';
         echo '<br/>';
-        if ($USER->mnethostid != $mnethost->id){
+        if ($USER->mnethostid != $mnethost->id) {
             $params = array('hostid' => $mnethost->id, 'wantsurl' => '/course/view.php?id='.$remotecourseid);
             $jumpurl = new moodle_url('/auth/mnet/jump.php', $params);
             echo '<a href="'.$jumpurl.'">'.get_string('jumptothecourse', 'block_publishflow').'</a> - ';

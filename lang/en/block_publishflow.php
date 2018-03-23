@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-// Capabilities
+// Capabilities.
+
 $string['publishflow:managepublishedfiles'] = 'Manage published archives';
 $string['publishflow:addinstance'] = 'Add a "Publishflow" block';
 $string['publishflow:deploy'] = 'Deploy a course onto a training node';
@@ -50,7 +51,7 @@ $string['blockname'] = 'Course Publication';
 $string['catalog'] = 'Catalog';
 $string['catupdate'] = 'Update Catalog';
 $string['cdprivate'] = 'Private sessions.';
-$string['cdpublicread'] ='Public sessions. User unchecked.';
+$string['cdpublicread'] = 'Public sessions. User unchecked.';
 $string['cdpublicwrite'] = 'Public sessions. User identity checked.';
 $string['choosecat'] = 'Category:&ensp;';
 $string['choosecatdefault'] = 'Default category';
@@ -273,7 +274,7 @@ $string['notargets_help'] = '
 <li>Some technical issues do avoid physically connecting to the training nodes you are responsible of.</li>
 <li>This course cannot be deployed because of being badly referenced.</li>
 <ul>
-<p>In any case, contact your tech support.</p> 
+<p>In any case, contact your tech support.</p>
 ';
 
 $string['retrofit_help'] = '
@@ -284,7 +285,7 @@ $string['retrofit_help'] = '
 
 <p>When launching the retrofeeding operation, you will copy the structure and content of this course
 as per the last backup stored in the publishing file area of the course.</p>
-	
+
 <p>The backup used for retrofeeding IGNORES any user related information and data
 of the course, the activities, resources and blocks being reproduced with the same settings than the original.</p>
 
@@ -300,18 +301,9 @@ as profile_field_&lt;fieldshort&gt;) to be tested.';
 
 $string['configdeployprofilefieldvalue_desc'] = 'Tell the expected profile field value for which remote deployment are allowed.';
 
-//mnet services
+// Mnet services.
 
-$string['publishflow_name'] = 'Publishflow Services' ;
+$string['publishflow_name'] = 'Publishflow Services';
 $string['publishflow_description'] = 'This service binds all functions dedicated to MNET publishing of courses. You need subscribe and publish both sides for course transfers to be enabled.';
 
 $string['synchonizingnetworkconfig'] = 'Network structure automated refreshment can be till 3.1 be scheduled using server Scheduled tasks.';
-
-//settings 
-/*
-$string['networkrefreshautomation'] = "Automated Network Refreshment";
-$string['noautomatednetworkrefreshment'] = "Disabled";
-$string['oneday'] = "Once a day";
-$string['oneweek'] = "Once a week";
-$string['onemonth'] = "Once a month";
-*/
