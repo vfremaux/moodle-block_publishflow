@@ -23,7 +23,7 @@
  *
  * @package extralibs
  * @category third-party libs
- * @author Valery Fremaux (France) (valery@valeisti.fr)
+ * @author Valery Fremaux (France) (valery.fremaux@gmail.com)
  * @date 2008/03/03
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  */
@@ -75,9 +75,9 @@ function publishflow_get_mail_template($virtual, $modulename, $lang = '') {
         $location = 'mod';
     }
 
-    $templateName = "{$CFG->dirroot}/{$location}/{$modulename}/mails/{$lang}/{$virtual}.tpl";
-    if (file_exists($templateName)) {
-        return file($templateName);
+    $templatename = "{$CFG->dirroot}/{$location}/{$modulename}/mails/{$lang}/{$virtual}.tpl";
+    if (file_exists($templatename)) {
+        return file($templatename);
     }
 
     debugging("template $templateName not found");

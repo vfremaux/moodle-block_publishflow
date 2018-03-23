@@ -31,16 +31,17 @@ if (!defined('RPC_SUCCESS')) {
     define('RPC_FAILURE', 500);
     define('RPC_FAILURE_USER', 501);
     define('RPC_FAILURE_CONFIG', 502);
-    define('RPC_FAILURE_DATA', 503); 
+    define('RPC_FAILURE_DATA', 503);
     define('RPC_FAILURE_CAPABILITY', 510);
     define('MNET_FAILURE', 511);
     define('RPC_FAILURE_RECORD', 520);
     define('RPC_FAILURE_RUN', 521);
 }
 
-// fakes a debug library if missing.
+// Fakes a debug library if missing.
 if (!function_exists('debug_trace')) {
-    function debug_trace($str){
+    function debug_trace($str) {
+        assert(1);
     }
 }
 
@@ -59,7 +60,6 @@ define('COURSE_OPEN_EXECUTE', 1);
  * the vf documentation custom volume availability.
  */
 function block_publishflow_supports_feature($feature) {
-    global $CFG;
     static $supports;
 
     $config = get_config('block_publishflow');
@@ -114,17 +114,17 @@ function block_publishflow_supports_feature($feature) {
 }
 
 /**
-* opens a training session. Opening changes the course category, if setup in 
-* publishflow site configuration, and may send notification to enrolled users
-* @param object $course the course information
-* @param boolean $notify
-*/
+ * opens a training session. Opening changes the course category, if setup in
+ * publishflow site configuration, and may send notification to enrolled users
+ * @param object $course the course information
+ * @param boolean $notify
+ */
 function publishflow_session_open($course, $notify) {
-    global $CFG, $SITE, $DB;
+    global $CFG, $SITE, $DB, $COURSE;
 
     $config = get_config('block_publishflow');
 
-    //reopening is allowed
+    // Reopening is allowed.
     if ($course->category == @$config->deploycategory || $course->category == @$config->closedcategory) {
         $course->category = @$config->runningcategory;
     }
@@ -134,7 +134,8 @@ function publishflow_session_open($course, $notify) {
     $course->startdate = time();
     $DB->update_record('course', $course);
     $context = context_course::instance($course->id);
-    /// revalidate disabled people
+
+    // Revalidate disabled people.
     $role = $DB->get_record('role', array('shortname' => 'student'));
     $disabledrole = $DB->get_record('role', array('shortname' => 'disabledstudent'));
     if ($pts = get_users_from_role_on_context($disabledrole, $context)) {
@@ -149,11 +150,11 @@ function publishflow_session_open($course, $notify) {
         // Send notification to all enrolled members.
         $fields = 'u.id, '.get_all_user_name_fields(true, 'u').', email, emailstop, mnethostid, mailformat';
         if ($users = get_users_by_capability($context, 'moodle/course:view', $fields)) {
-            $infomap = array( 'SITE_NAME' => $SITE->shortname,
-                              'MENTOR' => fullname($USER),
-                              'DATE' => userdate(time()),
-                              'COURSE' => $course->fullname,
-                              'URL' => $CFG->wwwroot."/course/view.php?id={$course->id}");
+            $infomap = array('SITE_NAME' => $SITE->shortname,
+                             'MENTOR' => fullname($USER),
+                             'DATE' => userdate(time()),
+                             'COURSE' => $course->fullname,
+                             'URL' => $CFG->wwwroot."/course/view.php?id={$course->id}");
             $rawtemplate = publishflow_compile_mail_template('open_course_session', $infomap, 'local');
             $htmltemplate = publishflow_compile_mail_template('open_course_session_html', $infomap, 'local');
             $subject = get_string('sessionopening', 'block_publishflow', $SITE->shortname.':'.format_string($COURSE->shortname));
@@ -166,15 +167,15 @@ function publishflow_session_open($course, $notify) {
 }
 
 /**
- * closes a training session. Closing changes the course category, if setup in 
+ * closes a training session. Closing changes the course category, if setup in
  * publishflow site configuration. It will downgrade enrolled students to a "disablestudent"
- * role, and switches off accessibility of the closed volume depending on publis, protected or private closure. 
+ * role, and switches off accessibility of the closed volume depending on publis, protected or private closure.
  * @param object $course the course information
  * @param boolean $mode the course closure mode (COURSE_CLOSE_PUBLIC, COURSE_CLOSE_PROTECTED or COURSE_CLOSE_PRIVATE)
  * @param boolean $rpccall tells the function wether to perform direct error output (not RPC) or return error messages (RPC mode)
  */
 function publishflow_course_close($course, $mode, $rpccall = false) {
-    global $CFG, $DB;
+    global $DB;
 
     $config = get_config('block_publishflow');
 
@@ -269,9 +270,7 @@ function publishflow_local_deploy($category, $sourcecourse) {
         $category = $config->deploycategory;
     }
 
-    $deploycat = $DB->get_record('course_categories', array('id' => $category));
-
-    //lets get the publishflow published file. 
+    // Lets get the publishflow published file.
     $coursecontextid = context_course::instance($sourcecourse->id)->id;
     $fs = get_file_storage();
     $backupfiles = $fs->get_area_files($coursecontextid,'backup', 'publishflow', 0, 'timecreated', false);
@@ -285,27 +284,28 @@ function publishflow_local_deploy($category, $sourcecourse) {
 
     ini_set('max_execution_time', $maxtime);
     ini_set('memory_limit', $maxmem);
-    // confirm/force guest closure
 
     $file = array_pop ($backupfiles);
-    $newcourse_id =  restore_automation::run_automated_restore($file->get_id(), null, $category) ;
+    $newcourseid =  restore_automation::run_automated_restore($file->get_id(), null, $category) ;
 
     // Confirm/force idnumber in new course.
     $response = new StdClass();
-    $response->courseid = $newcourse_id;
-    $DB->set_field('course', 'idnumber', $sourcecourse->idnumber, array('id' => "{$newcourse_id}"));
+    $response->courseid = $newcourseid;
+    $DB->set_field('course', 'idnumber', $sourcecourse->idnumber, array('id' => "{$newcourseid}"));
 
-    // confirm/force not enrollable // enrolling will be performed by master teacher
+    // Confirm/force not enrollable, enrolling will be performed by master teacher.
 
-    // assign the localuser as author in all cases :
-    // deployement : deployer will unassign self manually if needed
-    // free use deployement : deployer will take control over session
-    // retrofit : deployer will take control over new learning path in work
-    $coursecontext = context_course::instance($newcourse_id);
+    /*
+     * assign the localuser as author in all cases :
+     * deployement : deployer will unassign self manually if needed
+     * free use deployement : deployer will take control over session
+     * retrofit : deployer will take control over new learning path in work
+     */
+    $coursecontext = context_course::instance($newcourseid);
     $teacherrole = $DB->get_field('role', 'id', array('shortname' => 'teacher'));
     role_assign($teacherrole, $USER->id, $coursecontext->id);
 
-    return ($newcourse_id);
+    return ($newcourseid);
 }
 
 /**
@@ -324,6 +324,7 @@ function publishflow_get_remote_categories($hostid, &$cats, $parent = 0, $maxdep
             return;
         }
     }
+
     $select = " parentid = ? AND platformid = ? ";
     if ($catmenu = $DB->get_records_select('block_publishflow_remotecat', $select, array($parent, $hostid), 'sortorder')) {
         foreach ($catmenu as $cat) {
@@ -337,9 +338,6 @@ function publishflow_get_remote_categories($hostid, &$cats, $parent = 0, $maxdep
         }
     }
 }
-
-//************************ UNDER THIS LINE, MERGE FROM COURSEDELIVERY **********************
-/// Library of functions and constants for module label
 
 /**
  * These three functions are wrappers to other ways to allow people
@@ -413,7 +411,7 @@ function block_publishflow_cron_network_refreshment() {
                 hs.subscribe = 1 AND
                 mh.id = ?
         ";
-        if (!$subscribes = $DB->get_record_sql($sql, array($host->id))) {
+        if (!$DB->get_record_sql($sql, array($host->id))) {
             continue;
         }
 

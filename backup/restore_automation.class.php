@@ -27,7 +27,7 @@ class restore_automation {
 
     /**
      * given a stored backup file, this function creates course from
-     * this backup automatically . 
+     * this backup automatically.
      * @param mixed $backup_file_id backup file id
      * @param mixed $course_category_id  destination restore category.
      */
@@ -41,29 +41,29 @@ class restore_automation {
         }
 
         if ($filepath != null) {
-            $array = split('/', $filepath);
-            $file_name= array_pop($array);
+            $array = explode('/', $filepath);
+            $filename = array_pop($array);
 
-            $file_rec = new stdClass();
-            $file_rec->contextid = 1;
-            $file_rec->component = 'backup';
-            $file_rec->filearea = 'publishflow';
-            $file_rec->itemid = 0;
-            $file_rec->filename = $file_name;
-            $file_rec->filepath = '/';
+            $filerec = new stdClass();
+            $filerec->contextid = 1;
+            $filerec->component = 'backup';
+            $filerec->filearea = 'publishflow';
+            $filerec->itemid = 0;
+            $filerec->filename = $filename;
+            $filerec->filepath = '/';
 
             // Try load the file.
-            $file = $fs->get_file($file_rec->contextid,
-                                  $file_rec->component,
-                                  $file_rec->filearea,
-                                  $file_rec->itemid,
-                                  $file_rec->filepath,
-                                  $file_rec->filename);
+            $file = $fs->get_file($filerec->contextid,
+                                  $filerec->component,
+                                  $filerec->filearea,
+                                  $filerec->itemid,
+                                  $filerec->filepath,
+                                  $filerec->filename);
             if ($file) {
                 $file->delete();
             }
 
-            $file  = $fs->create_file_from_pathname($file_rec, $filepath);
+            $file  = $fs->create_file_from_pathname($filerec, $filepath);
         } else {
             $file = $fs->get_file_by_id($backupfileid);
 
@@ -90,14 +90,14 @@ class restore_automation {
         $unzipresult = $fp->extract_to_pathname($CFG->tempdir.'/backup/'.$file->get_filename(), $tempdir);
 
         // Check category exists.
-        if (!$cat = $DB->get_record('course_categories',array('id' => $coursecategoryid))) {
+        if (!$cat = $DB->get_record('course_categories', array('id' => $coursecategoryid))) {
             print_error("Invalid destination category");
         }
 
         // Create the base course.
         $data = new StdClass();
         $data->fullname = "Course restore in progress...";
-        $data->shortname= "course_shortname".(rand(0, 293736));
+        $data->shortname = "course_shortname".(rand(0, 293736));
         $data->category = $coursecategoryid;
 
         $course = create_course($data);

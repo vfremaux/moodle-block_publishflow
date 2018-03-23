@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-// Capabilities
+// Capabilities.
+
 $string['publishflow:managepublishedfiles'] = 'Peut gérer les archives de publication';
 $string['publishflow:addinstance'] = 'Ajouter un bloc de "Publication de cours"';
 $string['publishflow:deploy'] = 'Déployer un cours sur un satellite de formation';
@@ -47,7 +48,7 @@ $string['blockname'] = 'Déploiement/Publication de cours';
 $string['catalog'] = 'Catalogue d\'offre de formation';
 $string['catupdate'] = 'Mettre à jour le catalogue';
 $string['cdprivate'] = 'Sessions privées.';
-$string['cdpublicread'] ='Sessions publiques, identité non vérifiée.';
+$string['cdpublicread'] = 'Sessions publiques, identité non vérifiée.';
 $string['cdpublicwrite'] = 'Sessions publiques, identité vérifiée.';
 $string['choosecat'] = 'Catégorie&nbsp;:&ensp;';
 $string['choosecatdefault'] = 'Catégorie par défaut';
@@ -229,7 +230,7 @@ formations en cours sans vérifier votre identité ni vos droits';
 $string['deploymentkey_desc'] = 'Si une clef est entrée ici, l\'utilisateur devra fournir la clef pour effectuer le déploiement.
 Laisser la case vide pour désactiver cette fonction.';
 
-$string['configcoursefordelivery_desc']= 'Cours stockant les archives transférées pour les déploiements';
+$string['configcoursefordelivery_desc'] = 'Cours stockant les archives transférées pour les déploiements';
 
 $string['configdeploycategory_desc'] = 'La catégorie d\'arrivée des cours déployés';
 
@@ -277,7 +278,7 @@ $string['freeuse_help'] = '
 <p>Tout utilisateur peut déployer librement un ou plusieurs cours directement d\'une fabrique dans un environnnment de formation.</p>
 
 <p>Ce déployement crée un volume de cours opérationnel, copiant l\'ensemble du contenu et du scénario pédagogique présenté dans ce cous.
-La personne déclenchant le déployement est automatiquement déclaré comme enseignant de cette session et peut nommer les "étudiants" disponibles dans 
+La personne déclenchant le déployement est automatiquement déclaré comme enseignant de cette session et peut nommer les "étudiants" disponibles dans
 la plate-forme locale correspondante.</p>
 
 <p>Le déployement de sessions de formation en "libre usage" s\'effectue naturellement sur la plate-forme de rattachement de l\'utilisateur qui le demande.</p>
@@ -294,7 +295,7 @@ $string['notargets_help'] = '
 <li>Des problèmes techniques empêchent de joindre les établissements cibles (problème réseau).</li>
 <li>Ce cours ne peut être déployé car il n\'a pas été correctement référencé.</li>
 <ul>
-<p>En cas de doute, contactez le support technique.</p> 
+<p>En cas de doute, contactez le support technique.</p>
 ';
 
 $string['retrofit_help'] = '
@@ -320,20 +321,13 @@ mentionné, seule la capacité block/publishflow:deploy autorise le déploiement
 
 $string['configdeployprofilefieldvalue_desc'] = 'Donnez la valeur de référence du champ pour laquelle l\'utilisateur sera autoriser à déployer.';
 
-// Mnet Services
+// Mnet Services.
 
-$string['publishflow_name'] = 'Infrastructure de publication de cours' ;
+$string['publishflow_name'] = 'Infrastructure de publication de cours';
+
 $string['publishflow_description'] = 'Ce service rassemble les fonctions utilisées par l\'infrastructure de transport de cours.
 Vous devrez publier et abonner chaque côté de la liaison réseau.';
 
 // Settings.
 
 $string['synchonizingnetworkconfig'] = 'A partir de la version 3.1, le raffraichissement des données du réseau de publication peut être cadencé par la programmation des tâches programmées de Moodle.';
-
-/*
-$string['networkrefreshautomation'] = "Rafraichissement automatique de la structure réseau";
-$string['noautomatednetworkrefreshment'] = "Désactivé";
-$string['oneday'] = "Une fois par jour";
-$string['oneweek'] = "Une fois par semaine";
-$string['onemonth'] = "Une fois par mois";
-*/

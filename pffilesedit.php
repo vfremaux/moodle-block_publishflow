@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -22,7 +21,6 @@
  * @copyright 2008 Valery Fremaux <valery.fremaux@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 require('../../config.php');
 require_once(dirname(__FILE__) . '/pffilesedit_form.php');
 require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
@@ -31,7 +29,7 @@ require_once($CFG->dirroot . '/repository/lib.php');
 $courseid = required_param('id', PARAM_INT);
 
 if (!$course = $DB->get_record('course', array('id' => $courseid))) {
-	print_error('coursemisconf');
+    print_error('coursemisconf');
 }
 
 // Current context.
@@ -48,7 +46,6 @@ $url = new moodle_url('/blocks/publishflow/pffilesedit.php', array('id' => $cour
 // Security.
 
 require_course_login($course, false);
-//require_capability('moodle/restore:uploadfile', $context);
 require_capability('block/publishflow:managepublishedfiles', $context);
 
 $PAGE->set_url($url, array('id' => $courseid, 'returnurl' => $returnurl));
@@ -63,7 +60,13 @@ $browser = get_file_browser();
 $data = new stdClass();
 $options = array('subdirs' => 0, 'maxfiles' => -1, 'accepted_types' => '*', 'return_types' => FILE_INTERNAL);
 file_prepare_standard_filemanager($data, 'files', $options, $context, $component, $filearea, 0);
-$form = new pf_files_edit_form(null, array('data' => $data, 'courseid' => $courseid, 'contextid' => $context->id, 'filearea' => $filearea, 'component' => $component, 'returnurl' => $returnurl));
+$params = array('data' => $data,
+                'courseid' => $courseid,
+                'contextid' => $context->id,
+                'filearea' => $filearea,
+                'component' => $component,
+                'returnurl' => $returnurl);
+$form = new pf_files_edit_form(null, $params);
 
 if ($form->is_cancelled()) {
     redirect($returnurl);

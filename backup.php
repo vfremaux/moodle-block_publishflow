@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script is a local rewritten strategy for making quick backup 
+ * This script is a local rewritten strategy for making quick backup
  * in the publisheflow file areas
  * @package block_publishflow
  * @author Valery Fremaux (valery.fremaux@gmail.com);
@@ -38,7 +38,7 @@ $url = new moodle_url('/blocks/publishflow/backup.php', array('id' => $course->i
 $full = get_string('backupforpublishing', 'block_publishflow');
 
 $coursecontext = context_course::instance($courseid);
-$PAGE->set_context($coursecontext); 
+$PAGE->set_context($coursecontext);
 $PAGE->set_url($url);
 
 require_login();
