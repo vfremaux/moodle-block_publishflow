@@ -62,7 +62,7 @@ abstract class backup_automation {
      * @global moodle_database $DB
      */
     public static function run_publishflow_coursebackup($courseid) {
-        global $CFG, $DB, $USER;
+        global $DB, $USER;
 
         $fs = get_file_storage();
 

@@ -82,7 +82,7 @@ class block_publishflow_renderer extends plugin_renderer_base {
             if (!$rpcclient->send($mnethost)) {
                 $template->rpcerror = get_string('unavailable', 'block_publishflow');
                 if ($CFG->debug) {
-                    $notif = 'Publish Status Call Error : ' . implode("\n", $rpcclient->error;
+                    $notif = 'Publish Status Call Error : ' . implode("\n", $rpcclient->error);
                     $template->rpcdebug = $OUTPUT->notification($notif), 'notifyproblem');
                 }
             }
