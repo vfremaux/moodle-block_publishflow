@@ -30,9 +30,10 @@ $fromcourse = required_param('fromcourse', PARAM_INT);
 $action = required_param('what', PARAM_TEXT);
 $step = optional_param('step', COURSE_CLOSE_CHOOSE_MODE, PARAM_TEXT);
 
-$url = new moodle_url('/blocks/publishflow/close.php', array('fromcourse' => $fromcourse, 'what' => $action, 'step' => $step));
+$params = array('fromcourse' => $fromcourse, 'what' => $action, 'step' => $step);
+$url = new moodle_url('/blocks/publishflow/close.php', $params);
 
-/// check we can do this
+// Check we can do this.
 
 if (!$course = $DB->get_record('course', array('id' => "$fromcourse"))) {
     print_error('coursemisconf');
@@ -54,15 +55,15 @@ $PAGE->navbar->add(get_string('closing', 'block_publishflow'));
 
 echo $OUTPUT->header();
 
-/// start triggering the remote deployment
+// Start triggering the remote deployment.
 
 $strdoclose = get_string('doclose', 'block_publishflow');
 
 echo $OUTPUT->box_start('publishpanel');
 
-switch($step) {
-     case COURSE_CLOSE_CHOOSE_MODE:
-        // prints a choice with helpers
+switch ($step) {
+     case COURSE_CLOSE_CHOOSE_MODE: {
+        // Prints a choice with helpers.
         print_string('closehelper', 'block_publishflow');
 
         echo $OUTPUT->heading(get_string('closepublic', 'block_publishflow'));
@@ -81,14 +82,17 @@ switch($step) {
         $opts['id'] = $course->id;
         echo $OUTPUT->single_button(new moodle_url('/course/view.php', $opts), get_string('cancel'), 'get');
         echo '</center></p>';
-     break;
-     case COURSE_CLOSE_EXECUTE:
+        break;
+    }
+
+     case COURSE_CLOSE_EXECUTE: {
         $mode = required_param('mode', PARAM_INT);
         publishflow_course_close($course, $mode);
         echo $OUTPUT->box(get_string('courseclosed', 'block_publishflow'), 'center');
         echo " <a href=\"/course/view.php?id={$course->id}\">".get_string('backtocourse', 'block_publishflow').'</a>';
         echo '</center>';
         break;
+    }
 }
 
 echo $OUTPUT->box_end();

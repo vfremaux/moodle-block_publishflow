@@ -25,9 +25,7 @@ require_once($CFG->dirroot.'/mnet/lib.php');
 require_once($CFG->dirroot.'/mnet/xmlrpc/client.php');
 require_once($CFG->dirroot.'/blocks/publishflow/lib.php');
 
-/// get imput params
-
-$id = required_param('id', PARAM_INT); // the block ID
+$id = required_param('id', PARAM_INT); // The block ID.
 $fromcourse = required_param('fromcourse', PARAM_INT);
 $action = required_param('what', PARAM_TEXT);
 $where = required_param('where', PARAM_INT);  
@@ -40,11 +38,18 @@ $course = $DB->get_record('course', array('id' => "$fromcourse"));
 // Security. 
 
 require_login($course);
-        
+
 $system_context = context_course::instance($fromcourse);
 $PAGE->set_context($system_context); 
 $PAGE->set_button('');
-$PAGE->set_url('/blocks/publishflow/deploy.php',array('id' => $id,'fromcourse' => $fromcourse,'where' => $where,'what' => $action,'category' => $category, 'force' => $forcecache,'deplykey' => $deploykey));
+$params = array('id' => $id,
+                'fromcourse' => $fromcourse,
+                'where' => $where,
+                'what' => $action,
+                'category' => $category,
+                'force' => $forcecache,
+                'deploykey' => $deploykey);
+$PAGE->set_url('/blocks/publishflow/deploy.php', $params);
 $PAGE->navbar->add(get_string('pluginname', 'block_publishflow'));
 $PAGE->navbar->add(get_string('deploying', 'block_publishflow'));
 
@@ -56,7 +61,7 @@ if (!$instance = $DB->get_record('block_instances', array('id' => $id))){
     print_error('errorbadblockid', 'block_publishflow');
 }
 
-$theBlock = block_instance('publishflow', $instance);
+$theblock = block_instance('publishflow', $instance);
 
 // Check we can do this.
 $course = $DB->get_record('course', array('id' => "$fromcourse"));
@@ -68,8 +73,8 @@ $course = $DB->get_record('course', array('id' => "$fromcourse"));
 */
 
 // Check the deploykey.
-if (!empty($theBlock->config->deploymentkey)) {
-    if ($theBlock->config->deploymentkey !== $deploykey) {
+if (!empty($theblock->config->deploymentkey)) {
+    if ($theblock->config->deploymentkey !== $deploykey) {
         print_error('badkey', 'block_publishflow', new moodle_url('/course/view.php', array('id' => $fromcourse)));
     }
 }
@@ -77,7 +82,7 @@ if (!empty($theBlock->config->deploymentkey)) {
 $mnethost = $DB->get_record('mnet_host', array('id' => $where));
 
 // If we want to deploy on a local platform, we need to bypass the RPC with a quick function.
-if($where == 0){
+if ($where == 0) {
     $remotecourseid = publishflow_local_deploy($category, $course);
 
     echo $OUTPUT->box_start('plublishpanel');
@@ -133,7 +138,7 @@ if($where == 0){
         echo '<br/>';
         echo '<br/>';
         if ($USER->mnethostid != $mnethost->id){
-            $params = array('hostid' => $mnethost->id, 'wantsurl' => urlencode('/course/view.php?id='.$remotecourseid));
+            $params = array('hostid' => $mnethost->id, 'wantsurl' => '/course/view.php?id='.$remotecourseid);
             $jumpurl = new moodle_url('/auth/mnet/jump.php', $params);
             echo '<a href="'.$jumpurl.'">'.get_string('jumptothecourse', 'block_publishflow').'</a> - ';
         } else {

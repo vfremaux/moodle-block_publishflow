@@ -1,15 +1,29 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('MOODLE_INTERNAL')) die('You cannot access this script directly.');
+defined('MOODLE_INTERNAL') || die();
 
 /**
-* This is the default indexing process that only generates a local randomized
-* Unique ID for the course.
-*
-*/
+ * This is the default indexing process that only generates a local randomized
+ * Unique ID for the course.
+ *
+ */
 
-include_once $CFG->dirroot.'/blocks/publishflow/submitlib.php';
+include_once($CFG->dirroot.'/blocks/publishflow/submitlib.php');
 
-$idnumber = block_publishflow_generate_id();
+$idnumber = \block_publishflow::generate_id();
 $step = STEP_COMPLETED;
 

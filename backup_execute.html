@@ -1,5 +1,6 @@
 <?php
-//This page prints the backup todo list to see everything
+
+// This page prints the backup todo list to see everything.
 
 //Check login
 require_login();
@@ -27,8 +28,9 @@ if (!$site = get_site()) {
 }
 
 $preferences = new StdClass;
-backup_fetch_prefs_from_request($preferences,$count,$course);
-//Another Info
+backup_fetch_prefs_from_request($preferences, $count, $course);
+
+// Another Info.
 backup_add_static_preferences($preferences);
 
 if ($count == 0) {
@@ -69,8 +71,10 @@ if (!$status) {
 }
 
 //Print final message
-print_simple_box(get_string("backupfinished"),"center");
-echo $OUTPUT->continue_button("$CFG->wwwroot/course/view.php?id=".$preferences->backup_course);    
+$OUTPUT->box(get_string('backupfinished'));
+
+$return_url = new moodle_url('/course/view.php', array('id', $preferences->backup_course));
+echo $OUTPUT->continue_button($returnurl);
 
 $SESSION->backupprefs[$course->id] = null; // unset it so we're clear next time.
 

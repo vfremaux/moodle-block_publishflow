@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * Utility helper for automated backups run through cron.
  *
@@ -24,6 +22,8 @@
  * @copyright  2010 Sam Hemelryk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * This class is an abstract class with methods that can be called to aid the
@@ -55,74 +55,120 @@ abstract class backup_automation {
     const AUTO_BACKUP_ENABLED = 1;
     const AUTO_BACKUP_MANUAL = 2;
     const MODE_MANUAL = 110;
-    const MODE_PUBLISHFLOW = 220;
-         
+
     /**
      * Runs the automated backups if required
      *
      * @global moodle_database $DB
      */
-    public static function run_publishflow_coursebackup($course_id,$destination = 1) {
-        global $CFG, $DB;
+    public static function run_publishflow_coursebackup($courseid) {
+        global $CFG, $DB, $USER;
+
+        $fs = get_file_storage();
 
         $status = true;
         $emailpending = false;
         $now = time();
         $rundirective = self::RUN_ON_SCHEDULE;
-        print("<div class='pf-backup-step'>Checking any backup operation in progress </div>");
+
+        echo '<pre>';
+        mtrace(get_string('backupstatecheck', 'block_publishflow'));
+
         $state = backup_automation::get_automated_backup_state($rundirective);
-       
+
         if ($state === backup_automation::STATE_RUNNING) {
-            print('<div class="pf-backup-step">RUNNING</div>');
+            echo '<div class="pf-backup-step">RUNNING</div>';
             if ($rundirective == self::RUN_IMMEDIATELY) {
-                print('<div>Previous backup is already running. please wait and try again in few minuites.</div>');
+                mtrace(get_string('backupinprogress', 'block_publishflow'));
             } else {
-                print("<div>automated backup are already running. Execution delayed</div>");
+                mtrace(get_string('backupautomatedrunning', 'block_publishflow'));
             }
-            return $state;
-        } else {
-//           // print('<div>OK</div>');
+            echo '</pre>';
+            return false;
         }
         backup_automation::set_state_running();
 
-        print("<div class='pf-backup-step'>Getting admin info</div>");
         $admin = get_admin();
         if (!$admin) {
-            print("<div>Error: No admin account was found</div>");
-            $state = false;
+            mtrace(get_string('backuperrornoadmin', 'block_publishflow'));
+            return false;
         }
 
-        if ($status) {
-            print("<div class='pf-backup-step'>Checking course</div>");
+        mtrace(get_string('backupcheckingcourse', 'block_publishflow'));
+
+        // This could take a while!
+        @set_time_limit(0);
+        raise_memory_limit(MEMORY_EXTRA);
+
+        $course = $DB->get_record('course', array('id' => $courseid));
+
+        /*
+         * Skip backup of unavailable courses that have remained unmodified in a month
+         * Check log if there were any modifications to the course content
+         */
+        $sqlwhere = "
+            course=:courseid AND
+            time>:time AND ". $DB->sql_like('action', ':action', false, true, true);
+        $params = array('courseid' => $course->id, 'time' => $now - 31 * DAYSECS, 'action' => '%view%');
+        $logexists = $DB->record_exists_select('log', $sqlwhere, $params);
+
+        // Now we backup every non-skipped course.
+        mtrace(get_string('backupcourse', 'block_publishflow', $course->fullname));
+
+        $usercontext = context_user::instance($USER->id);
+        $admincontext = context_user::instance($admin->id);
+        $coursecontext = context_course::instance($courseid);
+
+        // Ensure the user_tohub filearea is empty.
+        $fs->delete_area_files($usercontext->id, 'user', 'tohub', 0);
+
+        // Only make the backup if laststatus isn't 2-UNFINISHED (uncontrolled error).
+
+        if (backup_automation::launch_automated_backup($course, $admin->id)) {
+
+            // Get result in user_tohub filearea and move it to publishflow backup area.
+
+            $generatedfiles = $fs->get_area_files($admincontext->id, 'user', 'tohub', 0, 'timecreated DESC', false);
+
+            if (!empty($generatedfiles)) {
+                $backupfile = array_pop($generatedfiles);
+                $newfilerec = new Stdclass;
+                $newfilerec->contextid = $coursecontext->id;
+                $newfilerec->component = 'backup';
+                $newfilerec->filearea = 'publishflow';
+                $newfilerec->itemid = 0;
+                $newfilerec->filepath = $backupfile->get_filepath();
+                $newfilerec->filename = $backupfile->get_filename();
+
+                mtrace(get_string('backupstore', 'block_publishflow'));
+
+                // Purge eventual old file.
+                if ($oldfile = $fs->get_file($newfilerec->contextid,
+                                             $newfilerec->component,
+                                             $newfilerec->filearea,
+                                             $newfilerec->itemid,
+                                             $newfilerec->filepath,
+                                             $newfilerec->filename)) {
+                    $oldfile->delete();
+                }
+
+                // Move to new publishflow location.
+                $fs->create_file_from_storedfile($newfilerec, $backupfile);
+                // Purge old backup location.
+                $backupfile->delete();
+            } else {
+                mtrace(get_string('backuprelocfailure', 'block_publishflow'));
+            }
+        } else {
+            mtrace(get_string('backupfailure', 'block_publishflow'));
         }
 
-        if ($status) {
-            // This could take a while!
-            @set_time_limit(0);
-            raise_memory_limit(MEMORY_EXTRA);
-
-            $course = $DB->get_record('course', array('id' => $course_id));
-            
-            // Skip backup of unavailable courses that have remained unmodified in a month
-             //Check log if there were any modifications to the course content
-            $sqlwhere = "course=:courseid AND time>:time AND ". $DB->sql_like('action', ':action', false, true, true);
-            $params = array('courseid' => $course->id, 'time' => $now-31*24*60*60, 'action' => '%view%');
-            $logexists = $DB->record_exists_select('log', $sqlwhere, $params);
-                
-            // Now we backup every non-skipped course              
-            print('<div class="pf-backup-step">Backing up '.$course->fullname."</div>");
-        
-            // Only make the backup if laststatus isn't 2-UNFINISHED (uncontrolled error)
-          
-            backup_automation::launch_automated_backup($course, $admin->id,$destination);           
-        }
-
-        //Everything is finished stop backup_auto_running
+        // Everything is finished stop backup_auto_running.
         backup_automation::set_state_running(false);
 
-        print('<div class="pf-backup-step" style="color:#009922;font-weight:bold;">Course backup complete.</div>');
+        echo '<div class="pf-backup-step" style="color:#009922;font-weight:bold;">Course backup complete.</div>';
 
-        return $status;
+        return true;
     }
 
     /**
@@ -142,7 +188,16 @@ abstract class backup_automation {
             self::BACKUP_STATUS_SKIPPED => 0,
         );
 
-        $statuses = $DB->get_records_sql('SELECT DISTINCT bc.laststatus, COUNT(bc.courseid) statuscount FROM {backup_courses} bc GROUP BY bc.laststatus');
+        $sql = '
+            SELECT DISTINCT
+                bc.laststatus,
+                COUNT(bc.courseid) statuscount
+            FROM
+                {backup_courses} bc
+            GROUP BY
+                bc.laststatus
+        ';
+        $statuses = $DB->get_records_sql($sql);
 
         foreach ($statuses as $status) {
             if (empty($status->statuscount)) {
@@ -161,40 +216,45 @@ abstract class backup_automation {
      * @param int $now
      * @return int
      */
-   
+
     /**
      * Launches a automated backup routine for the given course
      *
      * @param stdClass $course
-     * @param int $starttime
      * @param int $userid
      * @return bool
      */
-    public static function launch_automated_backup($course, $userid,$destination) {
+    public static function launch_automated_backup($course, $userid) {
+        global $CFG;
 
         $config = get_config('backup');
-        $bc = new backup_controller(backup::TYPE_1COURSE, $course->id, backup::FORMAT_MOODLE, backup::INTERACTIVE_NO, self::MODE_PUBLISHFLOW, $userid);
-        
+        $bc = new backup_controller(backup::TYPE_1COURSE,
+                                    $course->id,
+                                    backup::FORMAT_MOODLE,
+                                    backup::INTERACTIVE_NO,
+                                    backup::MODE_HUB,
+                                    $userid);
+
         try {
             $settings = array(
-                'users' => 0,
+                /* 'users' => 0, */
                 'role_assignments' => 0,
                 'user_files' => 0,
                 'activities' => 1,
                 'blocks' => 1,
                 'filters' => 1,
-                'comments' => 1,
+                'comments' => 0,
                 'completion_information' => 0,
-                'logs' => 1,
-                'histories' => 1
+                'logs' => 0,
+                'histories' => 0
             );
             foreach ($settings as $setting => $configsetting) {
                 if ($bc->get_plan()->setting_exists($setting)) {
                     $bc->get_plan()->get_setting($setting)->set_value($configsetting);
                 }
             }
-          
-            // Set the default filename
+
+            // Set the default filename.
             $format = $bc->get_format();
             $type = $bc->get_type();
             $id = $bc->get_id();
@@ -207,34 +267,23 @@ abstract class backup_automation {
             $outcome = $bc->execute_plan();
             $results = $bc->get_results();
             $file = $results['backup_destination'];
-            
-            /*
-            // Developement test purpose
-             $dir = "D:\\wamp\\test_backup";//$config->backup_auto_destination;
-           
-             if(!file_exists($dir))
-            {
-                mkdir($dir);
-            }
-            
-            $storage = 1;//(int)$config->backup_auto_storage;
+
+            // Move file to a more accessible location.
+            $dir = $CFG->tempdir.'/backup';
 
             if (!file_exists($dir) || !is_dir($dir) || !is_writable($dir)) {
                 $dir = null;
             }
-            
-            if (!empty($dir) && $storage !== 0) {
+
+            if (!empty($dir)) {
                 $filename = backup_plan_dbops::get_default_backup_filename($format, $type, $course->id, $users, $anonymised, true);
                 $outcome = $file->copy_content_to($dir.'/'.$filename);
-                if ($outcome && $storage === 1) {
-                    //$file->delete();
-                }
-            }*/
-
-            $outcome = true;
+            }
         } catch (backup_exception $e) {
             $bc->log('backup_auto_failed_on_course', backup::LOG_WARNING, $course->shortname);
-            $outcome = false;
+            $bc->destroy();
+            unset($bc);
+            return false;
         }
 
         $bc->destroy();
@@ -242,15 +291,6 @@ abstract class backup_automation {
 
         return true;
     }
-
-    /**
-     * Removes deleted courses fromn the backup_courses table so that we don't
-     * waste time backing them up.
-     *
-     * @global moodle_database $DB
-     * @return int
-     */
-
 
     /**
      * Gets the state of the automated backup system.
@@ -264,17 +304,19 @@ abstract class backup_automation {
         $config = get_config('backup');
         $active = (int)$config->backup_auto_active;
         if (!empty($config->backup_auto_running)) {
-            // Detect if the backup_auto_running semaphore is a valid one
-            // by looking for recent activity in the backup_controllers table
-            // for backups of type backup::MODE_AUTOMATED
-            $timetosee = 60 * 90; // Time to consider in order to clean the semaphore
+            /*
+             * Detect if the backup_auto_running semaphore is a valid one
+             * by looking for recent activity in the backup_controllers table
+             * for backups of type backup::MODE_AUTOMATED
+             */
+            $timetosee = 60 * 90; // Time to consider in order to clean the semaphore.
             $params = array( 'purpose'   => self::MODE_MANUAL, 'timetolook' => (time() - $timetosee));
             if ($DB->record_exists_select('backup_controllers',
                 "operation = 'backup' AND type = 'course' AND purpose = :purpose AND timemodified > :timetolook", $params)) {
                 return self::STATE_RUNNING; // Recent activity found, still running
             } else {
-                // No recent activity found, let's clean the semaphore
-                print('<div>No backup activity found in last ' . (int)$timetosee/60 . ' minutes. Cleaning running status</div>');
+                // No recent activity found, let's clean the semaphore.
+                echo '<div>No backup activity found in last ' . (int)$timetosee/60 . ' minutes. Cleaning running status</div>';
                 backup_automation::set_state_running(false);
             }
         }
@@ -313,14 +355,14 @@ abstract class backup_automation {
         $storage =  $config->backup_auto_storage;
         $dir =      $config->backup_auto_destination;
 
-        $backupword = str_replace(' ', '_', textlib::strtolower(get_string('backupfilename')));
+        $backupword = str_replace(' ', '_', core_text::strtolower(get_string('backupfilename')));
         $backupword = trim(clean_filename($backupword), '_');
 
         if (!file_exists($dir) || !is_dir($dir) || !is_writable($dir)) {
             $dir = null;
         }
 
-        // Clean up excess backups in the course backup filearea
+        // Clean up excess backups in the course backup filearea.
         if ($storage == 0 || $storage == 2) {
             $fs = get_file_storage();
             $context = context_course::instance($course->id);
@@ -328,7 +370,7 @@ abstract class backup_automation {
             $filearea = 'publishflow';
             $itemid = 0;
             $files = array();
-            // Store all the matching files into timemodified => stored_file array
+            // Store all the matching files into timemodified => stored_file array.
             foreach ($fs->get_area_files($context->id, $component, $filearea, $itemid) as $file) {
                 if (strpos($file->get_filename(), $backupword) !== 0) {
                     continue;
@@ -336,27 +378,30 @@ abstract class backup_automation {
                 $files[$file->get_timemodified()] = $file;
             }
             if (count($files) <= $keep) {
-                // There are less matching files than the desired number to keep
-                // do there is nothing to clean up.
+                /*
+                 * There are less matching files than the desired number to keep
+                 * do there is nothing to clean up.
+                 */
                 return 0;
             }
-            // Sort by keys descending (newer to older filemodified)
+            // Sort by keys descending (newer to older filemodified).
             krsort($files);
             $remove = array_splice($files, $keep);
             foreach ($remove as $file) {
                 $file->delete();
             }
-            //mtrace('Removed '.count($remove).' old backup file(s) from the automated filearea');
         }
 
-        // Clean up excess backups in the specified external directory
+        // Clean up excess backups in the specified external directory.
         if (!empty($dir) && ($storage == 1 || $storage == 2)) {
-            // Calculate backup filename regex, ignoring the date/time/info parts that can be
-            // variable, depending of languages, formats and automated backup settings
-            $filename = $backupword . '-' . backup::FORMAT_MOODLE . '-' . backup::TYPE_1COURSE . '-' .$course->id . '-';
+            /*
+             * Calculate backup filename regex, ignoring the date/time/info parts that can be
+             * variable, depending of languages, formats and automated backup settings
+             */
+            $filename = $backupword.'-'.backup::FORMAT_MOODLE.'-'.backup::TYPE_1COURSE.'-'.$course->id.'-';
             $regex = '#^'.preg_quote($filename, '#').'.*\.mbz$#';
 
-            // Store all the matching files into fullpath => timemodified array
+            // Store all the matching files into fullpath => timemodified array.
             $files = array();
             foreach (scandir($dir) as $file) {
                 if (preg_match($regex, $file, $matches)) {
@@ -364,17 +409,18 @@ abstract class backup_automation {
                 }
             }
             if (count($files) <= $keep) {
-                // There are less matching files than the desired number to keep
-                // do there is nothing to clean up.
+                /*
+                 * There are less matching files than the desired number to keep
+                 * do there is nothing to clean up.
+                 */
                 return 0;
             }
-            // Sort by values descending (newer to older filemodified)
+            // Sort by values descending (newer to older filemodified).
             arsort($files);
             $remove = array_splice($files, $keep);
             foreach (array_keys($remove) as $file) {
                 unlink($dir . '/' . $file);
             }
-            //mtrace('Removed '.count($remove).' old backup file(s) from external directory');
         }
 
         return true;
