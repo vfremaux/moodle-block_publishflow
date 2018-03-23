@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Submits a course for indexing
@@ -7,51 +21,43 @@
  *
  */
 
-/**
-* Requires and includes
-*/
-    include '../../config.php';
-    include_once $CFG->dirroot."/mnet/lib.php";
-    include_once $CFG->dirroot."/mnet/xmlrpc/client.php";
-    include_once $CFG->dirroot."/blocks/publishflow/submitlib.php";
+require('../../config.php');
+require_once($CFG->dirroot.'/mnet/lib.php');
+require_once($CFG->dirroot.'/mnet/xmlrpc/client.php');
+require_once($CFG->dirroot.'/blocks/publishflow/submitlib.php');
+require_once($CFG->dirroot.'/blocks/publishflow/block_publishflow.php');
 
-/**
-* Constants
-*/
 // This is a common step for any indexing procedure. Other processes may add their own step declarations.
 define('STEP_COMPLETED', -1);
 define('STEP_INITIAL', 0);
 
-/// get imput params
+$id = required_param('id', PARAM_INT); // The block instance ID.
+$fromcourse = required_param('fromcourse', PARAM_INT);
+$action = required_param('what', PARAM_TEXT);
+$step = optional_param('step', STEP_INITIAL, PARAM_INT);
+$course = $DB->get_record('course', array('id' => "$fromcourse"));
 
-    $id = required_param('id', PARAM_INT); // The block instance ID
-    $fromcourse = required_param('fromcourse', PARAM_INT);
-    $action = required_param('what', PARAM_TEXT);
-    $step = optional_param('step', STEP_INITIAL, PARAM_INT);
-    $course = $DB->get_record('course', array('id' => "$fromcourse"));
+require_login($course);
 
-/// check we can do this
+$url = new moodle_url('/blocks/publishflow/submit.php', array('id' => $id));
+$PAGE->set_url($url);
+$PAGE->navigation->add(format_string($course->shortname), new moodle_url('/course/view.php', array('id' => $course->id)));
+$PAGE->navigation->add(get_string('indexing', 'block_publishflow'));
+$PAGE->set_title(get_string('indexing', 'block_publishflow'));
+$PAGE->set_heading(get_string('indexing', 'block_publishflow'));
 
-    require_login($course);    
+echo $OUTPUT->header();
 
-	$url = $CFG->wwwroot.'/blocks/publishflow/submit.php?id='.$id;
-	$PAGE->set_url($url);
-	$PAGE->navigation->add(format_string($course->shortname), $CFG->wwwroot."/couse/view.php?id={$course->id}");
-	$PAGE->navigation->add(get_string('indexing', 'block_publishflow'));
-    $PAGE->set_title(get_string('indexing', 'block_publishflow'));
-    $PAGE->set_heading(get_string('indexing', 'block_publishflow'));
+$result = 0;
 
-    echo $OUTPUT->header();
+// Runs the proper indexing procedure.
+$instance = $DB->get_record('block_instances', array('id' => $id));
+$theblock = block_instance('publishflow', $instance);
 
-    $result = 0;
+if (!isset($theblock->config->submitto)) {
+    $theblock->config = new StdClass();
+    $theblock->config->submitto = 'default';
+}
+$result = include($CFG->dirroot."/blocks/publishflow/submits/{$theblock->config->submitto}/submit_proc.php");
 
-    // runs the proper indexing procedure
-    $instance = $DB->get_record('block_instances', array('id' => $id));
-    $theBlock = block_instance('publishflow', $instance);
-    if (!isset($theBlock->config->submitto)) {
-    	$theBlock->config = new StdClass();
-    	$theBlock->config->submitto = 'default';
-    }
-    $result = include $CFG->dirroot."/blocks/publishflow/submits/{$theBlock->config->submitto}/submit_proc.php";
-
-    echo $OUTPUT->footer();
+echo $OUTPUT->footer();

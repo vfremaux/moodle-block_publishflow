@@ -1,0 +1,47 @@
+
+
+<!-- trainingcenter -->
+
+{{#enableretrofit}}
+
+{{^factory}}
+    {{{nofactorynotif}}}
+{{/factory}}
+
+{{#factory}}
+
+{{^backup}}
+{{{unavailablenotif}}}
+{{/backup}}
+<center>
+<form name="makebackup" action="{{{formurl}}}" method="GET">
+    <input type="hidden" name="id" value="{{courseid}}" />
+    <input type="submit" name="go_btn" value="{{dobackupstr}}" />
+</form>
+</center>
+
+{{#canretrofit}}
+<div class="publishflow-service">
+    <b>{{{retrofittitlestr}}}</b> {{{retrofithelpicon}}}
+</div>
+<div class="publishflow-control block-form-singleline centered">
+    <a href="{{{retrofiturl}}}" class="btn btn-submit">{{retrofitstr}}</a>
+</div>
+{{/canretrofit}}
+
+{{/factory}}
+
+{{/enableretrofit}}
+
+{{#canmanagesessions}}
+<div class="publishflow-service">
+    <b>{{{coursecontrolstr}}}</b>
+</div>
+<div class="publishflow-control block-form-singleline centered">
+    <a href="{{{controlurl}}}" class="btn btn-submit">{{controlstr}}</a>
+</div>
+{{/canmanagesessions}}
+
+</center>
+
+<!-- /trainingcenter -->

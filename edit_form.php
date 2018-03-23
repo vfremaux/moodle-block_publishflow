@@ -29,17 +29,19 @@ defined('MOODLE_INTERNAL') || die();
 require_once("$CFG->libdir/formslib.php");
 
 class block_publishflow_edit_form extends block_edit_form {
-    function specific_definition($mform) {
-        global $CFG,$DB;
+
+    public function specific_definition($mform) {
+
+        $config = get_config('block_publishflow');
 
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
 
         $mform->addElement('checkbox', 'config_allowfreecategoryselection', get_string('allowfreecategoryselection', 'block_publishflow'));
         $mform->setType('config_allowfreecategoryselection', PARAM_BOOL);
 
-        if (preg_match('/\\bcatalog\\b/', $CFG->moodlenodetype)) {
-            $mform->addElement('text', 'config_deploymentkeydesc', get_string('deploymentkeydesc', 'block_publishflow'));   
-            $mform->setType('config_deploymentkeydesc', PARAM_TEXT);
+        if (preg_match('/\\bcatalog\\b/', $config->moodlenodetype)) {
+            $mform->addElement('text', 'config_deploymentkey', get_string('deploymentkey_desc', 'block_publishflow'));   
+            $mform->setType('config_deploymentkey', PARAM_TEXT);
         }
     }
 }

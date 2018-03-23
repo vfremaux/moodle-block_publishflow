@@ -18,37 +18,37 @@ $platformid = required_param('platformid', PARAM_INT);
 
 if ($platformid == 0) {
     $catresults = array();
-  
-  	$catmenu = $DB->get_records('course_categories', array('parent' => 0), 'id', 'id,name');	
-   	foreach ($catmenu as $cat) {
+
+    $catmenu = $DB->get_records('course_categories', array('parent' => 0), 'id', 'id,name');
+    foreach ($catmenu as $cat) {
        add_local_category_results($catresults, $cat);
-	}
+    }
 } else {
-	// get local image of remote known categories		
-	$catresults = array();
-	publishflow_get_remote_categories($platformid, $catresults, 0, 3);
+    // Get local image of remote known categories.
+    $catresults = array();
+    publishflow_get_remote_categories($platformid, $catresults, 0, 3);
 }
 
-/// We return the value to the Ajax.
+// We return the value to the Ajax.
 
-echo(json_encode($catresults));
+echo json_encode($catresults);
 
-function add_local_category_results(& $catresults, $cat){
-	global $DB;
-	
-	static $indent = ''; 
+function add_local_category_results(& $catresults, $cat) {
+    global $DB;
 
-	$catentry = new stdClass;
-	$catentry->orid = $cat->id;
-	$catentry->name = $indent.$cat->name;
-	$catresults[] = $catentry;
-	// If the node isn't a leaf, we go deeper.
-	if ($subcats = $DB->get_records('course_categories', array('parent' => $cat->id), 'sortorder', 'id,name')){
-	    foreach($subcats as $sub){
-	    	$indent = $indent.'- ';
-	    	add_local_category_results($catresults, $sub);
-	    	$indent = preg_replace('/$- /', '', $indent);
-	    }
-	}
+    static $indent = '';
+
+    $catentry = new stdClass;
+    $catentry->orid = $cat->id;
+    $catentry->name = $indent.$cat->name;
+    $catresults[] = $catentry;
+    // If the node isn't a leaf, we go deeper.
+    if ($subcats = $DB->get_records('course_categories', array('parent' => $cat->id), 'sortorder', 'id,name')) {
+        foreach ($subcats as $sub) {
+            $indent = $indent.'- ';
+            add_local_category_results($catresults, $sub);
+            $indent = preg_replace('/$- /', '', $indent);
+        }
+    }
 }
 

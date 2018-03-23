@@ -1,5 +1,18 @@
 <?php
-
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * a hack of choose_from_menu, adding multiple capability
@@ -23,7 +36,8 @@
  * @param string $id value to use for the id attribute of the &lt;select> element. If none is given,
  *      then a suitable one is constructed.
  */
-if(!function_exists('choose_from_menu_multiple')){
+if (!function_exists('choose_from_menu_multiple')) {
+
     function choose_from_menu_multiple($options, $name, $selected = null, $size = 5, $nothing = 'choose', $script = '', $nothingvalue = '0', $return = false, $disabled = false, $tabindex = 0, $id = '') {
         if ($nothing == 'choose') {
             $nothing = get_string('choose').'...';
@@ -71,27 +85,4 @@ if(!function_exists('choose_from_menu_multiple')){
             echo $output;
         }
     }
-}
-
-/**
-* generates a course unique ID of fixed length
-* @param int $length
-* @return a new idnumber as a string
-*/
-function block_publishflow_generate_id($length = 10){
-	global $DB;
-	
-    $continue = true;
-
-    while ($continue) {
-        // generate
-        $idnumber = '';
-        for($i = 0 ; $i < $length ; $i++){
-            $num = rand(65,90);
-            $idnumber .= chr($num);
-        }
-        // test for unicity
-        $continue = $DB->count_records('course', array('idnumber' => $idnumber));
-    }
-    return $idnumber;
 }
