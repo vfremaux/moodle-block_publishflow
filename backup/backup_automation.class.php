@@ -55,112 +55,70 @@ abstract class backup_automation {
     const AUTO_BACKUP_ENABLED = 1;
     const AUTO_BACKUP_MANUAL = 2;
     const MODE_MANUAL = 110;
-
+    const MODE_PUBLISHFLOW = 220;
+         
     /**
      * Runs the automated backups if required
      *
      * @global moodle_database $DB
      */
-    public static function run_publishflow_coursebackup($courseid) {
-        global $CFG, $DB, $USER;
-
-        $fs = get_file_storage();
+    public static function run_publishflow_coursebackup($courseid, $destination = 1) {
+        global $CFG, $DB;
 
         $status = true;
         $emailpending = false;
         $now = time();
         $rundirective = self::RUN_ON_SCHEDULE;
-
-        echo '<pre>';
-        mtrace(get_string('backupstatecheck', 'block_publishflow'));
-
+        echo "<div class='pf-backup-step'>Checking any backup operation in progress </div>";
         $state = backup_automation::get_automated_backup_state($rundirective);
 
         if ($state === backup_automation::STATE_RUNNING) {
             echo '<div class="pf-backup-step">RUNNING</div>';
             if ($rundirective == self::RUN_IMMEDIATELY) {
-                mtrace(get_string('backupinprogress', 'block_publishflow'));
+                echo '<div>Previous backup is already running. please wait and try again in few minuites.</div>';
             } else {
-                mtrace(get_string('backupautomatedrunning', 'block_publishflow'));
+                echo '<div>automated backup are already running. Execution delayed</div>';
             }
-            echo '</pre>';
-            return false;
+            return $state;
+        } else {
+//           // print('<div>OK</div>');
         }
         backup_automation::set_state_running();
 
+        echo '<div class="pf-backup-step">Getting admin info</div>';
         $admin = get_admin();
         if (!$admin) {
-            mtrace(get_string('backuperrornoadmin', 'block_publishflow'));
-            return false;
+            echo '<div>Error: No admin account was found</div>';
+            $state = false;
         }
 
-        mtrace(get_string('backupcheckingcourse', 'block_publishflow'));
+        if ($status) {
+            echo '<div class="pf-backup-step">Checking course</div>';
+        }
 
-        // This could take a while!
-        @set_time_limit(0);
-        raise_memory_limit(MEMORY_EXTRA);
+        if ($status) {
+            // This could take a while!
+            @set_time_limit(0);
+            raise_memory_limit(MEMORY_EXTRA);
 
-        $course = $DB->get_record('course', array('id' => $courseid));
+            $course = $DB->get_record('course', array('id' => $courseid));
 
-        /*
-         * Skip backup of unavailable courses that have remained unmodified in a month
-         * Check log if there were any modifications to the course content
-         */
-        $sqlwhere = "
-            course=:courseid AND
-            time>:time AND ". $DB->sql_like('action', ':action', false, true, true);
-        $params = array('courseid' => $course->id, 'time' => $now - 31 * DAYSECS, 'action' => '%view%');
-        $logexists = $DB->record_exists_select('log', $sqlwhere, $params);
+            /*
+             * Skip backup of unavailable courses that have remained unmodified in a month
+             * Check log if there were any modifications to the course content
+             */
+            $sqlwhere = "
+                course=:courseid AND
+                time>:time AND ". $DB->sql_like('action', ':action', false, true, true);
+            $params = array('courseid' => $course->id, 'time' => $now - 31 * DAYSECS, 'action' => '%view%');
+            $logexists = $DB->record_exists_select('log', $sqlwhere, $params);
 
-        // Now we backup every non-skipped course.
-        mtrace(get_string('backupcourse', 'block_publishflow', $course->fullname));
+            // Now we backup every non-skipped course.
+            echo '<div class="pf-backup-step">Backing up '.$course->fullname."</div>";
 
-        $usercontext = context_user::instance($USER->id);
-        $admincontext = context_user::instance($admin->id);
-        $coursecontext = context_course::instance($courseid);
+            // Only make the backup if laststatus isn't 2-UNFINISHED (uncontrolled error).
 
-        // Ensure the user_tohub filearea is empty.
-        $fs->delete_area_files($usercontext->id, 'user', 'tohub', 0);
-
-        // Only make the backup if laststatus isn't 2-UNFINISHED (uncontrolled error).
-
-        if (backup_automation::launch_automated_backup($course, $admin->id)) {
-
-            // Get result in user_tohub filearea and move it to publishflow backup area.
-
-            $generatedfiles = $fs->get_area_files($admincontext->id, 'user', 'tohub', 0, 'timecreated DESC', false);
-
-            if (!empty($generatedfiles)) {
-                $backupfile = array_pop($generatedfiles);
-                $newfilerec = new Stdclass;
-                $newfilerec->contextid = $coursecontext->id;
-                $newfilerec->component = 'backup';
-                $newfilerec->filearea = 'publishflow';
-                $newfilerec->itemid = 0;
-                $newfilerec->filepath = $backupfile->get_filepath();
-                $newfilerec->filename = $backupfile->get_filename();
-
-                mtrace(get_string('backupstore', 'block_publishflow'));
-
-                // Purge eventual old file.
-                if ($oldfile = $fs->get_file($newfilerec->contextid,
-                                             $newfilerec->component,
-                                             $newfilerec->filearea,
-                                             $newfilerec->itemid,
-                                             $newfilerec->filepath,
-                                             $newfilerec->filename)) {
-                    $oldfile->delete();
-                }
-
-                // Move to new publishflow location.
-                $fs->create_file_from_storedfile($newfilerec, $backupfile);
-                // Purge old backup location.
-                $backupfile->delete();
-            } else {
-                mtrace(get_string('backuprelocfailure', 'block_publishflow'));
-            }
-        } else {
-            mtrace(get_string('backupfailure', 'block_publishflow'));
+            backup_automation::launch_automated_backup($course, $admin->id, $destination);
         }
 
         // Everything is finished stop backup_auto_running.
@@ -168,7 +126,7 @@ abstract class backup_automation {
 
         echo '<div class="pf-backup-step" style="color:#009922;font-weight:bold;">Course backup complete.</div>';
 
-        return true;
+        return $status;
     }
 
     /**
@@ -189,7 +147,7 @@ abstract class backup_automation {
         );
 
         $sql = '
-            SELECT DISTINCT
+            SELECT DISTINCT 
                 bc.laststatus,
                 COUNT(bc.courseid) statuscount
             FROM
@@ -221,32 +179,31 @@ abstract class backup_automation {
      * Launches a automated backup routine for the given course
      *
      * @param stdClass $course
+     * @param int $starttime
      * @param int $userid
      * @return bool
      */
-    public static function launch_automated_backup($course, $userid) {
-        global $CFG;
+    public static function launch_automated_backup($course, $userid,$destination) {
 
         $config = get_config('backup');
         $bc = new backup_controller(backup::TYPE_1COURSE,
                                     $course->id,
                                     backup::FORMAT_MOODLE,
                                     backup::INTERACTIVE_NO,
-                                    backup::MODE_HUB,
-                                    $userid);
+                                    self::MODE_PUBLISHFLOW, $userid);
 
         try {
             $settings = array(
-                /* 'users' => 0, */
+                'users' => 0,
                 'role_assignments' => 0,
                 'user_files' => 0,
                 'activities' => 1,
                 'blocks' => 1,
                 'filters' => 1,
-                'comments' => 0,
+                'comments' => 1,
                 'completion_information' => 0,
-                'logs' => 0,
-                'histories' => 0
+                'logs' => 1,
+                'histories' => 1
             );
             foreach ($settings as $setting => $configsetting) {
                 if ($bc->get_plan()->setting_exists($setting)) {
@@ -268,22 +225,22 @@ abstract class backup_automation {
             $results = $bc->get_results();
             $file = $results['backup_destination'];
 
-            // Move file to a more accessible location.
-            $dir = $CFG->tempdir.'/backup';
-
             if (!file_exists($dir) || !is_dir($dir) || !is_writable($dir)) {
                 $dir = null;
             }
 
-            if (!empty($dir)) {
+            if (!empty($dir) && $storage !== 0) {
                 $filename = backup_plan_dbops::get_default_backup_filename($format, $type, $course->id, $users, $anonymised, true);
                 $outcome = $file->copy_content_to($dir.'/'.$filename);
+                if ($outcome && $storage === 1) {
+                    //$file->delete();
+                }
             }
+
+            $outcome = true;
         } catch (backup_exception $e) {
             $bc->log('backup_auto_failed_on_course', backup::LOG_WARNING, $course->shortname);
-            $bc->destroy();
-            unset($bc);
-            return false;
+            $outcome = false;
         }
 
         $bc->destroy();
@@ -355,7 +312,7 @@ abstract class backup_automation {
         $storage =  $config->backup_auto_storage;
         $dir =      $config->backup_auto_destination;
 
-        $backupword = str_replace(' ', '_', core_text::strtolower(get_string('backupfilename')));
+        $backupword = str_replace(' ', '_', textlib::strtolower(get_string('backupfilename')));
         $backupword = trim(clean_filename($backupword), '_');
 
         if (!file_exists($dir) || !is_dir($dir) || !is_writable($dir)) {

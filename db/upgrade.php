@@ -72,30 +72,5 @@ function xmldb_block_publishflow_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2016031900, 'publishflow');
     }
 
-    block_publishflow_add_deployer_role();
-
     return $result;
-}
-
-function block_publishflow_add_deployer_role() {
-    global $DB;
-
-    $context = context_system::instance();
-
-    /*
-     * Create the deployer role if not exists.
-     * A Deployer is usually a non editing teacher who can deploy (resp. publish) the course
-     * to his authorized targets.
-     */
-    if (!$DB->record_exists('role', array('shortname' => 'deployer'))) {
-        $rolestr = get_string('deployerrole', 'block_publishflow');
-        $roledesc = get_string('deployerrole_desc', 'block_publishflow');
-        $roleid = create_role($rolestr, 'deployer', str_replace("'", "\\'", $roledesc), '');
-        set_role_contextlevels($roleid, array(CONTEXT_COURSE, CONTEXT_COURSECAT, CONTEXT_SYSTEM));
-        $nonediting = $DB->get_record('role', array('shortname' => 'teacher'));
-        role_cap_duplicate($nonediting, $roleid);
-        role_change_permission($roleid, $context, 'block/publishflow:deploy', CAP_ALLOW);
-        role_change_permission($roleid, $context, 'block/publishflow:publish', CAP_ALLOW);
-        role_change_permission($roleid, $context, 'block/publishflow:retrofit', CAP_ALLOW);
-    }
 }

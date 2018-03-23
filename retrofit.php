@@ -69,7 +69,7 @@ $mnet_host->set_wwwroot($mnethost->wwwroot);
 
 if (!$rpcclient->send($mnet_host)) {
     $debugout = ($CFG->debug | DEBUG_DEVELOPER) ? var_export($rpcclient, true) : '';
-    $returnurl = new moodle_url('/course/view.php', array('id' => $fromcourse));
+    $eturnurl = new moodle_url('/course/view.php', array('id' => $fromcourse));
     echo '<pre>'.$debugout.'</pre>';
     print_error('failed', 'block_publishflow', '', $returnurl);
 }

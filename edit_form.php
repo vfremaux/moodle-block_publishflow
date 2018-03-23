@@ -40,8 +40,8 @@ class block_publishflow_edit_form extends block_edit_form {
         $mform->setType('config_allowfreecategoryselection', PARAM_BOOL);
 
         if (preg_match('/\\bcatalog\\b/', $config->moodlenodetype)) {
-            $mform->addElement('text', 'config_deploymentkey', get_string('deploymentkey_desc', 'block_publishflow'));   
-            $mform->setType('config_deploymentkey', PARAM_TEXT);
+            $mform->addElement('text', 'config_deploymentkeydesc', get_string('deploymentkeydesc', 'block_publishflow'));   
+            $mform->setType('config_deploymentkeydesc', PARAM_TEXT);
         }
     }
 }

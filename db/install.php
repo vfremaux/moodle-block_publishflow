@@ -14,9 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot.'/blocks/publishflow/db/upgrade.php');
-
 function xmldb_block_publishflow_install_recovery() {
     xmldb_block_publishflow_install();
 }
@@ -82,7 +79,7 @@ function xmldb_block_publishflow_install() {
                 "block/rss_client:createsharedfeeds",
                 "block/rss_client:manageownfeeds",
                 "block/rss_client:manageanyfeeds");
-        foreach ($standardwritecapsforstudents as $writecap) {
+        foreach($standardwritecapsforstudents as $writecap){
             $rolecap = new StdClass;
             $rolecap->roleid = $newroleid;
             $rolecap->context = 1;
@@ -93,8 +90,6 @@ function xmldb_block_publishflow_install() {
             $DB->insert_record('role_capabilities', $rolecap);
         }
     }
-
-    block_publishflow_add_deployer_role();
 
     set_config('block_publishflow_late_install', 1);
 }
