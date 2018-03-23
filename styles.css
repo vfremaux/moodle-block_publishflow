@@ -1,19 +1,19 @@
 
-div.block_publishflow_coursecontrol {
-    margin-top:5px;
+DIV.block_publishflow_coursecontrol{
+	margin-top:5px;
 }
 
-#publishflow-target-select {
-    width:160px;
-    margin-bottom:5px;
+#publishflow-target-select{
+	width:160px;
+	margin-bottom:5px;
 }
 
-#publishflow-category-select {
-    width:160px;
-    margin-bottom:5px;
+#publishflow-category-select{
+	width:160px;
+	margin-bottom:5px;
 }
 
-.pf-backup-step {
+.pf-backup-step{
     margin-bottom: 0;
         padding-bottom: 5px;
     padding-left: 20px;
@@ -23,37 +23,9 @@ div.block_publishflow_coursecontrol {
     margin-top: 10px;
 }
 
-.publishflow-notification {
-    margin:20px;
-    border:1px solid #a0a0a0;
-    border-radius:8px;
-    padding:15px;
-}
-
-.publishflow-selector {
-    display:table;
-}
-
-.publishflow-selector .block-form-item {
-    display:table-row;
-}
-
-.publishflow-selector .block-form-item > .block-form-label,
-.publishflow-selector .block-form-item > .block-form-input {
-    display: table-cell;
-    padding: 10px 0;
-}
-
-.publishflow-selector .block-form-label {
-    width: 39%;
-}
-
-.publishflow-selector .block-form-input {
-    width: 60%;
-}
-
-.block-form-singleline.centered {
-    text-align: center;
-    width: 100%;
-    padding: 10px 0;
+.publishflow-notification{
+	margin:20px;
+	border:1px solid #a0a0a0;
+	border-radius:8px;
+	padding:15px;
 }

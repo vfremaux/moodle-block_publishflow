@@ -37,7 +37,6 @@ $publishes = array(
             'publishflow_rpc_course_exists',
             'publishflow_rpc_open_course',
             'publishflow_rpc_close_course',
-            'publishflow_rpc_check_user',
             'publishflow_updateplatforms',
             'delivery_get_sessions',
             'delivery_deliver',
@@ -50,7 +49,6 @@ $publishes = array(
 $subscribes = array(
     'publishflow' => array(
         'publishflow_rpc_deploy' => 'blocks/publishflow/rpclib.php/publishflow_rpc_deploy',
-        'publishflow_rpc_check_user' => 'blocks/publishflow/rpclib.php/publishflow_rpc_check_user',
         'publishflow_rpc_course_exists' => 'blocks/publishflow/rpclib.php/publishflow_rpc_course_exists',
         'publishflow_rpc_open_course' => 'blocks/publishflow/rpclib.php/publishflow_rpc_open_course',
         'publishflow_rpc_open_course_wrapped' => 'blocks/publishflow/rpclib.php/publishflow_rpc_open_course',

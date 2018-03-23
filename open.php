@@ -63,7 +63,7 @@ switch ($step) {
 
         echo '<p align="center"><center>';
         $opts['id'] = $course->id;
-        echo $OUTPUT->single_button(new moodle_url('/course/view.php', $opts), get_string('cancel'), 'get');
+        echo $OUTPUT->single_button(new moodle_url($CFG->wwwroot.'/course/view.php', $opts), get_string('cancel'), 'get');
         echo '</center></p>';
 
          break;

@@ -87,7 +87,7 @@ class restore_automation {
         }
 
         $fp = get_file_packer('application/vnd.moodle.backup');
-        $unzipresult = $fp->extract_to_pathname($CFG->tempdir.'/backup/'.$file->get_filename(), $tempdir);
+        $unzipresult = $fp->extract_to_pathname($CFG->dirroot.'/backup/'.$file->get_filename(), $tempdir);
 
         // Check category exists.
         if (!$cat = $DB->get_record('course_categories',array('id' => $coursecategoryid))) {

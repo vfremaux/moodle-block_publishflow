@@ -1,29 +1,22 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * these RPC functions are intended to be fired by external systems to control Moodle
  * deployment of courses to MNET satellites
  *
  */
-defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Includes and requires
+ *
+ */
 require_once($CFG->libdir.'/accesslib.php');
 require_once($CFG->dirroot.'/mnet/xmlrpc/client.php');
 require_once($CFG->libdir.'/xmlize.php'); // Needed explicitely as all situations do not provide it.
+/*
+include_once $CFG->dirroot."/backup/restorelib.php";
+include_once $CFG->dirroot."/backup/backuplib.php";
+*/
 
 require_once($CFG->dirroot.'/backup/util/includes/backup_includes.php');
 require_once($CFG->dirroot.'/blocks/publishflow/lib.php');
@@ -46,25 +39,14 @@ if (!defined('RPC_SUCCESS')) {
 
 /**
  * Invoke the local user who make the RPC call and check his rights.
- * User is an array with at least three members :
- * - username: the local username
- * - remotehostroot: the moodle instance the call is comming from
- * - remoteuserhostoot: the moodle instance the user is originate from which may not be remotehostroot if the user is
- * remotely a remote mnet account.
- *
- * @param object $user The calling user as an array
+ * @param object $user The calling user.
  * @param string $capability The capability to check.
- * @param string $context The capability's context ('any' or int contextid / CONTEXT_SYSTEM by default).
- * @return string Some json encoded result;
+ * @param int $context The capability's context (optional / CONTEXT_SYSTEM by default).
  */
-function publishflow_rpc_check_user($user, $capability, $context = null, $jsonresponse = false) {
+function publishflow_rpc_check_user($user, $capability, $context = null) {
     global $CFG, $USER, $DB;
 
-    $config = get_config('block_publishflow');
-
-    if (function_exists('debug_trace')) {
-        debug_trace("Checking user identity : ".json_encode($user));
-    }
+    debug_trace("Checking user identity : ".json_encode($user));
 
     // Creating response.
     $response = new stdclass;
@@ -82,7 +64,7 @@ function publishflow_rpc_check_user($user, $capability, $context = null, $jsonre
         if (function_exists('debug_trace')) {
             debug_trace("User failed bad format");
         }
-        return json_encode($response);
+        return(json_encode($response));
     }
 
     // Get local identity.
@@ -94,18 +76,18 @@ function publishflow_rpc_check_user($user, $capability, $context = null, $jsonre
         if (function_exists('debug_trace')) {
             debug_trace("User failed no host");
         }
-        return json_encode($response);
+        return(json_encode($response));
     }
 
     $userhost = $DB->get_record('mnet_host', array('wwwroot' => $user['remoteuserhostroot']));
 
-    // Resolve same IDNumber identity.
+    // PATCH+ : Resolve same IDNumber identity.
     if (is_dir($CFG->dirroot.'/blocks/user_mnet_hosts')) {
         // We may have a primary assignation that should be respected. This assignation may be or not be mnet.
-        $umhconfig = get_config('block_user_mnet_hosts');
         if (!empty($umhconfig->singleaccountcheck)) {
+            $umhconfig = get_config('block_user_mnet_hosts');
             require_once($CFG->dirroot.'/blocks/user_mnet_hosts/xlib.php');
-            $localuser = user_mnet_hosts_get_local_user($user, $remotehost);
+            $localuser = user_mnet_hosts_get_local_user($remoteuser, $remotehost);
         }
     }
     if (!$localuser) {
@@ -113,6 +95,7 @@ function publishflow_rpc_check_user($user, $capability, $context = null, $jsonre
         $params = array('username' => addslashes($user['username']), 'mnethostid' => $userhost->id);
         $localuser = $DB->get_record('user', $params);
     }
+    // PATCH-.
 
     if (!$localuser) {
         $response->status = RPC_FAILURE_USER;
@@ -121,7 +104,7 @@ function publishflow_rpc_check_user($user, $capability, $context = null, $jsonre
         if (function_exists('debug_trace')) {
             debug_trace("User failed no local user");
         }
-        return json_encode($response);
+        return(json_encode($response));
     }
     // Replacing current user by remote user.
 
@@ -132,78 +115,33 @@ function publishflow_rpc_check_user($user, $capability, $context = null, $jsonre
 
     // Checking capabilities.
     if (!empty($capability)) {
-
-        // Pre test the profile for deployement.
-        if ($capability == 'block/publishflow:deploy') {
-            if (!empty($config->deployprofilefield)) {
-                if (\core_text::strpos($config->deployprofilefield, 'profile_field_') === 0) {
-                    $fieldname = str_replace('profile_field_', '', $config->deployprofilefield);
-                    if ($field = $DB->get_record('user_info_field', array('shortname' => $fieldname))) {
-                        // Custom profile value.
-                        $params = array('userid' => $USER->id, 'fieldid' => $field->id);
-                        $info = $DB->get_field('user_info_data', 'data', $params);
-                    } else {
-                        // Standard profile value.
-                        $fieldname = $config->deployprofilefield;
-                        $info = @$USER->$fieldname;
-                    }
-                    // Info can be "0".
-                    if ($info == $config->deployprofilefieldvalue) {
-                        // Give success.
-                        if (!empty($jsonresponse)) {
-                            return json_encode($response);
-                        }
-                        return '';
-                    }
-                }
-            }
+        if (is_null($context)) {
+            $context = context_system::instance();
         }
-
-        if ($context == 'any') {
-            if (!block_publishflow_has_capability_somewhere($capability, false, false, false, CONTEXT_COURSE.','.CONTEXT_COURSECAT)) {
-                $response->status = RPC_FAILURE_CAPABILITY;
-                $response->errors[] = 'Local user\'s identity has no capability to run';
-                $response->error = 'Local user\'s identity has no capability to run';
-                return json_encode($response);
-            }
-        } else {
-            if (is_null($context)) {
-                $context = context_system::instance();
-            } else {
-                $context = context::instance_by_id($context);
-            }
-            if (function_exists('debug_trace')) {
-                debug_trace("Testing capability : $capability on $CFG->wwwroot ");
-            }
-            if (!has_capability($capability, $context, $localuser->id)) {
-                $response->status = RPC_FAILURE_CAPABILITY;
-                $response->errors[] = 'Local user\'s identity has no capability to run';
-                $response->error = 'Local user\'s identity has no capability to run';
-                return json_encode($response);
-            }
+        if (function_exists('debug_trace')) {
+            debug_trace("Testing capability : $capability on $CFG->wwwroot ");
         }
-    }
-    if (!empty($jsonresponse)) {
-        return json_encode($response);
+        if (!has_capability($capability, $context, $localuser->id)) {
+            $response->status = RPC_FAILURE_CAPABILITY;
+            $response->errors[] = 'Local user\'s identity has no capability to run';
+            $response->error = 'Local user\'s identity has no capability to run';
+            return(json_encode($response));
+        }
     }
     return '';
 }
 
+
 /**
  * external entry point for deploying a course template.
- * @param array $callinguser the caller coordinates (username, user host root, calling host)
+ * @param array $caller the caller coordinates (username, user host root, calling host)
  * @param string $idfield a string that tells the identifying basis (id|idnumber|shortname)
  * @param string $courseidentifier the identifying value
  * @param string $whereroot where to deploy. Must be a known mnet_host root
  * @param array $parmsoverride an array of overriding course attributes can superseed the template course settings
- * @param bool $jsonresponse true if we want a jsonified serialized response.
  */
 function publishflow_rpc_deploy($callinguser, $idfield, $courseidentifier, $whereroot, $parmsoverride = null, $jsonresponse = true) {
     global $USER, $CFG, $DB;
-
-    if (function_exists('debug_trace')) {
-        debug_trace($CFG->wwwroot." DEPLOY");
-    }
 
     $extresponse->status = RPC_SUCCESS;
     $extresponse->errors = array();
@@ -243,7 +181,7 @@ function publishflow_rpc_deploy($callinguser, $idfield, $courseidentifier, $wher
         if (!$mnethost = $DB->get_record('mnet_host', $params)) {
             $extresponse->status = RPC_FAILURE;
             $extresponse->error = 'Deployment target host not found (or deleted)';
-            return publishflow_send_response($extresponse, $jsonresponse);
+            return(publishflow_send_response($extresponse, $jsonresponse));
         }
     }
 
@@ -253,7 +191,7 @@ function publishflow_rpc_deploy($callinguser, $idfield, $courseidentifier, $wher
         } else {
             $extresponse->status = RPC_FAILURE;
             $extresponse->error = 'User host not found (or deleted)';
-            return publishflow_send_response($extresponse, $jsonresponse);
+            return(publishflow_send_response($extresponse, $jsonresponse));
         }
     } else {
         $userwwwroot = $CFG->wwwroot;
@@ -276,7 +214,7 @@ function publishflow_rpc_deploy($callinguser, $idfield, $courseidentifier, $wher
         $extresponse->status = RPC_FAILURE;
         $extresponse->errors[] = 'REMOTE : '.implode("<br/>\n", $rpcclient->errors);
         $extresponse->error = 'REMOTE : '.implode("<br/>\n", $rpcclient->errors);
-        return publishflow_send_response($extresponse, $jsonresponse);
+        return(publishflow_send_response($extresponse, $jsonresponse));
     }
 
     $response = json_decode($rpcclient->response);
@@ -303,7 +241,7 @@ function publishflow_rpc_deploy($callinguser, $idfield, $courseidentifier, $wher
 
 /**
  * test for existance.
- * @param object $callinguser The caller as an object
+ * @param object $calling user The caller as an object
  * @param string $idfield the name of the identifying field
  * @param string $courseidentifier the course identifier
  * @param string $whereroot a wwwroot of the mnet moodle to check in
@@ -311,10 +249,6 @@ function publishflow_rpc_deploy($callinguser, $idfield, $courseidentifier, $wher
  */
 function publishflow_rpc_course_exists($callinguser, $idfield, $courseidentifier, $whereroot, $jsonresponse = true) {
     global $CFG, $DB;
-
-    if (function_exists('debug_trace')) {
-        debug_trace($CFG->wwwroot." COURSE EXISTS");
-    }
 
     $extresponse->status = RPC_SUCCESS;
     $extresponse->errors = array();
@@ -424,10 +358,6 @@ function publishflow_rpc_course_exists($callinguser, $idfield, $courseidentifier
 function publishflow_rpc_open_course($callinguser, $idfield, $courseidentifier, $whereroot, $mode, $jsonresponse = true) {
     global $CFG, $DB;
 
-    if (function_exists('debug_trace')) {
-        debug_trace($CFG->wwwroot." OPEN COURSE");
-    }
-
     $extresponse->status = RPC_SUCCESS;
     $extresponse->errors = array();
     $extresponse->error = '';
@@ -459,7 +389,7 @@ function publishflow_rpc_open_course($callinguser, $idfield, $courseidentifier, 
             $extresponse->error = 'Unkown course.';
             publishflow_send_response($extresponse, $jsonresponse);
         }
-        publishflow_session_open($course, $mode); // Mode stands for notify signal.
+        publishflow_session_open($course, $mode); // mode stands for notify signal
         $extresponse->message = "Course open.";
 
     } else {
@@ -519,19 +449,15 @@ function publishflow_rpc_open_course($callinguser, $idfield, $courseidentifier, 
 
 /**
  * closes a running course or ask remotely for closure.
- * @param object $callinguser The calling user as an object
- * @param string $idfield The field identifying the course
- * @param string $courseidentifier The course identifier
- * @param string $whereroot The mnet host where to operate
- * @param string $mode The closing mode, that may give more or less access to enrolled users
+ * @param object $callinguser the calling user as an object
+ * @param string $idfield te field identifying the course
+ * @param string $courseidentifier the course identifier
+ * @param string $whereroot the mnet host where to operate
+ * @param string $mode the closing mode, that may give more or less access to enrolled users
  * @param bool $jsonresponse true if we want a jsonified serialized response.
  */
 function publishflow_rpc_close_course($callinguser, $idfield, $courseidentifier, $whereroot, $mode, $jsonresponse = true){
     global $CFG, $DB;
-
-    if (function_exists('debug_trace')) {
-        debug_trace($CFG->wwwroot." CLOSE COURSE");
-    }
 
     $extresponse->status = RPC_SUCCESS;
     $extresponse->errors = array();
@@ -626,14 +552,14 @@ function publishflow_rpc_close_course($callinguser, $idfield, $courseidentifier,
 }
 
 /**
- * RPC function for platform catalog updating
- * This is going to reply with the complete category tree and the moodle node type.
- *
- * We do not take the private categories, as we can't easily know who was allowed to see them.
- * @param object $callinguser the calling user as an object
- *
- * @author Edouard Poncelet
- */
+  * RPC function for platform catalog updating
+  * This is going to reply with the complete category tree and the moodle node type.
+  *
+  * We do not take the private categories, as we can't easily know who was allowed to see them.
+  * @param object $callinguser the calling user as an object
+  *
+  * @author Edouard Poncelet
+  */
 function publishflow_updateplatforms($callinguser) {
     global $DB;
 
@@ -684,18 +610,14 @@ if (!defined('COURSESESSIONS_PRIVATE')){
 }
 
 /**
- * retrieves instances of a course that are in use in this moodle. this is keyed by the idnumber scheme
- * Applies to : Training Satellites
- * @param object $callinguser the calling user as an object
- * @param string $courseidnumber The course idnumber
- * @param string $jsonresponse if true, will provide answer as a serialized json string.
- */
+* retrieves instances of a course that are in use in this moodle. this is keyed by the idnumber scheme
+* Applies to : Training Satellites
+* @param object $callinguser
+* @param string $courseidnumber The course idnumber
+* @param string $jsonresponse if true, will provide answer as a serialized json string.
+*/
 function delivery_get_sessions($callinguser, $courseidnumber, $jsonresponse) {
-   global $USER, $DB;
-
-    if (function_exists('debug_trace')) {
-        debug_trace($CFG->wwwroot." GET SESSIONS");
-    }
+    global $USER, $DB;
 
     $response->status = RPC_SUCCESS;
     $response->errors = array();
@@ -756,23 +678,19 @@ function delivery_get_sessions($callinguser, $courseidnumber, $jsonresponse) {
 }
 
 /**
- * delivers an archive from the given course id. The latest archive is returned
- * from the proper file location. The transfer can be chunked for tranporting big files
- * exceeding 4Mo
- * @param string $callinguser the caller as an object
- * @param int $lpcatalogcourseid the requested course
- * @param int $transferoffset the byte the transfer should start at
- * @param int $transferlimit the max amount of bytes to be transfered in the chunk. Is set to 0, 
- * transfers all file as one block.
- * @param string $jsonresponse if true, will provide answer as a serialized json string.
- * @return a base 64 encoded file, or file chunk that sends the zip archive content
- */
-function delivery_deliver($callinguser, $lpcatalogcourseid, $transferoffset = 0, $transferlimit = 0, $jsonresponse = true) {
+* delivers an archive from the given course id. The latest archive is returned
+* from the proper file location. The transfer can be chunked for tranporting big files
+* exceeding 4Mo
+* @param string $username the caller's username
+* @param string $remotewwwroot the remote host the delivery order is coming from
+* @param int $lp_catalogcourseid the requested course
+* @param int $transferoffset the byte the transfer should start at
+* @param int $transferlimit the max amount of bytes to be transfered in the chunk. Is set to 0, 
+* transfers all file as one block.
+* @return a base 64 encoded file, or file chunk that sends the zip archive content
+*/
+function delivery_deliver($callinguser, $lp_catalogcourseid, $transferoffset = 0, $transferlimit = 0, $jsonresponse = true) {
     global $CFG, $DB;
-
-    if (function_exists('debug_trace')) {
-        debug_trace($CFG->wwwroot." DELIVER");
-    }
 
     $config = get_config('block_publishflow');
 
@@ -781,21 +699,21 @@ function delivery_deliver($callinguser, $lpcatalogcourseid, $transferoffset = 0,
     $response->error = '';
 
     // Check username and origin of the query.
-    if ($auth_response = publishflow_rpc_check_user((array)$callinguser, '', 'any')) {
+    if ($auth_response = publishflow_rpc_check_user((array)$callinguser)) {
         return publishflow_send_response($auth_response, $jsonresponse, true);
     }
 
     // debug_trace('DELIVER : Passed auth');
 
     // Check availability of the course
-    if (!$course = $DB->get_record('course', array('id' => $lpcatalogcourseid))) {
+    if (!$course = $DB->get_record('course', array('id' => $lp_catalogcourseid))) {
         $response->status = RPC_FAILURE;
-        $response->errors[] = "Delivery source course {$lpcatalogcourseid} does not exist";
-        $response->error = "Delivery source course {$lpcatalogcourseid} does not exist";
+        $response->errors[] = "Delivery source course {$lp_catalogcourseid} does not exist";
+        $response->error = "Delivery source course {$lp_catalogcourseid} does not exist";
         return publishflow_send_response($response, $jsonresponse);
     }
 
-    $file = delivery_check_available_backup($lpcatalogcourseid, $loopback);
+    $file = delivery_check_available_backup($lp_catalogcourseid, $loopback);
 
     if (!empty($loopback)) {
         return publishflow_send_response($loopback, $jsonresponse);
@@ -808,11 +726,11 @@ function delivery_deliver($callinguser, $lpcatalogcourseid, $transferoffset = 0,
         return publishflow_send_response($response, $jsonresponse);
     } else {
 
-        // Move the file to temp folder.
+        //move the file to temp folder.
         $tempfile = $CFG->tempdir.'/backup/'.$file->get_filename();
         $file->copy_content_to($tempfile);
 
-        // Open the backup, get content, encode it and send it.
+        // Open the backup, get content, encode it and send it
         if (file_exists($tempfile)) {
             if (empty($config->coursedeliveryislocal)) {
                 $response->local = false; 
@@ -874,18 +792,15 @@ function delivery_check_available_backup($courseid, &$loopback = null){
  * the end result of calling this RPC call should be a jump to this course
  * setup form, for finishing setup.
  *
- * @param string $callinguser The calling user as an object
+ * @param string $username  ====> $caller
+ * @param string $userhostroot the reference mnethost root of the user  =====> $caller
+ * @param string $remotehostroot ====>$caller
  * @param string $sourcecourseserial The complete course moodle metadata from the origin platform
- * @param bool $forcereplace if true, will replace the existing course with the same idnumber reference
- * @param object $parmsoverride an object which holds overrides of some attributes of the course
- * @param string $jsonresponse if true, will provide answer as a serialized json string.
  */
 function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parmsoverride = null, $jsonresponse = true) {
     global $CFG, $USER, $DB, $PAGE;
 
-    if (function_exists('debug_trace')) {
-        debug_trace($CFG->wwwroot." DELIVERY_DEPLOY");
-    }
+    // debug_trace('DEPLOY : Start');
 
     $config = get_config('block_publishflow');
 
@@ -896,12 +811,8 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
     $sourcecourse = json_decode($sourcecourseserial);
     $callinguser = (array)$callinguser;
 
-    if ($authresponse = publishflow_rpc_check_user($callinguser, 'block/publishflow:deploy', 'any')) {
-        return publishflow_send_response($authresponse, $jsonresponse, true);
-    }
-
-    if (function_exists('debug_trace')) {
-        debug_trace($CFG->wwwroot." Starting delivery");
+    if ($auth_response = publishflow_rpc_check_user((array)$callinguser, 'block/publishflow:deploy')) {
+        return publishflow_send_response($auth_response, $jsonresponse, true);
     }
 
     /*
@@ -913,7 +824,7 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
     }
     */
 
-    // First bump up server execution characteristics.
+    // first bump up server execution characteristics
     $maxtime = ini_get('max_execution_time');
     $maxmem = ini_get('memory_limit');
     ini_set('max_execution_time', '600');
@@ -936,9 +847,6 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
         $mnet_host->set_wwwroot($callinguser['remotehostroot']);
 
         if (empty($config->coursedeliveryislocal)) {
-            if (function_exists('debug_trace')) {
-                debug_trace($CFG->wwwroot." Starting network delivery");
-            }
             // We try to get the archive file through the network.
             $caller = (object)$callinguser;
             $caller->remotehostroot = $CFG->wwwroot;
@@ -1013,37 +921,29 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
             }
             $status = backup_data2file($realpath, $archivefile);
         } else {
-            if (function_exists('debug_trace')) {
-                debug_trace($CFG->wwwroot." Starting local filesystem delivery");
-            }
-            /*
-             * we make a local delivery by copying the archive directly in file system
-             * this very fast, but is not workable on remotely distributed hosts.
-             * both moodle data must be on the same storage system.
-             */
+            // we make a local delivery by copying the archive directly in file system
+            // this very fast, but is not workable on remotely distributed hosts.
+            // both moodle data must be on the same storage system.
 
             $caller = (object)$callinguser;
             $caller->remotehostroot = $CFG->wwwroot;
 
-            // Get the archive location (physical path) on back call.
+            // Get the archive on back call
             $rpcclient = new mnet_xmlrpc_client();
             $rpcclient->set_method('blocks/publishflow/rpclib.php/delivery_deliver');
             $rpcclient->add_param($caller, 'struct');
             $rpcclient->add_param($sourcecourse->id, 'int');
-            $rpcclient->add_param(0, 'int'); // Transfer offset.
-            $rpcclient->add_param(0, 'int'); // Transfer limit.
-            $rpcclient->add_param(1, 'int'); // Json response required.
+            $rpcclient->add_param(0, 'int'); // transfer offset
+            $rpcclient->add_param(0, 'int'); // transfer limit
+            $rpcclient->add_param(1, 'int'); // json response required
 
-            if (function_exists('debug_trace')) {
-                debug_trace($CFG->wwwroot." Getting remotely known mbz location.");
-            }
             if (!$rpcclient->send($mnet_host)) {
-                // Make a suitable response.
+                // make a suitable response
                 $response->status = RPC_FAILURE;
                 $response->error = 'Remote error : Could not get the LP archive descriptor for local delivery';
                 $response->errors[] = '<br/>XML-RPC Callback errors :<br/>';
                 if ($rpcclient->error->errors){
-                    foreach ($rpcclient->error as $error) {
+                    foreach($rpcclient->error as $error){
                         $response->errors[] = $error;
                     }
                 }
@@ -1052,26 +952,20 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
                 return publishflow_send_response($response, $jsonresponse);
             }
             $backresponse = json_decode($rpcclient->response);
-            /*
-             * Local test point
-             * debug_trace('DEPLOY : XML-RPC backcall succeeded for local delivery ');
-             * Processing XML-RPC response
-             * XML-RPC worked well, but remote procedure may fail
-             */
-            if ($backresponse->status == RPC_SUCCESS) {
-                if ($backresponse->local) {
-                    if (function_exists('debug_trace')) {
-                        debug_trace($CFG->wwwroot." got file name {$backresponse->archivename}");
-                    }
-                    $archivename = $backresponse->archivename;  // Contains the file full path.
-                    $filename = $backresponse->filename;
+            // Local test point
+            // debug_trace('DEPLOY : XML-RPC backcall succeeded for local delivery ');
+            /// Processing XML-RPC response
+            // XML-RPC worked well, but remote procedure may fail
+            if ($backresponse->status == RPC_SUCCESS){
+                if ($backresponse->local){
+                    $archivename = $backresponse->archivename;  //contains the file full path 
+                   // $filename = $backresponse->filename;
 
-                    $tempfile = $CFG->tempdir.'/backup/'.$filename;
+                    $tempfile = $CFG->tempdir.'/backup/'.$backresponse->filename;
                     $destination_file_path = $CFG->tempdir.'/backup/'.$filename;
                     if (!is_dir($CFG->tempdir.'/backup')) {
                         mkdir($CFG->tempdir.'/backup/', 0777, true);
                     }
-
                     // Actually locally copying archive.
                     if (!copy($archivename, $tempfile)) {
                         $response->status = RPC_FAILURE;
@@ -1081,9 +975,6 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
                         ini_set('memory_limit', $maxmem);
                         return publishflow_send_response($response, $jsonresponse);
                     }
-                    if (function_exists('debug_trace')) {
-                        debug_trace($CFG->wwwroot." archive copied");
-                    }
                 } else {
                     $response->status = RPC_FAILURE;
                     $response->errors[] = 'Local delivery remote : remote end has not local delivery set on';
@@ -1092,8 +983,7 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
                     ini_set('memory_limit', $maxmem);
                     return publishflow_send_response($response, $jsonresponse);
                 }
-            } else {
-                // XML-RPC remote procedure failed, although transmission is OK.
+            } else { // XML-RPC remote procedure failed, although transmission is OK
                 $response->status = RPC_FAILURE;
                 $response->errors[] = 'Remote error : Could not get remote file description';
                 $response->error = 'Remote error : Could not get remote file description';
@@ -1105,10 +995,6 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
     }
     // Restores a new course silently, giving sufficient parameters and force category
     // debug_trace('DEPLOY : Starting deployment process');
-
-    if (function_exists('debug_trace')) {
-        debug_trace($CFG->wwwroot." start restore");
-    }
 
     if (empty($parmsoverride['category'])) {
         $deploycat = $DB->get_record('course_categories', array('id' => @$config->deploycategory));
@@ -1124,63 +1010,31 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
         return publishflow_send_response($response, $jsonresponse);
     }
 
-    if (function_exists('debug_trace')) {
-        debug_trace($CFG->wwwroot." automation starts restore");
-    }
     $newcourseid =  restore_automation::run_automated_restore(null, $tempfile, $deploycat->id) ;
     // Confirm/force idnumber in new course.
     $response->courseid = $newcourseid;
 
     $DB->set_field('course', 'idnumber', $sourcecourse->idnumber, array('id' => "{$response->courseid}"));
 
-    /*
-     * assign the localuser as author in all cases :
-     * deployement : deployer will unassign self manually if needed
-     * free use deployement : deployer will take control over session
-     * retrofit : deployer will take control over new learning path in work
-     */
+    // assign the localuser as author in all cases :
+    // deployement : deployer will unassign self manually if needed
+    // free use deployement : deployer will take control over session
+    // retrofit : deployer will take control over new learning path in work
 
-    if (function_exists('debug_trace')) {
-        debug_trace($CFG->wwwroot." setting role");
-    }
+    $new_course = $DB->get_record('course',array('id'=>$newcourseid));
+
     if (!empty($config->defaultrole)) {
         $coursecontext = context_course::instance($response->courseid);
 
         $enrolplugin = enrol_get_plugin('manual');
 
-        $params = array('enrol' => 'manual', 'courseid' => $newcourseid, 'status' => ENROL_INSTANCE_ENABLED);
-        if ($enrols = $DB->get_records('enrol', $params, 'sortorder ASC')) {
+        if ($enrols = $DB->get_records('enrol', array('enrol' => 'manual', 'courseid' => $newcourseid, 'status' => ENROL_INSTANCE_ENABLED), 'sortorder ASC')) {
             $enrol = reset($enrols);
-            $enrolplugin->enrol_user($enrol, $USER->id, $config->defaultrole);
+               $enrolplugin->enrol_user($enrol, $USER->id, $config->defaultrole);
         }
     }
 
-    if (block_publishflow_supports_feature('restore/postscripting')) {
-        if (!empty($config->postprocessing)) {
-            if (function_exists('debug_trace')) {
-                debug_trace($CFG->wwwroot." Starting postprocessing");
-            }
-            include_once($CFG->dirroot.'/blocks/publishflow/pro/lib.php');
-
-            $datacontext = new StdClass;
-            $datacontext->newcourseid = $newcourseid;
-            $datacontext->callinguser = $callinguser;
-            $errorresult = block_publishflow_postscript($datacontext);
-
-            if (!empty($errorresult)) {
-                $response->status = RPC_FAILURE_RUN;
-                $response->errors[] = 'Post processing failed somewhere.';
-                $response->errors[] = $errorresult;
-                $response->error = "Post processing failed somewhere.\n".$errorresult;
-                return publishflow_send_response($response, $jsonresponse);
-            }
-        }
-    }
-
-    if (function_exists('debug_trace')) {
-        debug_trace($CFG->wwwroot." make response");
-    }
-    // Give back the information for jumping.
+    // give back the information for jumping
     $response->status = RPC_SUCCESS;
     $response->username = $username;
     $response->remotehostroot = $remotehostroot;
@@ -1201,18 +1055,14 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
  * the end result of calling this RPC call should be a jump to this course
  * setup form, for finishing setup.
  *
- * @param string $callinguser The caller as an object
+ * @param string $username
+ * @param string $remotehostroot
  * @param string $action what to do
  * @param string $sourcecourseserial the course information as a JSON serialized string
  * @param string $forcereplace if true, forces download and replacement of the existing course
- * @param string $jsonresponse if true, will provide answer as a serialized json string.
  */
 function delivery_publish($callinguser, $action, $sourcecourseserial, $forcereplace, $jsonresponse = true) {
     global $CFG, $USER, $SESSION, $DB;
-
-    if (function_exists('debug_trace')) {
-        debug_trace($CFG->wwwroot." PUBLISH");
-    }
 
     $config = get_config('block_publishflow');
 
@@ -1222,7 +1072,7 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
     $sourcecourse = json_decode($sourcecourseserial);
 
     $callinguser = (array)$callinguser;
-    if ($auth_response = publishflow_rpc_check_user((array)$callinguser, 'block/publishflow:publish', 'any')) {
+    if ($auth_response = publishflow_rpc_check_user((array)$callinguser, 'block/publishflow:publish')) {
         return publishflow_send_response($auth_response, $jsonresponse, true);
     }
     $remotehostroot = $callinguser['remotehostroot'];
@@ -1239,10 +1089,10 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
             break;
 
         case 'publish' : {
-                // Course exists and we just republish it.
+                // Course exists and we just republish it
                 $courseexists = $DB->count_records('course', array('idnumber' => $sourcecourse->idnumber));
                 if (!$forcereplace && $courseexists) {
-                    // We do not need anything else than making this course(s) visible back.
+                    // we do not need anything else than making this course(s) visible back.
                     $DB->set_field('course', 'visible', 1, array('idnumber' => $sourcecourse->idnumber)); 
                     $response->status = RPC_SUCCESS;
                     $response->username = $username;
@@ -1252,16 +1102,14 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                     return publishflow_send_response($response, $jsonresponse);
                 }
 
-                /*
-                 * Course does not exist, or we are asked to renew the volume
-                 * if course exists, we must hide all previous instances of such a course
-                 * National administrator or section administrator should then clean up
-                 * irrelevant instances.
-                 */
+                // Course does not exist, or we are asked to renew the volume
+                // if course exists, we must hide all previous instances of such a course
+                // National administrator or section administrator should then clean up 
+                // irrelevant instances 
                 if ($courseexists) {
                     $DB->set_field('course', 'visible', 0, array('idnumber' => $sourcecourse->idnumber)); 
                 }
-
+    
                 /**
                 if (!isset($config->coursefordelivery) || !$course = $DB->get_record('course', array('id' => $config->coursefordelivery))){
                     $response->status = RPC_FAILURE_CONFIG;
@@ -1270,14 +1118,14 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                     return publishflow_send_response($response, $jsonresponse);
                 }
                 */
-
-                // First bump up server execution characteristics.
+    
+                // first bump up server execution characteristics
                 $maxtime = ini_get('max_execution_time');
                 $maxmem = ini_get('memory_limit');
                 ini_set('max_execution_time', '600');
                 ini_set('memory_limit', '150M');
 
-                // Check the local availability of the archive.
+                // Check the local availability of the archive
                 $realpath = $CFG->dataroot.'/courselivery/'.$CFG->coursedelivery_coursefordelivery.'/'.$sourcecourse->idnumber.'.zip';
                 // If we force replace with a new one, delete old local archive.
                 if ($forcereplace) {
@@ -1285,8 +1133,8 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                 }
 
                 if (!file_exists($realpath)) {
-
-                    // We de not have a package at remote side.
+    
+                    // We de not have a package at remote side
                     if (function_exists('debug_trace')) {
                         debug_trace('Up to fetch a course back');
                     }
@@ -1294,22 +1142,22 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                     $mnet_host->set_wwwroot($remotehostroot);
                     $caller = (object)$callinguser;
                     $caller->remotehostroot = $CFG->wwwroot;
-
+    
                     if (empty($config->coursedeliveryislocal)) {
-                        // We try to get the archive file through the network.
+                        // We try to get the archive file through the network
                         $transfercomplete = false;
                         $archivefile = '';
                         $offset = 0;
                         while (!$transfercomplete) {
-                            // Get the archive on back call.
+                            // Get the archive on back call
                             $rpcclient = new mnet_xmlrpc_client();
                             $rpcclient->set_method('blocks/publishflow/rpclib.php/delivery_deliver');
                             $rpcclient->add_param($caller, 'struct');
                             $rpcclient->add_param($sourcecourse->id, 'int');
                             $rpcclient->add_param($offset, 'int');
-                            $rpcclient->add_param(4194304, 'int'); // 4Mo transfer max.
+                            $rpcclient->add_param(4194304, 'int'); // 4Mo transfer max
                             if (!$rpcclient->send($mnet_host)) {
-                                // Make a suitable response.
+                                // make a suitable response
                                 $response->status = RPC_FAILURE;
                                 $response->error = 'Remote error : Could not get the course archive file';
                                 $response->errors[] = '<br/>XML-RPC Callback errors :<br/>';
@@ -1326,21 +1174,18 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                             if (function_exists('debug_trace')) {
                                 debug_trace('XML-RPC backcall succeeded');
                             }
-                            /*
-                             * Processing XML-RPC response
-                             * XML-RPC worked well, but remote procedure may fail
-                             */
+                            /// Processing XML-RPC response
+                            // XML-RPC worked well, but remote procedure may fail
                             if ($backresponse->status == RPC_SUCCESS){
                                 $archivefile = $archivefile . base64_decode($backresponse->file);
                                 $archivename = $backresponse->archivename;
                                 if ($backresponse->remains == 0) {
                                     $transfercomplete = true;
                                 } else { 
-                                    // File is chunked because too big. prepare for next chunk.
+                                    // File is chunked because too big. prepare for next chunk
                                     $offset = $backresponse->filepos;
                                 }
-                            } else {
-                                // XML-RPC remote procedure failed, although transmission is OK.
+                            } else { // XML-RPC remote procedure failed, although transmission is OK
                                 $response->status = RPC_FAILURE;
                                 $response->error = 'Remote error : Could not get the course archive file because of call back remote error : ';
                                 $response->errors[] = 'Remote error : Could not get the course archive file because of call back remote error : ';
@@ -1354,26 +1199,24 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                                 return publishflow_send_response($response, $jsonresponse);
                             }
                         }
-                        // Save the archive locally.
+                        // Save the archive locally
                         if (!file_exists(dirname($realpath))) {
                             mkdir($realpath, 0777, true);
                         }
                         $status = backup_data2file($realpath, $archivefile);
                     } else {
-                        /*
-                         * we make a local delivery by copying the archive directly in file system
-                         * this very fast, but is not workable on remotely distributed hosts.
-                         * both moodle data must be on the same storage system.
-                         */
-
-                        // Get the archive name on back call.
+                        // we make a local delivery by copying the archive directly in file system
+                        // this very fast, but is not workable on remotely distributed hosts.
+                        // both moodle data must be on the same storage system.
+    
+                        // Get the archive name on back call
                         $rpcclient = new mnet_xmlrpc_client();
                         $rpcclient->set_method('blocks/publishflow/rpclib.php/delivery_deliver');
                         $rpcclient->add_param($caller, 'struct');
                         $rpcclient->add_param($sourcecourse->id, 'int');
-
+    
                         if (!$rpcclient->send($mnet_host)) {
-                            // Make a suitable response.
+                            // make a suitable response
                             $response->status = RPC_FAILURE;
                             $response->error = 'Remote error : Could not get the course archive descriptor for local delivery ';
                             $response->error .= '<br/>XML-RPC Callback errors :<br/>';
@@ -1383,10 +1226,8 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                             return publishflow_send_response($response, $jsonresponse);
                         }
                         $backresponse = json_decode($rpcclient->response);
-                        /*
-                         * Processing XML-RPC response
-                         * XML-RPC worked well, but remote procedure may fail
-                         */
+                        /// Processing XML-RPC response
+                        // XML-RPC worked well, but remote procedure may fail
                         if ($backresponse->status == RPC_SUCCESS) {
                             if ($backresponse->local) {
                                 $archivename = $backresponse->archivename;
@@ -1408,7 +1249,7 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                                 return publishflow_send_response($response, $jsonresponse);
                             }
                         } else {
-                            // XML-RPC remote procedure failed, although transmission is OK.
+                            // XML-RPC remote procedure failed, although transmission is OK
                             $response->status = RPC_FAILURE;
                             $response->errors[] = 'Remote error : Could not get remote file description';
                             $response->error = 'Remote error : Could not get remote file description';
@@ -1422,14 +1263,12 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                         debug_trace('PUBLISHING : Remote side has already an archive there');
                     }
                 }
-                /*
-                 * TODO : extract the archive for deployment and make proper $restore and $info record
-                 * Restores a new course silently, giving sufficient parameters and force category
-                 */
+                // TODO : extract the archive for deployment and make proper $restore and $info record
+                // Restores a new course silently, giving sufficient parameters and force category
                 $deploycat = $DB->get_record('course_categories', array('id' => $config->_deploycategory));
-
-                $newcourseid =  restore_automation::run_automated_restore(null, $tempfile, $deploycat->id);
-
+    
+                $newcourseid =  restore_automation::run_automated_restore(null, $tempfile, $deploycat->id) ;
+    
                 /*$course_header->category = $deploycat;
                 $course_header->course_id = $sourcecourse->id;
                 $course_header->course_password = '';
@@ -1466,27 +1305,27 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                 $restore->course_startdateoffset = 0;
                 $restore->metacourse = 0;
                 $restore->backup_unique_code = time();
-
+    
                 debug_trace('PUBLISHING : Up to deploy course. We have everything in '.$realpath);
                 restore_create_new_course($restore, $course_header);
                 import_backup_file_silently($realpath, $course_header->course_id, true, false, array('restore_course_files' => 1));
-
+    
                 // move backup file to definitve location
                 if (isset($archivename)){
                     $archivefilename = basename($archivename);
                     $finalpath = $CFG->dataroot.'/'.$course_header->course_id.'/backupdata/'.$archivefilename;
                     copy($realpath, $finalpath);
                 }*/
-                // confirm/force idnumber in new course.
+                // confirm/force idnumber in new course
                 $response->courseid = $newcourseid;
                 $DB->set_field('course', 'idnumber', $sourcecourse->idnumber, array('id' => "{$response->courseid}"));
-
+    
                 // confirm/force guest opening
               //  $DB->set_field('course', 'guest', 1, array('id' => "{$response->courseid}"));
-
+    
                 // confirm/force not enrollable
               //  $DB->set_field('course', 'enrollable', 0, array('id' => "{$response->courseid}"));
-
+    
                 /*
                 Pairformance dev 
                 if (!isset($sourcecourse->retrofit)){
@@ -1512,12 +1351,7 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
     }
 }
 
-/**
- * Converts properly output message.
- * @param object $response the response
- * @param boolean $jsonresponse if true ensire output is a json encoded string
- * @param boolean true if $response is already json encoded.
- */
+// Converts properly output message.
 function publishflow_send_response($response, $jsonresponse = true, $isjson = false) {
     if ($isjson) {
         if ($jsonresponse) {

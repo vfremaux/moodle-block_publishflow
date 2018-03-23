@@ -30,7 +30,7 @@ identifying parts of your course distribution system :
 Browse on each platform and setup the site wide settings of the publishflow block, from the
 Admin > PLugins > Blocks menu.
 
-You will mostly :
+You will mostly : 
 
 - choose the Moodle Node Type in "factory, catalog, combined factory and catalog, training center' list.
 
@@ -100,8 +100,3 @@ On Training Center nodes, the block will handle a simple Open/Close workflow on 
 moving to adequate categories and showing/hiding the course. The students will also be shifted
 to an disabledstudent role so they are not allowed to change material inside the course, while
 in some conditions still being allowed to view content.
-
-2018031100
-###########################################
-
-Adds initialisation for the role "deployer"

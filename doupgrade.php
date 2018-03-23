@@ -24,11 +24,11 @@
  * This page updates the catalog
  *
  */
+defined('MOODLE_INTERNAL') || die();
 
 require_once('../../config.php');
 require_once($CFG->dirroot.'/mnet/xmlrpc/client.php');
 require_once($CFG->dirroot.'/mnet/peer.php');
-require_once($CFG->dirroot.'/blocks/publishflow/lib.php');
 
 // Security.
 

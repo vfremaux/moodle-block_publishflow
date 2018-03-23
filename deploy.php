@@ -48,7 +48,7 @@ $params = array('id' => $id,
                 'what' => $action,
                 'category' => $category,
                 'force' => $forcecache,
-                'deploykey' => $deploykey);
+                'deplykey' => $deploykey);
 $PAGE->set_url('/blocks/publishflow/deploy.php', $params);
 $PAGE->navbar->add(get_string('pluginname', 'block_publishflow'));
 $PAGE->navbar->add(get_string('deploying', 'block_publishflow'));
@@ -82,7 +82,7 @@ if (!empty($theblock->config->deploymentkey)) {
 $mnethost = $DB->get_record('mnet_host', array('id' => $where));
 
 // If we want to deploy on a local platform, we need to bypass the RPC with a quick function.
-if ($where == 0) {
+if($where == 0){
     $remotecourseid = publishflow_local_deploy($category, $course);
 
     echo $OUTPUT->box_start('plublishpanel');
@@ -138,7 +138,7 @@ if ($where == 0) {
         echo '<br/>';
         echo '<br/>';
         if ($USER->mnethostid != $mnethost->id){
-            $params = array('hostid' => $mnethost->id, 'wantsurl' => '/course/view.php?id='.$remotecourseid);
+            $params = array('hostid' => $mnethost->id, 'wantsurl' => urlencode('/course/view.php?id='.$remotecourseid));
             $jumpurl = new moodle_url('/auth/mnet/jump.php', $params);
             echo '<a href="'.$jumpurl.'">'.get_string('jumptothecourse', 'block_publishflow').'</a> - ';
         } else {
