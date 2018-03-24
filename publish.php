@@ -104,7 +104,7 @@ if ($response->status == 200) {
     switch($action) {
         case 'publish': {
             // Confirm/force published status in course record if not done, to avoid strange access effects.
-            if (!empty($CFG->coursepublishedcategory)){
+            if (!empty($CFG->coursepublishedcategory)) {
                 $DB->set_field('course', 'category', $CFG->coursepublishedcategory, array('id' => "{$fromcourse}"));
             }
             break;
