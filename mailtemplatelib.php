@@ -18,7 +18,7 @@
  * This library is a third-party proposal for standardizing mail
  * message constitution for third party modules. It is actually used
  * by all ethnoinformatique.fr module. It relies on mail and message content
- * templates tha should reside in a mail/{$lang}_utf8 directory within the 
+ * templates tha should reside in a mail/{$lang}_utf8 directory within the
  * module space.
  *
  * @package extralibs
@@ -27,6 +27,7 @@
  * @date 2008/03/03
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  */
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * useful templating functions from an older project of mine, hacked for Moodle
@@ -80,7 +81,7 @@ function publishflow_get_mail_template($virtual, $modulename, $lang = '') {
         return file($templatename);
     }
 
-    debugging("template $templateName not found");
+    debugging("template $templatename not found");
     return array();
 }
 
