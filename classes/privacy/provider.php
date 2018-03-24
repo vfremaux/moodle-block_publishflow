@@ -14,23 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Version details.
- *
- * @package     block_publishflow
- * @category    blocks
- * @author      Valery Fremaux (valery.fremaux@gmail.com)
- * @copyright   2013 Valery Fremaux (http://www.mylearningfactory.com)
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace block_publishflow\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2018031801;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2017050500;        // Requires this Moodle version.
-$plugin->component = 'block_publishflow'; // Full name of the plugin (used for diagnostics).
-$plugin->maturity = MATURITY_RC;
-$plugin->release = '3.4.0 (Build 2018031801)';
-
-// Non moodle attributes.
-$plugin->codeincrement = '3.4.0002';
+class provider implements \core_privacy\local\metadata\null_provider {
+}
