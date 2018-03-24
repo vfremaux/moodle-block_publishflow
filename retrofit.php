@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Implements a result page for driving the deploy 
+ * Implements a result page for driving the deploy
  * transaction.
  * @package blocks-publishflow
  * @category blocks
@@ -64,12 +64,12 @@ $rpcclient->add_param($caller, 'struct');
 $course->retrofit = true;
 $rpcclient->add_param(json_encode($course), 'string');
 $rpcclient->add_param(false, 'int'); // Unused freeuse.
-$mnet_host = new mnet_peer();
-$mnet_host->set_wwwroot($mnethost->wwwroot);
+$mnethost = new mnet_peer();
+$mnethost->set_wwwroot($mnethost->wwwroot);
 
-if (!$rpcclient->send($mnet_host)) {
+if (!$rpcclient->send($mnethost)) {
     $debugout = ($CFG->debug | DEBUG_DEVELOPER) ? var_export($rpcclient, true) : '';
-    $eturnurl = new moodle_url('/course/view.php', array('id' => $fromcourse));
+    $returnurl = new moodle_url('/course/view.php', array('id' => $fromcourse));
     echo '<pre>'.$debugout.'</pre>';
     print_error('failed', 'block_publishflow', '', $returnurl);
 }
@@ -87,9 +87,12 @@ if ($response->status == 200) {
     echo '<br/>';
     echo '<br/>';
     if ($USER->mnethostid != $mnethost->id) {
-        echo '<a href="/auth/mnet/jump.php?hostid='.$mnethost->id.'&amp;wantsurl='.urlencode('/course/view.php?id='.$remotecourseid)."\">".get_string('jumptothecourse', 'block_publishflow').'</a> - ';
+        $params = array('hostid' => $mnethost->id, 'wantsurl' => '/course/view.php?id='.$remotecourseid);
+        $jumpurl = new moodle_url('/auth/mnet/jump.php', $params);
+        echo '<a href="'.$jumpurl.'">'.get_string('jumptothecourse', 'block_publishflow').'</a> - ';
     } else {
-        echo '<a href="'.$mnethost->wwwroot.'/course/view.php?id='.$remotecourseid.'">'.get_string('jumptothecourse', 'block_publishflow').'</a> - ';
+        $label = get_string('jumptothecourse', 'block_publishflow');
+        echo '<a href="'.$mnethost->wwwroot.'/course/view.php?id='.$remotecourseid.'">'.$label.'</a> - ';
     }
 } else {
     echo $OUTPUT->notification("Remote Error : <pre>".$response->error.'</pre>');

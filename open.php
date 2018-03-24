@@ -51,8 +51,8 @@ $url = new moodle_url('/blocks/publishflow/open.php', array('what' => 'open', 'f
 $context = context_course::instance($course->id);
 
 switch ($step) {
-     case COURSE_OPEN_CHOOSE_OPTIONS: {
-        // prints a choice with helpers
+    case COURSE_OPEN_CHOOSE_OPTIONS: {
+        // Prints a choice with helpers.
         echo $OUTPUT->heading(get_string('notification', 'block_publishflow'));
         print_string('opennotifyhelper', 'block_publishflow');
         echo "<p align=\"right\"><a href=\"{$url}&amp;step=".COURSE_OPEN_EXECUTE."&amp;notify=1\">$strdoopen</a></p>";
@@ -63,13 +63,13 @@ switch ($step) {
 
         echo '<p align="center"><center>';
         $opts['id'] = $course->id;
-        echo $OUTPUT->single_button(new moodle_url($CFG->wwwroot.'/course/view.php', $opts), get_string('cancel'), 'get');
+        echo $OUTPUT->single_button(new moodle_url('/course/view.php', $opts), get_string('cancel'), 'get');
         echo '</center></p>';
 
          break;
     }
 
-     case COURSE_OPEN_EXECUTE: {
+    case COURSE_OPEN_EXECUTE: {
         $notify = required_param('notify', PARAM_INT);
         publishflow_session_open($course, $notify);
         echo $OUTPUT->box(get_string('courseopen', 'block_publishflow'), 'center');

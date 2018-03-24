@@ -71,6 +71,9 @@ require_once($CFG->dirroot.'/mnet/xmlrpc/client.php');
 require_once($CFG->dirroot.'/blocks/publishflow/lib.php');
 echo('Config check : playing for '.$CFG->wwwroot."\n");
 
+global $USER;
+$USER = get_admin();
+
 block_publishflow_cron_network_refreshment();
 
 exit(0);

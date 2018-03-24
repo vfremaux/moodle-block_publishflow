@@ -20,8 +20,9 @@
  *
  * @package block_publishflow
  * @category blocks
- * @author Valery Fremaux (valery.fremaux@club-internet.fr)
+ * @author Valery Fremaux (valery.fremaux@gmail.com)
  * @author Wafa Adham (admin@adham.ps)
+ * @copyright 2008 onwards Valery Fremaux (http://www.myLearningFactory.com)
  */
 defined('MOODLE_INTERNAL') || die();
 
@@ -50,15 +51,25 @@ class block_publishflow extends block_base {
 
         $config = get_config('block_publishflow');
 
-        if (preg_match('/\\bmain\\b/', @$config->moodlenodetype)) {
+        if (empty($config->moodlenodetype)) {
+            set_config('moodlenodetype', 'normalmoodle', 'block_publishflow');
+            $config->moodlenodetype = 'normalmoodle';
+        }
+
+        if (preg_match('/\\bcatalog\\b/', $config->moodlenodetype)) {
             $this->title = get_string('deployname', 'block_publishflow');
-        } else if (@$config->moodlenodetype == 'factory') {
+        } else if ($config->moodlenodetype == 'factory') {
             $this->title = get_string('publishname', 'block_publishflow');
-        } else if (@$config->moodlenodetype == 'learningarea') {
-            $this->title = get_string('managename', 'block_publishflow');
+        } else if ($config->moodlenodetype == 'learningarea') {
+            if (!empty($config->enablesessionmanagement)) {
+                $this->title = get_string('managename', 'block_publishflow');
+            } else {
+                $this->title = get_string('retrofitname', 'block_publishflow');
+            }
         } else if (@$config->moodlenodetype == 'factory,catalog') {
             $this->title = get_string('combinedname', 'block_publishflow');
         } else {
+            // Normal moodle case.
             $this->title = get_string('blockname', 'block_publishflow');
         }
         $this->content_type = BLOCK_TYPE_TEXT;
@@ -70,7 +81,6 @@ class block_publishflow extends block_base {
 
     public function specialization() {
         $unused = 0;
-        $this->config_save($unused);
     }
 
     public function has_config() {
@@ -85,24 +95,8 @@ class block_publishflow extends block_base {
         return true;
     }
 
-    public function config_save($data) {
-        global $DB;
-
-        // Transfer the automationrefresh value to the cron attribute of the block.
-
-        $config = get_config('block_publishflow');
-
-        $blockrec = $DB->get_record('block', array('name' => 'publishflow'));
-        $blockrec->cron = 0 + @$config->networkrefreshautomation;
-        $DB->update_record('block', $blockrec);
-    }
-
-    // Apart from the constructor, there is only ONE function you HAVE to define, get_content().
-    // Let's take a walkthrough! :)
-
     public function get_content() {
-        // We intend to use the $CFG global variable.
-        global $CFG, $COURSE, $OUTPUT;
+        global $CFG, $COURSE, $OUTPUT, $PAGE;
 
         include_once($CFG->dirroot.'/blocks/publishflow/rpclib.php');
         include_once($CFG->dirroot.'/blocks/publishflow/lib.php');
@@ -141,12 +135,17 @@ class block_publishflow extends block_base {
 
         if ($config->moodlenodetype == 'normalmoodle') {
             $this->content->text = $OUTPUT->notification(get_string('notinpublishsystem', 'block_publishflow'));
+            $this->content->footer = '';
+            return $this->content;
         }
+
+        $renderer = $PAGE->get_renderer('block_publishflow');
 
         // Making bloc content.
         $filemanagerlink = new moodle_url('/blocks/publishflow/pffilesedit.php', array('id' => $COURSE->id));
 
         $systemcontext = context_system::instance();
+        $coursecontext = context_course::instance($COURSE->id);
 
         $footeroutput = '';
         if (has_capability('block/publishflow:managepublishedfiles', $systemcontext)) {
@@ -156,41 +155,48 @@ class block_publishflow extends block_base {
             $footeroutput .= '</div>';
         }
 
-        if ($COURSE->idnumber) {
-
-            if ($config->moodlenodetype == 'factory') {
-
-            /* ** PURE FACTORY *** */
-                $output .=  block_build_factory_menu($this);
-            } else if (preg_match('/\\bcatalog\\b/', $config->moodlenodetype)) {
-
-            /* ** CATALOG OR CATALOG & FACTORY *** */
-                $output .=  block_build_catalogandfactory_menu($this);
-            } else if ($config->moodlenodetype == 'learningarea') {
-
-            /* ** TRAINING CENTER *** */
-                $output .=  block_build_trainingcenter_menu($this);
+        if (!$COURSE->idnumber) {
+            if (empty($config->submitto) || $config->submitto == 'default') {
+                // Silently generate en IDNumber.
+                $COURSE->idnumber = \block_publishflow::generate_id();
+                $DB->set_field('course', 'idenumber', $idnumber, array('id' => $COURSE->id));
+            } else {
+                $output .= $renderer->ident_form($this);
             }
+        }
 
-        } else {
-            // This is an unregistered course that has no IDNumber reference. This causes a problem for instance identification.
-            $output .= $OUTPUT->box_start('noticebox');
-            $output .= $OUTPUT->notification(get_string('unregistered','block_publishflow'), 'notifyproblem', true);
-            // @TODO add help button $output .= $OUTPUT->help_button();
-            $qoptions['fromcourse'] = $COURSE->id;
-            $qoptions['what'] = 'submit';
-            $qoptions['id'] = $this->instance->id;
-            $output .= '<p>';
-            $buttonurl = new moodle_url('/blocks/publishflow/submit.php', $qoptions);
-            $output .= $OUTPUT->single_button($buttonurl, get_string('reference', 'block_publishflow'), 'post');
-            $output .= '</p>';
-            $output .= $OUTPUT->box_end();
+        if ($config->moodlenodetype == 'factory') {
+            /* PURE FACTORY */
+            if (has_capability('block/publishflow:publish', $coursecontext) ||
+                        has_capability('block/publishflow:deployeverywhere', $systemcontext) ||
+                                block_publishflow_extra_deploy_check()) {
+                $deploymentoptions = $this->get_deployment_options();
+                $output .= $renderer->factory_menu($this, $deploymentoptions);
+            }
+        } else if (preg_match('/\\bcatalog\\b/', $config->moodlenodetype)) {
+
+            /* CATALOG OR CATALOG & FACTORY. */
+            if (has_capability('block/publishflow:deploy', $coursecontext) ||
+                            has_capability('block/publishflow:deployeverywhere', $systemcontext) ||
+                                    block_publishflow_extra_deploy_check()) {
+                $deploymentoptions = $this->get_deployment_options();
+                $output .= $renderer->catalog_and_factory_menu($this, $deploymentoptions);
+            }
+        } else if ($config->moodlenodetype == 'learningarea') {
+
+            /* TRAINING CENTER */
+            if (has_capability('block/publishflow:retrofit', $coursecontext) ||
+                        has_capability('block/publishflow:manage', $coursecontext) ||
+                                has_capability('block/publishflow:deployeverywhere', $systemcontext) ||
+                                        block_publishflow_extra_deploy_check()) {
+                $output .= $renderer->trainingcenter_menu($this);
+            }
         }
 
         $this->content->text = $output;
         $this->content->footer = $footeroutput;
 
-        // And that's all! :)
+        // And that's all! :).
         return $this->content;
     }
 
@@ -198,6 +204,7 @@ class block_publishflow extends block_base {
         global $PAGE;
 
         $PAGE->requires->jquery();
+        $PAGE->requires->js_call_amd('block_publishflow/publishflow', 'init');
     }
 
     public function makebackupform() {
@@ -223,5 +230,102 @@ class block_publishflow extends block_base {
         include_once($CFG->dirroot.'/blocks/publishflow/lib.php');
         block_publishflow_cron_network_refreshment();
         mtrace("Finishing renewing remote catalogs\n");
+    }
+
+    /**
+     * generates a course unique ID of fixed length
+     * @param int $length
+     * @return a new idnumber as a string
+     */
+    static public function generate_id($length = 10) {
+        global $DB;
+
+        $continue = true;
+
+        while ($continue) {
+            // Generate.
+            $idnumber = '';
+            for ($i = 0; $i < $length; $i++){
+                $num = rand(65, 90);
+                $idnumber .= chr($num);
+            }
+            // Test for unicity.
+            $continue = $DB->count_records('course', array('idnumber' => $idnumber));
+        }
+        return $idnumber;
+    }
+
+    protected function get_deployment_options() {
+        global $DB, $USER, $COURSE, $CFG;
+
+        $systemcontext = context_system::instance();
+        $coursecontext = context_course::instance($COURSE->id);
+
+        $hostsavailable = $DB->get_records('block_publishflow_catalog', array('type' => 'learningarea'));
+        $fieldsavailable = $DB->get_records_select('user_info_field', 'shortname like \'access%\'');
+        $userhost = $DB->get_record('mnet_host', array('id' => $USER->mnethostid));
+
+        $deployoptions = array();
+        if (has_capability('block/publishflow:deploy', $systemcontext) ||
+                block_publishflow_extra_deploy_check()) {
+            $deployoptions['0'] = get_string('defaultplatform', 'block_publishflow');
+        }
+
+        $userhostroot = $DB->get_field('mnet_host', 'wwwroot', array('id' => $USER->mnethostid));
+
+        if (is_dir($CFG->dirroot.'/local/vmoodle')) {
+            include_once($CFG->dirroot.'/local/vmoodle/xlib.php');
+        }
+
+        if (!empty($hostsavailable)) {
+            foreach ($hostsavailable as $host) {
+                $platform = $DB->get_record('mnet_host', array('id' => $host->platformid));
+
+                if (!preg_match('#'.$CFG->mainhostprefix.'#', $platform->wwwroot)) {
+                    // Main platform is usually always enabled.
+                    if (is_dir($CFG->dirroot.'/local/vmoodle')) {
+                        if (!vmoodle_is_enabled($platform->wwwroot)) {
+                            continue;
+                        }
+                    }
+                }
+
+                // If we cant deploy everywhere, we see if we are Remote Course Creator.
+                // Then, the access fields are use for further checking.
+                if (!has_capability('block/publishflow:deployeverywhere', $systemcontext)) {
+                    if (has_capability('block/publishflow:deploy', $coursecontext) ||
+                            block_publishflow_extra_deploy_check()) {
+                        // Check remotely for each host.
+                        $rpcclient = new mnet_xmlrpc_client();
+                        $rpcclient->set_method('blocks/publishflow/rpclib.php/publishflow_rpc_check_user');
+
+                        $user = new Stdclass;
+                        $user->username = $USER->username;
+                        $user->remoteuserhostroot = $userhostroot;
+                        $user->remotehostroot = $CFG->wwwroot;
+
+                        $rpcclient->add_param($user, 'struct');
+                        $rpcclient->add_param('block/publishflow:deploy', 'string');
+                        $rpcclient->add_param('any', 'string'); // Any context remotely.
+                        $rpcclient->add_param(true, 'boolean'); // Require json response.
+                        $mnethost = new mnet_peer();
+                        $mnethost->set_wwwroot($platform->wwwroot);
+                        if (!$rpcclient->send($mnethost)) {
+                            if (debugging(DEBUG_DEVELOPER)) {
+                                // print_object($rpcclient);
+                            }
+                        }
+                        $response = json_decode($rpcclient->response);
+                        if ($response->status == RPC_SUCCESS) {
+                            $deployoptions[$host->platformid] = $platform->name;
+                        }
+                    }
+                } else {
+                    $deployoptions[$host->platformid] = $platform->name;
+                }
+            }
+        }
+
+        return $deployoptions;
     }
 }
