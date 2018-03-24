@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 function xmldb_block_publishflow_uninstall() {
     global $DB, $CFG;
 
@@ -28,7 +30,7 @@ function xmldb_block_publishflow_uninstall() {
         $DB->delete_records('role_allow_override', array('allowoverride' => $disabledstudentrole->id));
     }
 
-    // dismount all XML-RPC
+    // Dismount all XML-RPC.
     $service = $DB->get_record('mnet_service', array('name' => 'publishflow'));
     if ($service) {
         $DB->delete_records('mnet_service', array('id' => $service->id));

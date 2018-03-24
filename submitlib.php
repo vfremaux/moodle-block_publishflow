@@ -86,26 +86,3 @@ if (!function_exists('choose_from_menu_multiple')) {
         }
     }
 }
-
-/**
- * generates a course unique ID of fixed length
- * @param int $length
- * @return a new idnumber as a string
- */
-function block_publishflow_generate_id($length = 10) {
-    global $DB;
-
-    $continue = true;
-
-    while ($continue) {
-        // Generate.
-        $idnumber = '';
-        for ($i = 0 ; $i < $length ; $i++){
-            $num = rand(65, 90);
-            $idnumber .= chr($num);
-        }
-        // Test for unicity.
-        $continue = $DB->count_records('course', array('idnumber' => $idnumber));
-    }
-    return $idnumber;
-}

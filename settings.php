@@ -1,55 +1,108 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('COURSESESSIONS_PRIVATE')){
+/**
+ * Controls publication/deployment of courses in a
+ * distributed moodle configuration.
+ *
+ * @package block_publishflow
+ * @category blocks
+ * @author Valery Fremaux (valery.fremaux@club-internet.fr)
+ * @author Wafa Adham (admin@adham.ps)
+ */
+defined('MOODLE_INTERNAL') || die();
+
+if (!defined('COURSESESSIONS_PRIVATE')) {
     define('COURSESESSIONS_PRIVATE', 0);
     define('COURSESESSIONS_PROTECTED', 1);
     define('COURSESESSIONS_PUBLIC', 2);
 }
 
-$options = array ('' => get_string('normalmoodle', 'block_publishflow'),
+$options = array ('normalmoodle' => get_string('normalmoodle', 'block_publishflow'),
                   'factory' => get_string('factory', 'block_publishflow'),
                   'catalog' => get_string('catalog', 'block_publishflow'),
                   'factory,catalog' => get_string('combined', 'block_publishflow'),
                   'learningarea' => get_string('learningarea', 'block_publishflow')
             );
 
-$settings->add(new admin_setting_configselect('block_publishflow/moodlenodetype', get_string('moodlenodetype', 'block_publishflow'),
-                   get_string('configmoodlenodetype', 'block_publishflow'), 'normalmoodle', $options));
+$key = 'block_publishflow/moodlenodetype';
+$label = get_string('configmoodlenodetype', 'block_publishflow');
+$desc = get_string('configmoodlenodetype_desc', 'block_publishflow');
+$default = 'normalmoodle';
+$settings->add(new admin_setting_configselect($key, $label, $desc, $default, $options));
 
-$settings->add(new admin_setting_configcheckbox('block_publishflow/enableretrofit', get_string('enableretrofit', 'block_publishflow'),
-                   get_string('configenableretrofit', 'block_publishflow'), 1));
+$key = 'block_publishflow/enableretrofit';
+$label = get_string('configenableretrofit', 'block_publishflow');
+$desc = get_string('configenableretrofit_desc', 'block_publishflow');
+$default = 1;
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, $default));
 
-$settings->add(new admin_setting_configcheckbox('block_publishflow/coursedeliveryislocal', get_string('islocal','block_publishflow'),
-            get_string('coursedeliveryislocal','block_publishflow'), 0));
+$key = 'block_publishflow/enablesessionmanagement';
+$label = get_string('configenablesessionmanagement', 'block_publishflow');
+$desc = get_string('configenablesessionmanagement_desc', 'block_publishflow');
+$default = 1;
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, $default));
 
-$options2 = array('private' => get_string('cdprivate','block_publishflow'),
-          'publicwrite' => get_string('cdpublicwrite','block_publishflow'),
-          'publicread' => get_string('cdpublicread', 'block_publishflow')
-          );
+$key = 'block_publishflow/coursedeliveryislocal';
+$label = get_string('configcoursedeliveryislocal', 'block_publishflow');
+$desc = get_string('configcoursedeliveryislocal_desc', 'block_publishflow');
+$default = 0;
+$settings->add(new admin_setting_configcheckbox($key, $label, $desc, $default));
 
-$settings->add(new admin_setting_configselect('block_publishflow/publicsessions', get_string('publicsessions','block_publishflow'),
-            get_string('publicsessions_desc','block_publishflow'), 'private', $options2));
+$options2 = array('private' => get_string('cdprivate', 'block_publishflow'),
+    'publicwrite' => get_string('cdpublicwrite', 'block_publishflow'),
+    'publicread' => get_string('cdpublicread', 'block_publishflow')
+);
 
+$key = 'block_publishflow/publicsessions';
+$label = get_string('configpublicsessions', 'block_publishflow');
+$desc = get_string('configpublicsessions_desc', 'block_publishflow');
+$default = 'private';
+$settings->add(new admin_setting_configselect($key, $label, $desc, $default, $options2));
 
-$courses = $DB->get_records_menu('course', null, 'shortname', 'id,shortname');
+require_once($CFG->dirroot.'/lib/coursecatlib.php');
+$catlist = coursecat::make_categories_list();
 
-$categoriesoptions = $DB->get_records_menu('course_categories', null, '', 'id, name');
-$categoriesoptions[0] = get_string('leavehere', 'block_publishflow');
+$key = 'block_publishflow/deploycategory';
+$label = get_string('configdeploycategory', 'block_publishflow');
+$desc = get_string('configdeploycategory_desc', 'block_publishflow');
+$settings->add(new admin_setting_configselect($key, $label, $desc,'',$catlist));
 
-$settings->add(new admin_setting_configselect('block_publishflow/deploycategory', get_string('deploycategory','block_publishflow'),
-            get_string('deploycategory_desc','block_publishflow'),'',$categoriesoptions));
+$key = 'block_publishflow/runningcategory';
+$label = get_string('configrunningcategory', 'block_publishflow');
+$desc = get_string('configrunningcategory_desc', 'block_publishflow');
+$catlist2 = $catlist;
+$catlist2[0] = get_string('leavehere', 'block_publishflow');
+$settings->add(new admin_setting_configselect($key, $label, $desc,'',$catlist2));
 
-$settings->add(new admin_setting_configselect('block_publishflow/runningcategory', get_string('runningcategory','block_publishflow'),
-            get_string('runningcategory_desc','block_publishflow'),'',$categoriesoptions));
+$key = 'block_publishflow/closedcategory';
+$label = get_string('configclosedcategory', 'block_publishflow');
+$desc = get_string('configclosedcategory_desc', 'block_publishflow');
+$settings->add(new admin_setting_configselect($key, $label, $desc,'',$catlist2));
 
-$settings->add(new admin_setting_configselect('block_publishflow/closedcategory', get_string('closedcategory','block_publishflow'),
-            get_string('closedcategory_desc','block_publishflow'),'',$categoriesoptions));
+// This is a site level setting that is shared with other components (vmoodle).
+$key = 'mainhostprefix';
+$label = get_string('configmainhostprefix', 'block_publishflow');
+$desc = get_string('configmainhostprefix_desc', 'block_publishflow');
+$settings->add(new admin_setting_configtext($key, $label, $desc,''));
 
-$settings->add(new admin_setting_configtext('mainhostprefix', get_string('mainhostprefix','block_publishflow'),
-            get_string('mainhostprefix_desc','block_publishflow'),''));
-
-$settings->add(new admin_setting_configtext('factoryprefix', get_string('factoryprefix','block_publishflow'),
-            get_string('factoryprefix_desc','block_publishflow'),''));
+$key = 'block_publishflow/factoryprefix';
+$label = get_string('configfactoryprefix', 'block_publishflow');
+$desc = get_string('configfactoryprefix_desc', 'block_publishflow');
+$settings->add(new admin_setting_configtext($key, $label, $desc,''));
 
 $systemcontext = context_system::instance();
 $roles = role_fix_names(get_all_roles(), $systemcontext, ROLENAME_ORIGINAL);
@@ -59,21 +112,34 @@ foreach ($roles as $r) {
 }
 $roleoptions = array_merge(array('0' => get_string('noassignation', 'block_publishflow')), $rolenames);
 
-$settings->add(new admin_setting_configselect('block_publishflow/defaultrole', get_string('defaultrole','block_publishflow'),
-            get_string('defaultrole_desc','block_publishflow'), 0, $roleoptions));
+$key = 'block_publishflow/defaultrole';
+$label = get_string('configdefaultrole', 'block_publishflow');
+$desc = get_string('configdefaultrole_desc', 'block_publishflow');
+$settings->add(new admin_setting_configselect($key, $label, $desc, 0, $roleoptions));
 
-$syncstr = get_string('synchonizingnetworkconfig', 'block_publishflow');
-$settings->add(new admin_setting_heading('synchronization', get_string('synchonizingnetworkconfig', 'block_publishflow'), "<a href=\"{$CFG->wwwroot}/blocks/publishflow/netupdate.php\">$syncstr</a>"));
+$key = 'block_publishflow/deployprofilefield';
+$label = get_string('configdeployprofilefield', 'block_publishflow');
+$desc = get_string('configdeployprofilefield_desc', 'block_publishflow');
+$settings->add(new admin_setting_configtext($key, $label, $desc, ''));
 
-/*
-$options = array ('' => get_string('noautomatednetworkrefreshment', 'block_publishflow'),
-                  DAYSECS => get_string('oneday', 'block_publishflow'),
-                  DAYSECS * 7 => get_string('oneweek', 'block_publishflow'),
-                  DAYSECS * 30 => get_string('onemonth', 'block_publishflow'),
-                  '1' => 'Now (Just for Testing)'
-            );
+$key = 'block_publishflow/deployprofilefieldvalue';
+$label = get_string('configdeployprofilefieldvalue', 'block_publishflow');
+$desc = get_string('configdeployprofilefieldvalue_desc', 'block_publishflow');
+$settings->add(new admin_setting_configtext($key, $label, $desc, ''));
 
-$settings->add(new admin_setting_configselect('block_publishflow/networkrefreshautomation', get_string('networkrefreshautomation', 'block_publishflow'),
-                   get_string('networkrefreshautomation', 'block_publishflow'), '', $options));
-*/
+$str = get_string('validatescript', 'block_publishflow');
+$label = get_string('scriptconfig', 'block_publishflow');
+$validateurl = new moodle_url('/blocks/publishflow/scriptvalidate.php');
+$html = '<a href="'.$validateurl.'" target="_blank">'.$str.'</a>';
+$settings->add(new admin_setting_heading('scriptinghdr', $label, $html));
 
+$key = 'block_publishflow/postprocessing';
+$label = get_string('configpostprocessing', 'block_publishflow');
+$desc = get_string('configpostprocessing_desc', 'block_publishflow');
+$settings->add(new admin_setting_configtextarea($key, $label, $desc, ''));
+
+$str = get_string('synchonizingnetworkconfig', 'block_publishflow');
+$label = get_string('synchonizingnetworkconfig', 'block_publishflow');
+$updateurl = new moodle_url('/blocks/publishflow/netupdate.php');
+$html = '<a href="'.$updateurl.'" target="_blank">'.$str.'</a>';
+$settings->add(new admin_setting_heading('synchronizationhdr', $label, $html));

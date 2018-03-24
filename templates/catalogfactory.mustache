@@ -1,0 +1,25 @@
+
+
+
+<!-- catalogfactory -->
+
+{{^backup}}
+{{{unavailablenotif}}}
+<center>
+<form name="makebackup" action="{{{formurl}}}" method="GET">
+    <input type="hidden" name="id" value="{{courseid}}" />
+    <input type="submit" name="go_btn" value="{{dobackupstr}}" />
+</form>
+</center>
+{{/backup}}
+
+{{#backup}}
+{{#hastargets}}
+{{> block_publishflow/deployform}}
+{{/hastargets}}
+{{^hastargets}}
+    {{{nodeploytargetsnotif}}}
+{{/hastargets}}
+{{/backup}}
+
+<!-- /catalogfactory -->

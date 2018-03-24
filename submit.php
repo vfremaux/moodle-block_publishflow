@@ -25,6 +25,7 @@ require('../../config.php');
 require_once($CFG->dirroot.'/mnet/lib.php');
 require_once($CFG->dirroot.'/mnet/xmlrpc/client.php');
 require_once($CFG->dirroot.'/blocks/publishflow/submitlib.php');
+require_once($CFG->dirroot.'/blocks/publishflow/block_publishflow.php');
 
 // This is a common step for any indexing procedure. Other processes may add their own step declarations.
 define('STEP_COMPLETED', -1);
@@ -51,7 +52,7 @@ $result = 0;
 
 // Runs the proper indexing procedure.
 $instance = $DB->get_record('block_instances', array('id' => $id));
-$theBlock = block_instance('publishflow', $instance);
+$theblock = block_instance('publishflow', $instance);
 
 if (!isset($theblock->config->submitto)) {
     $theblock->config = new StdClass();
