@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>cli</location>
+    <name>VMoodle meta scripts</name>
+    <license>GPL</license>
+    <version>v3</version>
+    <licenseversion></licenseversion>
+  </library>
+</libraries>

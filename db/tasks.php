@@ -15,22 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details.
+ * Definition of block publishflow scheduled tasks.
  *
- * @package     block_publishflow
- * @category    blocks
- * @author      Valery Fremaux (valery.fremaux@gmail.com)
- * @copyright   2013 Valery Fremaux (http://www.mylearningfactory.com)
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   block_publishflow
+ * @category  blocks
+ * @author    Valery Fremaux <valery.fremaux@gmail.com>, <valery@edunao.com>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2018031801;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2017050500;        // Requires this Moodle version.
-$plugin->component = 'block_publishflow'; // Full name of the plugin (used for diagnostics).
-$plugin->maturity = MATURITY_RC;
-$plugin->release = '3.4.0 (Build 2018031801)';
-
-// Non moodle attributes.
-$plugin->codeincrement = '3.4.0002';
+$tasks = array(
+    array(
+        'classname' => 'block_publishflow\task\discover_task',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '1',
+        'day' => '1,15',
+        'month' => '*',
+        'dayofweek' => '*',
+        'disabled' => 0,
+    )
+);

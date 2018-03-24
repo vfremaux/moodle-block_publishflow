@@ -24,7 +24,8 @@
         <FIELD NAME="platformid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="id" NEXT="parentid"/>
         <FIELD NAME="parentid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="platformid" NEXT="originalid"/>
         <FIELD NAME="originalid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="parentid" NEXT="name"/>
-        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="originalid"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="originalid" NEXT="sortorder" />
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="name"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

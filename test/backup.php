@@ -15,49 +15,46 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script is a local rewritten strategy for making quick backup
- * in the publisheflow file areas
  * @package block_publishflow
- * @author Valery Fremaux (valery.fremaux@gmail.com);
+ * @category blocks
+ * @author Valery Fremaux (valery.fremaux@gmail.com)
+ * @author Wafa Adham (admin@adham.ps)
+ * @copyright 2008 onwards Valery Fremaux (http://www.myLearningFactory.com)
  */
 
 require_once('../../config.php');
-require_once($CFG->dirroot.'/backup/util/includes/backup_includes.php');
-require_once($CFG->dirroot.'/blocks/publishflow/backup/backup_automation.class.php');
-require_once($CFG->dirroot.'/backup/util/xml/parser/progressive_parser.class.php');
-require_once($CFG->dirroot.'/backup/util/helper/restore_moodlexml_parser_processor.class.php');
+require_once($CFG->dirroot.'/blocks/publishflow/backup/util/includes/backup_includes.php');
+require_once('backup/backup_automation.class.php');
+
+require_login();
+require_capability('moodle/site:config', context_system::instance());
 
 $courseid = required_param('id', PARAM_INT);
 
-if (!$course = $DB->get_record('course', array('id' => $courseid))) {
+if (!$course = $DB->get_record('course', array('id' => $course_id))) {
     print_error('coursemisconf');
 }
 
-$url = new moodle_url('/blocks/publishflow/backup.php', array('id' => $course->id));
+$full = "Course backup - ".$course->fullname;
 
-$full = get_string('backupforpublishing', 'block_publishflow');
-
-$coursecontext = context_course::instance($courseid);
-$PAGE->set_context($coursecontext);
-$PAGE->set_url($url);
-
-require_login();
-require_capability('block/publishflow:managepublishedfiles', $coursecontext);
-
+$context = context_course::instance($courseid);
+$PAGE->set_context($context);
 $PAGE->set_title($full);
+
 $PAGE->set_heading($full);
-$PAGE->set_cacheable(false);
+$PAGE->set_url(new moodle_url('/blocks/publishflow/backup.php'));
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading($full);
+echo $OUTPUT->heading("Publishflow - Course Backup");
 
+echo "<div class='pf-backup-step'>Performing course backup .... Please wait</div>";
+
+echo "<div class='pf-backup-step'>Testing Automated Backup</div>";
 backup_automation::run_publishflow_coursebackup($courseid);
 backup_automation::remove_excess_publishflow_backups($course);
 
 echo '<div style="text-align:center;">';
-$buttonurl = new moodle_url('/course/view.php', array('id' => $courseid));
-echo $OUTPUT->continue_button($buttonurl);
+echo $OUTPUT->single_button(new moodle_url('/course/view.php', array('id' => $courseid)), "Backup Complete");
 echo '</div>';
 
 echo $OUTPUT->footer();
-
