@@ -17,7 +17,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 if (!empty($CFG->foreignindex_hostid)) {
-    // Todo : Add remote index submitting strategy here and get a proper unique Course ID
+    // Todo : Add remote index submitting strategy here and get a proper unique Course ID.
+    assert(1);
 }
 
 $idnumber = '';

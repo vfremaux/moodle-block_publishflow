@@ -79,30 +79,30 @@ $catlist = coursecat::make_categories_list();
 $key = 'block_publishflow/deploycategory';
 $label = get_string('configdeploycategory', 'block_publishflow');
 $desc = get_string('configdeploycategory_desc', 'block_publishflow');
-$settings->add(new admin_setting_configselect($key, $label, $desc,'',$catlist));
+$settings->add(new admin_setting_configselect($key, $label, $desc, '', $catlist));
 
 $key = 'block_publishflow/runningcategory';
 $label = get_string('configrunningcategory', 'block_publishflow');
 $desc = get_string('configrunningcategory_desc', 'block_publishflow');
 $catlist2 = $catlist;
 $catlist2[0] = get_string('leavehere', 'block_publishflow');
-$settings->add(new admin_setting_configselect($key, $label, $desc,'',$catlist2));
+$settings->add(new admin_setting_configselect($key, $label, $desc, '', $catlist2));
 
 $key = 'block_publishflow/closedcategory';
 $label = get_string('configclosedcategory', 'block_publishflow');
 $desc = get_string('configclosedcategory_desc', 'block_publishflow');
-$settings->add(new admin_setting_configselect($key, $label, $desc,'',$catlist2));
+$settings->add(new admin_setting_configselect($key, $label, $desc, '', $catlist2));
 
 // This is a site level setting that is shared with other components (vmoodle).
 $key = 'mainhostprefix';
 $label = get_string('configmainhostprefix', 'block_publishflow');
 $desc = get_string('configmainhostprefix_desc', 'block_publishflow');
-$settings->add(new admin_setting_configtext($key, $label, $desc,''));
+$settings->add(new admin_setting_configtext($key, $label, $desc, ''));
 
 $key = 'block_publishflow/factoryprefix';
 $label = get_string('configfactoryprefix', 'block_publishflow');
 $desc = get_string('configfactoryprefix_desc', 'block_publishflow');
-$settings->add(new admin_setting_configtext($key, $label, $desc,''));
+$settings->add(new admin_setting_configtext($key, $label, $desc, ''));
 
 $systemcontext = context_system::instance();
 $roles = role_fix_names(get_all_roles(), $systemcontext, ROLENAME_ORIGINAL);
