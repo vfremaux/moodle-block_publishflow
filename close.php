@@ -62,14 +62,17 @@ $strdoclose = get_string('doclose', 'block_publishflow');
 echo $OUTPUT->box_start('publishpanel');
 
 switch ($step) {
-     case COURSE_CLOSE_CHOOSE_MODE: {
+    case COURSE_CLOSE_CHOOSE_MODE: {
         // Prints a choice with helpers.
         print_string('closehelper', 'block_publishflow');
 
         echo $OUTPUT->heading(get_string('closepublic', 'block_publishflow'));
         print_string('closepublichelper', 'block_publishflow');
         echo '<p align="right">';
-        $params = array('fromcourse' => $fromcourse, 'what' => $action, 'step' => COURSE_CLOSE_EXECUTE, 'mode' => COURSE_CLOSE_PUBLIC);
+        $params = array('fromcourse' => $fromcourse,
+                        'what' => $action,
+                        'step' => COURSE_CLOSE_EXECUTE,
+                        'mode' => COURSE_CLOSE_PUBLIC);
         $linkurl = new moodle_url('/blocks/publishflow/close.php', $params);
         echo '<a href="'.$linkurl.'">'.$strdoclose.'</a></p>';
 
@@ -94,7 +97,7 @@ switch ($step) {
         break;
     }
 
-     case COURSE_CLOSE_EXECUTE: {
+    case COURSE_CLOSE_EXECUTE: {
         $mode = required_param('mode', PARAM_INT);
         publishflow_course_close($course, $mode);
         echo $OUTPUT->box(get_string('courseclosed', 'block_publishflow'), 'center');

@@ -222,7 +222,7 @@ class block_publishflow extends block_base {
         }
     }
 
-    static function crontask() {
+    static public function crontask() {
         global $CFG;
 
         mtrace("\nStarting renewing remote catalogs...");
@@ -245,7 +245,7 @@ class block_publishflow extends block_base {
         while ($continue) {
             // Generate.
             $idnumber = '';
-            for ($i = 0; $i < $length; $i++){
+            for ($i = 0; $i < $length; $i++) {
                 $num = rand(65, 90);
                 $idnumber .= chr($num);
             }
@@ -311,9 +311,7 @@ class block_publishflow extends block_base {
                         $mnethost = new mnet_peer();
                         $mnethost->set_wwwroot($platform->wwwroot);
                         if (!$rpcclient->send($mnethost)) {
-                            if (debugging(DEBUG_DEVELOPER)) {
-                                // print_object($rpcclient);
-                            }
+                            print_error("Bad RPC request");
                         }
                         $response = json_decode($rpcclient->response);
                         if ($response->status == RPC_SUCCESS) {

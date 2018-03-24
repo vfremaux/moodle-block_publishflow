@@ -83,7 +83,7 @@ class block_publishflow_renderer extends plugin_renderer_base {
                 $template->rpcerror = get_string('unavailable', 'block_publishflow');
                 if ($CFG->debug) {
                     $notif = 'Publish Status Call Error : ' . implode("\n", $rpcclient->error);
-                    $template->rpcdebug = $OUTPUT->notification($notif), 'notifyproblem');
+                    $template->rpcdebug = $OUTPUT->notification($notif, 'notifyproblem');
                 }
             }
 
@@ -153,7 +153,7 @@ class block_publishflow_renderer extends plugin_renderer_base {
                         break;
 
                     case PUBLISHED_HIDDEN : {
-                       $output .= get_string('publishedhidden', 'block_publishflow');
+                        $output .= get_string('publishedhidden', 'block_publishflow');
                         $btn = get_string('publish', 'block_publishflow');
                         $confirm = get_string('publishconfirm', 'block_publishflow');
                         $tooltip = get_string('publishtooltip', 'block_publishflow');
@@ -274,7 +274,7 @@ class block_publishflow_renderer extends plugin_renderer_base {
 
         $config = get_config('block_publishflow');
 
-        // students usually do not see this block
+        // Students usually do not see this block.
 
         $coursecontext = context_course::instance($COURSE->id);
 
@@ -307,7 +307,8 @@ class block_publishflow_renderer extends plugin_renderer_base {
 
             if (empty($factoryhost)) {
                 $template->factory = false;
-                $template->nofactorynotif = $OUTPUT->notification(get_string('nofactory', 'block_publishflow'), 'notifyproblem', true);
+                $notif = get_string('nofactory', 'block_publishflow');
+                $template->nofactorynotif = $OUTPUT->notification($notif, 'notifyproblem', true);
 
                 return $this->output->render_from_template('block_publishflow/trainingcenter', $template);
             } else {
@@ -317,7 +318,8 @@ class block_publishflow_renderer extends plugin_renderer_base {
                 if (empty($realpath)) {
                     $template->backup = false;
                     $template->dobackupstr = get_string('dobackup', 'block_publishflow');
-                    $template->unavailablenotif .= $OUTPUT->notification(get_string('unavailable', 'block_publishflow'), 'notifyproblem', true);
+                    $notif = get_string('unavailable', 'block_publishflow');
+                    $template->unavailablenotif .= $OUTPUT->notification($notif, 'notifyproblem', true);
                     $template->formurl = new moodle_url('/blocks/publishflow/backup.php');
 
                     return $this->output->render_from_template('block_publishflow/trainingcenter', $template);
@@ -337,7 +339,7 @@ class block_publishflow_renderer extends plugin_renderer_base {
 
         if (!empty($config->enablesessionmanagement)) {
             $template->canmanagesessions = true;
-            $template->coursecontrolstr =  get_string('coursecontrol', 'block_publishflow');
+            $template->coursecontrolstr = get_string('coursecontrol', 'block_publishflow');
 
             /*
              * Should be given to entity trainers (mts)
