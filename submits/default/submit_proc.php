@@ -14,11 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * this is a procedure manager handling all steps for submitting.
  */
+defined('MOODLE_INTERNAL') || die();
 
 if ($step == STEP_INITIAL) {
     $step == STEP_COMPLETED;
