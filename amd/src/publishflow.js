@@ -33,19 +33,19 @@ define(['jquery', 'core/log'], function ($, log) {
 
         feed_categories: function() {
 
-            $that = $(this);
+            that = $(this);
 
-            var platformid = 0 + this.options[hosts.selectedIndex].value;
+            var platformid = 0 + this.options[this.selectedIndex].value;
 
             var url = M.cfg.wwwroot + '/blocks/publishflow/ajax/categorybuilder.php';
 
             $.post(
-                url, { platformid: platformid }, function(data, status) {
+                url, { platformid: platformid }, function(data) {
 
                     var catArray = JSON.parse(data, null);
 
                     var html = '<select  name="category"  size="1">';
-                    for (i = 0; i < catArray.length; i++) {
+                    for (var i = 0; i < catArray.length; i++) {
                         html = html + '<option value=' + catArray[i].orid + '>' + catArray[i].name + '</option>';
                     }
                     html = html + '</select>';
