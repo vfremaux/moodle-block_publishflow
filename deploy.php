@@ -42,7 +42,7 @@ $course = $DB->get_record('course', array('id' => "$fromcourse"));
 require_login($course);
 
 $systemcontext = context_course::instance($fromcourse);
-$PAGE->set_context($systemcontext); 
+$PAGE->set_context($systemcontext);
 $PAGE->set_button('');
 $params = array('id' => $id,
                 'fromcourse' => $fromcourse,
@@ -59,7 +59,7 @@ print $OUTPUT->header();
 
 // Get the block context.
 
-if (!$instance = $DB->get_record('block_instances', array('id' => $id))){
+if (!$instance = $DB->get_record('block_instances', array('id' => $id))) {
     print_error('errorbadblockid', 'block_publishflow');
 }
 

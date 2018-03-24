@@ -14,16 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Unachieved. Not functional
  * the prurpose would be to fetch an adequate publication identifier from a remote source
  * in which the course colume has been referenced. Then publishing might send the complete
  * content to that remote source.
  *
- * This needs more work and integration opportunities. 
+ * This needs more work and integration opportunities.
  */
+defined('MOODLE_INTERNAL') || die();
 
 switch($step) {
     case AUTHORING : {
@@ -47,8 +46,9 @@ switch($step) {
         $form->technicalrequirements = '';
         $form->extrarequirements = '';
         $form->step = $step + 1;
+        break;
     }
-    break;
+
     case TEACHING : {
         // From form 1.
         $form = data_submitted();
@@ -66,9 +66,10 @@ switch($step) {
         $form->useenvironments = array();
         $form->activities = array();
         $form->step = $step + 1;
+        break;
     }
-    break;
-    case STEP_COMPLETED :{
+
+    case STEP_COMPLETED : {
         $form = data_submitted();
         $form->step = $step + 1;
         $result = include($CFG->dirroot.'/blocks/publishflow/submits/remote/submit.controller.php');
@@ -76,7 +77,9 @@ switch($step) {
 }
 
 echo $OUTPUT->container_start();
+
 if ($result != -1) {
     include($CFG->dirroot.'/blocks/publishflow/submits/remote/submit_step'.$form->step.'.html');
 }
+
 echo $OUTPUT->container_end();

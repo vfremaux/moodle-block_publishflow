@@ -53,7 +53,7 @@ $PAGE->set_context($context);
 $PAGE->set_title(get_string('managefiles', 'backup'));
 $PAGE->set_heading(get_string('managefiles', 'backup'));
 $PAGE->navbar->add(get_string('pluginname', 'block_publishflow'));
-$PAGE->navbar->add(get_string('managepublishedfiles','block_publishflow'));
+$PAGE->navbar->add(get_string('managepublishedfiles', 'block_publishflow'));
 $PAGE->set_pagelayout('admin');
 $browser = get_file_browser();
 
