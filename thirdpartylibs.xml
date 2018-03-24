@@ -7,4 +7,11 @@
     <version>v3</version>
     <licenseversion></licenseversion>
   </library>
+  <library>
+    <location>test</location>
+    <name>Testing code</name>
+    <license>GPL</license>
+    <version>v3</version>
+    <licenseversion></licenseversion>
+  </library>
 </libraries>

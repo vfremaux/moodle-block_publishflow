@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Implements a result page for testing the deliver call
@@ -7,14 +21,11 @@
  *
  */
 
-/**
- * Requires and includes
- */
-include('../../../config.php');
-include_once($CFG->dirroot."/mnet/lib.php");
-include_once($CFG->dirroot."/mnet/xmlrpc/client.php");
+require('../../../config.php');
+require_once($CFG->dirroot."/mnet/lib.php");
+require_once($CFG->dirroot."/mnet/xmlrpc/client.php");
 
-// Get input params
+// Get input params.
 
 $courseid = required_param('course', PARAM_INT);
 $where = required_param('where', PARAM_RAW);
@@ -30,7 +41,7 @@ echo $OUTPUT->header();
 
 // Get context objects.
 
-$vmoodle->vhostname = "http://".$where;//$DB->get_record('block_vmoodle', array('vhostname' => "http://$where"));
+$vmoodle->vhostname = "http://".$where;
 
 // Start triggering the remote deployment.
 
@@ -44,22 +55,19 @@ $caller->remotehostroot = "http://dev.moodle31.com";
 $rpcclient->add_param($caller, 'struct');
 $rpcclient->add_param($courseid, 'int');
 
-//   $rpcclient->add_param($CFG->wwwroot, 'string');
+$mnethost = new mnet_peer();
+$mnethost->set_wwwroot($vmoodle->vhostname);
 
-$mnet_host = new mnet_peer();
-$mnet_host->set_wwwroot($vmoodle->vhostname);
-if (!$rpcclient->send($mnet_host)){
-    print_object($rpcclient);
+if (!$rpcclient->send($mnethost)) {
     print_error('failed', 'block_publishflow');
-}
-
-if (!empty($rpcclient->error)){
-    print_object($rpcclient->response);
+    if (function_exists('debug_trace')) {
+        debug_trace(var_export($rpcclient));
+    }
 }
 
 echo "decoding";
 $response = json_decode($rpcclient->response);
-print_object($response);
+echo(var_export($response));
 
 mtrace("<p>Archive name : ".$response->archivename."<br/>");
 if (!$response->local) {

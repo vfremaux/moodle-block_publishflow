@@ -273,7 +273,7 @@ function publishflow_local_deploy($category, $sourcecourse) {
     // Lets get the publishflow published file.
     $coursecontextid = context_course::instance($sourcecourse->id)->id;
     $fs = get_file_storage();
-    $backupfiles = $fs->get_area_files($coursecontextid,'backup', 'publishflow', 0, 'timecreated', false);
+    $backupfiles = $fs->get_area_files($coursecontextid, 'backup', 'publishflow', 0, 'timecreated', false);
 
     if (!$backupfiles) {
         print_error('errornotpublished', 'block_publishflow');
@@ -286,7 +286,7 @@ function publishflow_local_deploy($category, $sourcecourse) {
     ini_set('memory_limit', $maxmem);
 
     $file = array_pop ($backupfiles);
-    $newcourseid =  restore_automation::run_automated_restore($file->get_id(), null, $category) ;
+    $newcourseid = restore_automation::run_automated_restore($file->get_id(), null, $category);
 
     // Confirm/force idnumber in new course.
     $response = new StdClass();
@@ -449,9 +449,9 @@ function block_publishflow_update_peer($host) {
     $rpcclient->set_method('blocks/publishflow/rpclib.php/publishflow_updateplatforms');
     $rpcclient->add_param($caller, 'struct');
     $rpcclient->add_param($host->wwwroot, 'string');
-    $mnet_host = new mnet_peer();
-    $mnet_host->set_wwwroot($host->wwwroot);
-    $rpcclient->send($mnet_host);
+    $mnethost = new mnet_peer();
+    $mnethost->set_wwwroot($host->wwwroot);
+    $rpcclient->send($mnethost);
     if (!is_array($rpcclient->response)) {
         $response = json_decode($rpcclient->response);
     }

@@ -14,15 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * This is the default indexing process that only generates a local randomized
  * Unique ID for the course.
  *
  */
+defined('MOODLE_INTERNAL') || die();
 
-include_once($CFG->dirroot.'/blocks/publishflow/submitlib.php');
+require_once($CFG->dirroot.'/blocks/publishflow/submitlib.php');
 
 $idnumber = \block_publishflow::generate_id();
 $step = STEP_COMPLETED;

@@ -84,7 +84,7 @@ foreach ($hosts as $host) {
 
     $name = $host->name;
 
-    //If we don't find errors, we are OK.
+    // If we don't find errors, we are OK.
     $divstatus = $divok;
     $divtime = $divok;
 
