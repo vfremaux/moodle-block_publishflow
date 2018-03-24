@@ -36,9 +36,12 @@
  * @param string $id value to use for the id attribute of the &lt;select> element. If none is given,
  *      then a suitable one is constructed.
  */
+defined('MOODLE_INTERNAL') || die();
+
 if (!function_exists('choose_from_menu_multiple')) {
 
-    function choose_from_menu_multiple($options, $name, $selected = null, $size = 5, $nothing = 'choose', $script = '', $nothingvalue = '0', $return = false, $disabled = false, $tabindex = 0, $id = '') {
+    function choose_from_menu_multiple($options, $name, $selected = null, $size = 5, $nothing = 'choose', $script = '',
+                                       $nothingvalue = '0', $return = false, $disabled = false, $tabindex = 0, $id = '') {
         if ($nothing == 'choose') {
             $nothing = get_string('choose').'...';
         }
@@ -49,10 +52,12 @@ if (!function_exists('choose_from_menu_multiple')) {
         if ($tabindex) {
             $attributes .= ' tabindex="'.$tabindex.'"';
         }
-        if (!$selected) $selected = array();
+        if (!$selected) {
+            $selected = array();
+        }
         if ($id ==='') {
             $id = 'menu'.$name;
-             // name may contain [], which would make an invalid id. e.g. numeric question type editing form, assignment quickgrading
+             // Name may contain [], which would make an invalid id. e.g. numeric question type editing form, assignment quickgrading.
             $id = str_replace('[', '', $id);
             $id = str_replace(']', '', $id);
         }
@@ -67,7 +72,7 @@ if (!function_exists('choose_from_menu_multiple')) {
         if (!empty($options)) {
             foreach ($options as $value => $label) {
                 $output .= '   <option value="'. s($value) .'"';
-                $selectedarr = (!is_array($selected)) ? array($selected) : $selected ;
+                $selectedarr = (!is_array($selected)) ? array($selected) : $selected;
                 if (in_array((string)$value, $selectedarr)) {
                     $output .= ' selected="selected"';
                 }

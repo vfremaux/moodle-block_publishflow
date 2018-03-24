@@ -31,7 +31,7 @@ require_capability('moodle/site:config', context_system::instance());
 
 $courseid = required_param('id', PARAM_INT);
 
-if (!$course = $DB->get_record('course', array('id' => $course_id))) {
+if (!$course = $DB->get_record('course', array('id' => $courseid))) {
     print_error('coursemisconf');
 }
 
