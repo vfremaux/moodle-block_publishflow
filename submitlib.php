@@ -55,7 +55,7 @@ if (!function_exists('choose_from_menu_multiple')) {
         if (!$selected) {
             $selected = array();
         }
-        if ($id ==='') {
+        if ($id === '') {
             $id = 'menu'.$name;
              // Name may contain [], which would make an invalid id. e.g. numeric question type editing form, assignment quickgrading.
             $id = str_replace('[', '', $id);
