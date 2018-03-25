@@ -24,7 +24,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-switch($step) {
+switch ($step) {
     case AUTHORING : {
         $select = " wwwroot LIKE '{$CFG->mainhostprefix}%' ";
         $mainhost = $DB->get_record_select('mnet_host', $select);
@@ -73,7 +73,10 @@ switch($step) {
         $form = data_submitted();
         $form->step = $step + 1;
         $result = include($CFG->dirroot.'/blocks/publishflow/submits/remote/submit.controller.php');
+        break;
     }
+
+    default :
 }
 
 echo $OUTPUT->container_start();
