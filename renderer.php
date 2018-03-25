@@ -287,23 +287,7 @@ class block_publishflow_renderer extends plugin_renderer_base {
             $template->retrofittitlestr = get_string('retrofitting', 'block_publishflow');
             $template->retrofithelpicon = $OUTPUT->help_icon('retrofit', 'block_publishflow', false);
 
-            /*
-             * try both strategies, using the prefix directly in mnethosts or the catalog records
-             * there should be only one factiry. The first in the way will be considered
-             * further records will be ignored
-             */
-            $factoriesavailable = $DB->get_records_select('block_publishflow_catalog', " type LIKE '%factory%' ");
-
-            // Alternative strategy.
-            if (!$factoriesavailable) {
-                $select = (!empty($config->factoryprefix)) ? " wwwroot LIKE ? " : '';
-                if ($select != '') {
-                    $factoryhost = $DB->get_record_select('mnet_host', $select, array("{$config->factoryprefix}%"));
-                }
-            } else {
-                $factory = array_pop($factoriesavailable);
-                $factoryhost = $DB->get_record('mnet_host', array('id' => $factory->platformid));
-            }
+            $factoryhost = \block_publishflow::get_factory();
 
             if (empty($factoryhost)) {
                 $template->factory = false;
