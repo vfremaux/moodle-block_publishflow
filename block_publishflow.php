@@ -158,7 +158,7 @@ class block_publishflow extends block_base {
         if (!$COURSE->idnumber) {
             if (empty($config->submitto) || $config->submitto == 'default') {
                 // Silently generate en IDNumber.
-                $COURSE->idnumber = \block_publishflow::generate_id();
+                $COURSE->idnumber = self::generate_id();
                 $DB->set_field('course', 'idenumber', $idnumber, array('id' => $COURSE->id));
             } else {
                 $output .= $renderer->ident_form($this);
