@@ -33,8 +33,6 @@ define(['jquery', 'core/log'], function ($, log) {
 
         feed_categories: function() {
 
-            var that = $(this);
-
             var platformid = 0 + this.options[this.selectedIndex].value;
 
             var url = M.cfg.wwwroot + '/blocks/publishflow/ajax/categorybuilder.php';
