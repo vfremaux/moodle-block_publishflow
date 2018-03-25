@@ -547,3 +547,46 @@ function block_publishflow_has_capability_somewhere($capability, $excludesystem 
 
     return false;
 }
+
+function block_publishflow_retrofit($course, $where, $fromcourse = 0) {
+    global $USER, $DB, $CFG;
+
+    $mnethost = $DB->get_record('mnet_host', array('id' => $where));
+
+    if (!empty($USER->mnethostid)) {
+        $userhost = $DB->get_record('mnet_host', array('id' => $USER->mnethostid));
+        $userwwwroot = $userhost->wwwroot;
+    } else {
+        $userwwwroot = $CFG->wwwroot;
+    }
+
+    $caller = new stdClass;
+    $caller->username = $USER->username;
+    $caller->remoteuserhostroot = $userwwwroot;
+    $caller->remotehostroot = $CFG->wwwroot;
+
+    $rpcclient = new mnet_xmlrpc_client();
+    $rpcclient->set_method('blocks/publishflow/rpclib.php/delivery_deploy');
+    $rpcclient->add_param($caller, 'struct');
+    $course->retrofit = true;
+    $rpcclient->add_param(json_encode($course), 'string');
+    $rpcclient->add_param(false, 'int'); // Unused freeuse.
+    $mnethost = new mnet_peer();
+    $mnethost->set_wwwroot($mnethost->wwwroot);
+
+    if (!$rpcclient->send($mnethost)) {
+        $debugout = ($CFG->debug == DEBUG_DEVELOPER) ? var_export($rpcclient, true) : '';
+        if (!defined('CLI_SCRIPT')) {
+            echo '<pre>'.$debugout.'</pre>';
+            if ($fromcourse) {
+                $returnurl = new moodle_url('/course/view.php', array('id' => $fromcourse));
+                print_error('failed', 'block_publishflow', '', $returnurl);
+            }
+        } else {
+            if (function_exists('debug_trace')) {
+                debug_trace($debugout);
+            }
+        }
+    }
+    return json_decode($rpcclient->response);
+}
