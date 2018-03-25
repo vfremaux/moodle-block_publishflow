@@ -33,7 +33,7 @@ define(['jquery', 'core/log'], function ($, log) {
 
         feed_categories: function() {
 
-            that = $(this);
+            var that = $(this);
 
             var platformid = 0 + this.options[this.selectedIndex].value;
 
