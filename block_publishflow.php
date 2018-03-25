@@ -158,7 +158,7 @@ class block_publishflow extends block_base {
         if (!$COURSE->idnumber) {
             if (empty($config->submitto) || $config->submitto == 'default') {
                 // Silently generate en IDNumber.
-                $COURSE->idnumber = \block_publishflow::generate_id();
+                $COURSE->idnumber = self::generate_id();
                 $DB->set_field('course', 'idenumber', $idnumber, array('id' => $COURSE->id));
             } else {
                 $output .= $renderer->ident_form($this);
@@ -189,7 +189,7 @@ class block_publishflow extends block_base {
                         has_capability('block/publishflow:manage', $coursecontext) ||
                                 has_capability('block/publishflow:deployeverywhere', $systemcontext) ||
                                         block_publishflow_extra_deploy_check()) {
-                $output .= $renderer->trainingcenter_menu($this);
+                $output .= $renderer->trainingcenter_menu();
             }
         }
 
@@ -325,5 +325,36 @@ class block_publishflow extends block_base {
         }
 
         return $deployoptions;
+    }
+
+    public static function get_factory() {
+        global $DB;
+
+        $config = get_config('block_publishflow');
+
+        /*
+         * try both strategies, using the prefix directly in mnethosts or the catalog records
+         * there should be only one factory. The first in the way will be considered
+         * further records will be ignored
+         */
+        $factoriesavailable = $DB->get_records_select('block_publishflow_catalog', " type LIKE '%factory%' ");
+
+        // Alternative strategy.
+        if (!$factoriesavailable) {
+            $select = (!empty($config->factoryprefix)) ? " wwwroot LIKE ? " : '';
+            if ($select != '') {
+                if ($factories = $DB->get_records_select('mnet_host', $select, array("{$config->factoryprefix}%"), 'id', '*', 0, 1)) {
+                    $factory = array_pop($factories);
+                }
+            } else {
+                // Plublishflow not configured.
+                return null;
+            }
+        } else {
+            $factory = array_pop($factoriesavailable);
+        }
+        $factoryhost = $DB->get_record('mnet_host', array('id' => $factory->platformid));
+
+        return $factoryhost;
     }
 }
