@@ -44,12 +44,8 @@ $PAGE->navbar->add(get_string('retrofit', 'block_publishflow'));
 
 echo $OUTPUT->header();
 
-<<<<<<< HEAD
-$response = block_publishflow_retrofit($course, $where, $fromcourse);
-=======
 $wherehost = $DB->get_record('mnet_hosts', array('id' => $where));
 $response = block_publishflow_retrofit($course, $wherehost->wwwroot, $fromcourse);
->>>>>>> MOODLE_34_STABLE
 
 echo $OUTPUT->box_start('plublishpanel');
 echo '<center>';

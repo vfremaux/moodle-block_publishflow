@@ -548,9 +548,6 @@ function block_publishflow_has_capability_somewhere($capability, $excludesystem 
     return false;
 }
 
-<<<<<<< HEAD
-function block_publishflow_retrofit($course, $where, $fromcourse = 0) {
-=======
 /**
  * Retrofits a course in a remote moodle.
  * @param object $course a course record with all info about course
@@ -558,7 +555,6 @@ function block_publishflow_retrofit($course, $where, $fromcourse = 0) {
  * @param int $fromcourse If called in an interactive process, the course ID where to return to.
  */
 function block_publishflow_retrofit($course, $whereroot, $fromcourse = 0) {
->>>>>>> MOODLE_34_STABLE
     global $USER, $DB, $CFG;
 
     $mnethost = $DB->get_record('mnet_host', array('id' => $where));
@@ -582,11 +578,7 @@ function block_publishflow_retrofit($course, $whereroot, $fromcourse = 0) {
     $rpcclient->add_param(json_encode($course), 'string');
     $rpcclient->add_param(false, 'int'); // Unused freeuse.
     $mnethost = new mnet_peer();
-<<<<<<< HEAD
-    $mnethost->set_wwwroot($mnethost->wwwroot);
-=======
     $mnethost->set_wwwroot($whereroot);
->>>>>>> MOODLE_34_STABLE
 
     if (!$rpcclient->send($mnethost)) {
         $debugout = ($CFG->debug == DEBUG_DEVELOPER) ? var_export($rpcclient, true) : '';
