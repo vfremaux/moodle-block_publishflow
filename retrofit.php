@@ -27,7 +27,7 @@ require_once($CFG->dirroot.'/mnet/xmlrpc/client.php');
 
 $fromcourse = required_param('fromcourse', PARAM_INT);
 $action = required_param('what', PARAM_TEXT);
-$where = required_param('where', PARAM_INT);  // Where is a vmoodle id.
+$where = required_param('where', PARAM_INT);  // A mnet host ID.
 
 $url = new moodle_url('/blocks/publishflow/retrofit.php', array('fromcourse' => $fromcourse, 'what' => $action, 'where' => $where));
 
@@ -44,7 +44,12 @@ $PAGE->navbar->add(get_string('retrofit', 'block_publishflow'));
 
 echo $OUTPUT->header();
 
+<<<<<<< HEAD
 $response = block_publishflow_retrofit($course, $where, $fromcourse);
+=======
+$wherehost = $DB->get_record('mnet_hosts', array('id' => $where));
+$response = block_publishflow_retrofit($course, $wherehost->wwwroot, $fromcourse);
+>>>>>>> MOODLE_34_STABLE
 
 echo $OUTPUT->box_start('plublishpanel');
 echo '<center>';
