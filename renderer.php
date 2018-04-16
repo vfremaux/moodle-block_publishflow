@@ -287,23 +287,7 @@ class block_publishflow_renderer extends plugin_renderer_base {
             $template->retrofittitlestr = get_string('retrofitting', 'block_publishflow');
             $template->retrofithelpicon = $OUTPUT->help_icon('retrofit', 'block_publishflow', false);
 
-            /*
-             * try both strategies, using the prefix directly in mnethosts or the catalog records
-             * there should be only one factiry. The first in the way will be considered
-             * further records will be ignored
-             */
-            $factoriesavailable = $DB->get_records_select('block_publishflow_catalog', " type LIKE '%factory%' ");
-
-            // Alternative strategy.
-            if (!$factoriesavailable) {
-                $select = (!empty($config->factoryprefix)) ? " wwwroot LIKE ? " : '';
-                if ($select != '') {
-                    $factoryhost = $DB->get_record_select('mnet_host', $select, array("{$config->factoryprefix}%"));
-                }
-            } else {
-                $factory = array_pop($factoriesavailable);
-                $factoryhost = $DB->get_record('mnet_host', array('id' => $factory->platformid));
-            }
+            $factoryhost = \block_publishflow::get_factory();
 
             if (empty($factoryhost)) {
                 $template->factory = false;
@@ -314,13 +298,13 @@ class block_publishflow_renderer extends plugin_renderer_base {
             } else {
                 $template->factory = true;
                 $realpath = delivery_check_available_backup($COURSE->id);
+                $template->formurl = new moodle_url('/blocks/publishflow/backup.php');
 
                 if (empty($realpath)) {
                     $template->backup = false;
                     $template->dobackupstr = get_string('dobackup', 'block_publishflow');
                     $notif = get_string('unavailable', 'block_publishflow');
-                    $template->unavailablenotif .= $OUTPUT->notification($notif, 'notifyproblem', true);
-                    $template->formurl = new moodle_url('/blocks/publishflow/backup.php');
+                    $template->unavailablenotif = $OUTPUT->notification($notif, 'notifyproblem', true);
 
                     return $this->output->render_from_template('block_publishflow/trainingcenter', $template);
                 } else {
