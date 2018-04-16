@@ -298,13 +298,13 @@ class block_publishflow_renderer extends plugin_renderer_base {
             } else {
                 $template->factory = true;
                 $realpath = delivery_check_available_backup($COURSE->id);
+                $template->formurl = new moodle_url('/blocks/publishflow/backup.php');
 
                 if (empty($realpath)) {
                     $template->backup = false;
                     $template->dobackupstr = get_string('dobackup', 'block_publishflow');
                     $notif = get_string('unavailable', 'block_publishflow');
-                    $template->unavailablenotif .= $OUTPUT->notification($notif, 'notifyproblem', true);
-                    $template->formurl = new moodle_url('/blocks/publishflow/backup.php');
+                    $template->unavailablenotif = $OUTPUT->notification($notif, 'notifyproblem', true);
 
                     return $this->output->render_from_template('block_publishflow/trainingcenter', $template);
                 } else {

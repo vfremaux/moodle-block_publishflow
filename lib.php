@@ -557,7 +557,7 @@ function block_publishflow_has_capability_somewhere($capability, $excludesystem 
 function block_publishflow_retrofit($course, $whereroot, $fromcourse = 0) {
     global $USER, $DB, $CFG;
 
-    $mnethost = $DB->get_record('mnet_host', array('id' => $where));
+    $mnethost = $DB->get_record('mnet_host', array('wwwroot' => $whereroot));
 
     if (!empty($USER->mnethostid)) {
         $userhost = $DB->get_record('mnet_host', array('id' => $USER->mnethostid));
