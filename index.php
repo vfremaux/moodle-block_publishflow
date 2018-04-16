@@ -29,5 +29,6 @@ require_once($CFG->dirroot.'/blocks/publishflow/lib.php');
 
 $id = required_param('id', PARAM_INT); // Course.
 
+require_login();
 redirect(new moodle_url('/course/view.php', array('id' => $id)));
 

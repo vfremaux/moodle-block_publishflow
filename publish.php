@@ -54,7 +54,7 @@ echo $OUTPUT->header();
 
 // Get context objects.
 
-$mnethost = $DB->get_record('mnet_host', array('id' => $where));
+$wherehostrec = $DB->get_record('mnet_host', array('id' => $where));
 
 // Start triggering the remote deployment.
 
@@ -83,7 +83,7 @@ $rpcclient->add_param($action, 'string');
 $rpcclient->add_param(json_encode($course), 'string');
 $rpcclient->add_param($force, 'int');
 $mnethost = new mnet_peer();
-$mnethost->set_wwwroot($mnethost->wwwroot);
+$mnethost->set_wwwroot($wherehostrec->wwwroot);
 if (!$rpcclient->send($mnethost)) {
     $debugout = ($CFG->debug | DEBUG_DEVELOPER) ? var_export($rpcclient) : '';
     print_error('failed', 'block_publishflow', new moodle_url('/course/view.php', array('id' => $fromcourse)), '', $debugout);
