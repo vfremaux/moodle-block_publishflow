@@ -16,7 +16,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot.'/blocks/publishflow/db/upgrade.php');
+require_once($CFG->dirroot.'/blocks/publishflow/upgradelib.php');
 
 function xmldb_block_publishflow_install_recovery() {
     xmldb_block_publishflow_install();
