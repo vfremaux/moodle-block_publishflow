@@ -64,7 +64,8 @@ if ($response->status == 200) {
         $params = array('hostid' => $wherehost->id, 'wantsurl' => '/course/view.php?id='.$remotecourseid);
         $jumpurl = new moodle_url('/auth/mnet/jump.php', $params);
     } else {
-        $jumpurl = $wherehost->wwwroot.'/course/view.php?id='.$remotecourseid;
+        $outgoingurl = $wherehost->wwwroot.'/course/view.php?id='.$remotecourseid;
+        $jumpurl = new moodle_url('/blocks/publishflow/outgoing.php', array('wheretogo' => $outgoingurl));
     }
     $button = new single_button($jumpurl, get_string('jumptothecourse', 'block_publishflow'));
     $button->id = 'responseform';
@@ -80,7 +81,7 @@ $attrs = array('value' => get_string('backtocourse', 'block_publishflow'), 'type
 $button = html_writer::empty_tag('input', $attrs);
 $template->localcoursebutton = html_writer::link($courseurl, $button);
 
-echo $OUTPUT->render_from_template('block_publishflow/rerofitresponse', $template);
+echo $OUTPUT->render_from_template('block_publishflow/retrofitresponse', $template);
 
 echo $OUTPUT->box_end();
 
