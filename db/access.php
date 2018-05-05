@@ -61,7 +61,8 @@ $capabilities = array(
         'riskbitmask'  => RISK_SPAM,
         'legacy' => array(
             'coursecreator' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW
         )
     ),
 
@@ -71,7 +72,8 @@ $capabilities = array(
         'riskbitmask'  => RISK_SPAM,
         'legacy' => array(
             'coursecreator' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW
         )
     ),
 
