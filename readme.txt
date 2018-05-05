@@ -105,3 +105,8 @@ in some conditions still being allowed to view content.
 ###########################################
 
 Adds initialisation for the role "deployer"
+
+XX.X.0003 - 2018031802
+###########################################
+
+change default capability addinstance. allow to editing teacher as default.

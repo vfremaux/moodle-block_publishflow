@@ -349,8 +349,9 @@ class block_publishflow extends block_base {
         }
 
         foreach ($factoriesavailable as $fa) {
-            $mnet = $DB->get_record('mnet_host', array('id' => $fa->platformid));
-            $factmenu[$mnet->id] = $mnet->name;
+            if ($mnet = $DB->get_record('mnet_host', array('id' => $fa->platformid))) {
+                $factmenu[$mnet->id] = $mnet->name;
+            }
         }
 
         return $factmenu;
