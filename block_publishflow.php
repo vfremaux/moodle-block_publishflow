@@ -96,7 +96,7 @@ class block_publishflow extends block_base {
     }
 
     public function get_content() {
-        global $CFG, $COURSE, $OUTPUT, $PAGE;
+        global $CFG, $COURSE, $OUTPUT, $PAGE, $DB;
 
         include_once($CFG->dirroot.'/blocks/publishflow/rpclib.php');
         include_once($CFG->dirroot.'/blocks/publishflow/lib.php');
@@ -159,7 +159,7 @@ class block_publishflow extends block_base {
             if (empty($config->submitto) || $config->submitto == 'default') {
                 // Silently generate en IDNumber.
                 $COURSE->idnumber = self::generate_id();
-                $DB->set_field('course', 'idenumber', $idnumber, array('id' => $COURSE->id));
+                $DB->set_field('course', 'idnumber', $COURSE->idnumber, array('id' => $COURSE->id));
             } else {
                 $output .= $renderer->ident_form($this);
             }
@@ -327,6 +327,35 @@ class block_publishflow extends block_base {
         return $deployoptions;
     }
 
+    public static function get_factories() {
+        global $DB;
+
+        $factoriesavailable = $DB->get_records_select('block_publishflow_catalog', " type LIKE '%factory%' ");
+
+        $factmenu = array();
+        if (!$factoriesavailable) {
+            $select = (!empty($config->factoryprefix)) ? " wwwroot LIKE ? " : '';
+            if ($select != '') {
+                if ($factories = $DB->get_records_select('mnet_host', $select, array("{$config->factoryprefix}%"), 'id', '*', 0, 1)) {
+                    foreach ($factories as $fa) {
+                        $factmenu[$fa->id] = $fa->name;
+                    }
+                    return $factmenu;
+                }
+            } else {
+                // Plublishflow not configured.
+                return array();
+            }
+        }
+
+        foreach ($factoriesavailable as $fa) {
+            $mnet = $DB->get_record('mnet_host', array('id' => $fa->platformid));
+            $factmenu[$mnet->id] = $mnet->name;
+        }
+
+        return $factmenu;
+    }
+
     public static function get_factory() {
         global $DB;
 
@@ -344,7 +373,8 @@ class block_publishflow extends block_base {
             $select = (!empty($config->factoryprefix)) ? " wwwroot LIKE ? " : '';
             if ($select != '') {
                 if ($factories = $DB->get_records_select('mnet_host', $select, array("{$config->factoryprefix}%"), 'id', '*', 0, 1)) {
-                    $factory = array_pop($factories);
+                    $factory = array_shift($factories);
+                    return $factory;
                 }
             } else {
                 // Plublishflow not configured.

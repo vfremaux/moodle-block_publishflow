@@ -24,6 +24,7 @@
 require('../../config.php');
 require_once($CFG->dirroot.'/mnet/lib.php');
 require_once($CFG->dirroot.'/mnet/xmlrpc/client.php');
+require_once($CFG->dirroot.'/blocks/publishflow/lib.php');
 
 $fromcourse = required_param('fromcourse', PARAM_INT);
 $action = required_param('what', PARAM_TEXT);
@@ -44,33 +45,43 @@ $PAGE->navbar->add(get_string('retrofit', 'block_publishflow'));
 
 echo $OUTPUT->header();
 
-$wherehost = $DB->get_record('mnet_hosts', array('id' => $where));
+$wherehost = $DB->get_record('mnet_host', array('id' => $where));
 $response = block_publishflow_retrofit($course, $wherehost->wwwroot, $fromcourse);
 
+$template = new StdClass;
+
 echo $OUTPUT->box_start('plublishpanel');
-echo '<center>';
+
 if ($response->status == 100) {
-    echo $OUTPUT->notification("Remote Test Point : ".$response->teststatus);
+    $template->retrofiterrornotif = $OUTPUT->notification("Remote Test Point : ".$response->teststatus, 'notifyproblem');
 }
+
 if ($response->status == 200) {
     $remotecourseid = $response->courseid;
-    print_string('retrofitsuccess', 'block_publishflow');
-    echo '<br/>';
-    echo '<br/>';
-    if ($USER->mnethostid != $mnethost->id) {
-        $params = array('hostid' => $mnethost->id, 'wantsurl' => '/course/view.php?id='.$remotecourseid);
+    $template->retrofitsuccessnotif = $OUTPUT->notification(get_string('retrofitsuccess', 'block_publishflow'), 'notifysuccess');
+
+    if ($USER->mnethostid != $wherehost->id) {
+        $params = array('hostid' => $wherehost->id, 'wantsurl' => '/course/view.php?id='.$remotecourseid);
         $jumpurl = new moodle_url('/auth/mnet/jump.php', $params);
-        echo '<a href="'.$jumpurl.'">'.get_string('jumptothecourse', 'block_publishflow').'</a> - ';
     } else {
-        $label = get_string('jumptothecourse', 'block_publishflow');
-        echo '<a href="'.$mnethost->wwwroot.'/course/view.php?id='.$remotecourseid.'">'.$label.'</a> - ';
+        $jumpurl = $wherehost->wwwroot.'/course/view.php?id='.$remotecourseid;
     }
+    $button = new single_button($jumpurl, get_string('jumptothecourse', 'block_publishflow'));
+    $button->id = 'responseform';
+    $button->add_action(new confirm_action(get_string('remotejumpadvice', 'block_publishflow'), null,
+        get_string('confirmjump', 'block_publishflow')));
+    $template->remotecoursebutton = $OUTPUT->render($button);
 } else {
-    echo $OUTPUT->notification("Remote Error : <pre>".$response->error.'</pre>');
+    $template->retrofiterrornotif = $OUTPUT->notification("Remote Error : <pre>".$response->error.'</pre>', 'notifyproblem');
 }
+
 $courseurl = new moodle_url('/course/view.php', array('id' => $course->id));
-echo ' <a href="'.$courseurl.'">'.get_string('backtocourse', 'block_publishflow').'</a>';
-echo '</center>';
+$attrs = array('value' => get_string('backtocourse', 'block_publishflow'), 'type' => 'button');
+$button = html_writer::empty_tag('input', $attrs);
+$template->localcoursebutton = html_writer::link($courseurl, $button);
+
+echo $OUTPUT->render_from_template('block_publishflow/rerofitresponse', $template);
+
 echo $OUTPUT->box_end();
 
 echo $OUTPUT->footer();

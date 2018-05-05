@@ -57,3 +57,7 @@ div.block_publishflow_coursecontrol {
     text-align: center;
     width: 100%;
 }
+
+.publishflow-controls-buttons * {
+    display: inline;
+}

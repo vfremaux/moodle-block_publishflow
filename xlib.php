@@ -25,7 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/backup/util/includes/backup_includes.php');
-require_once($CFG->dirroot.'/blocks/publishflow/backup/lib.php');
+require_once($CFG->dirroot.'/blocks/publishflow/block_publishflow.php');
+require_once($CFG->dirroot.'/blocks/publishflow/lib.php');
 require_once($CFG->dirroot.'/blocks/publishflow/backup/backup_automation.class.php');
 require_once($CFG->dirroot.'/backup/util/xml/parser/progressive_parser.class.php');
 require_once($CFG->dirroot.'/backup/util/helper/restore_moodlexml_parser_processor.class.php');
@@ -39,7 +40,7 @@ require_once($CFG->dirroot.'/backup/util/helper/restore_moodlexml_parser_process
 function block_publishflow_retrofit_course($courseorid, $whereroot, $fromcourse = null) {
     global $DB;
 
-    if (!isçobject($courseorid)) {
+    if (!is_object($courseorid)) {
         $course = $DB->get_record('course', array('id' => $courseorid));
     } else {
         $course = $courseorid;
@@ -58,3 +59,9 @@ function block_publishflow_retrofit_course($courseorid, $whereroot, $fromcourse 
     return block_publishflow_retrofit($course, $whereroot, $fromcourse);
 }
 
+<<<<<<< HEAD
+=======
+function block_publishflow_get_factories() {
+    return \block_publishflow::get_factories();
+}
+>>>>>>> MOODLE_34_STABLE
