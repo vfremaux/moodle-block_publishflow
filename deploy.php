@@ -148,7 +148,8 @@ if ($where == 0) {
             $params = array('hostid' => $mnethost->id, 'wantsurl' => '/course/view.php?id='.$remotecourseid);
             $jumpurl = new moodle_url('/auth/mnet/jump.php', $params);
         } else {
-            $jumpurl = "{$mnethost->wwwroot}/course/view.php?id={$remotecourseid}";
+            $outgoingurl = $wherehost->wwwroot.'/course/view.php?id='.$remotecourseid;
+            $jumpurl = new moodle_url('/blocks/publishflow/outgoing.php', array('wheretogo' => $outgoingurl));
         }
         $button = new single_button($jumpurl, get_string('jumptothecourse', 'block_publishflow'));
         $button->id = 'responseform';
