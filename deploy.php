@@ -68,7 +68,7 @@ $theblock = block_instance('publishflow', $instance);
 // Check we can do this.
 $course = $DB->get_record('course', array('id' => "$fromcourse"));
 
-if (!has_capability('block/publishflow:deployeverwhere', contextsystem::instance())) {
+if (!has_capability('block/publishflow:deployeverywhere', context_system::instance())) {
     // TODO : Check on remote host the deploy capability.
     assert(1);
 }
@@ -81,7 +81,8 @@ if (!empty($theblock->config->deploymentkey)) {
     }
 }
 
-$mnethost = $DB->get_record('mnet_host', array('id' => $where));
+$wherehostrec = $DB->get_record('mnet_host', array('id' => $where));
+$template = new StdClass;
 
 // If we want to deploy on a local platform, we need to bypass the RPC with a quick function.
 if ($where == 0) {
@@ -90,14 +91,19 @@ if ($where == 0) {
     echo $OUTPUT->box_start('plublishpanel');
     print_string('deploysuccess', 'block_publishflow');
 
-    echo '<br/>';
-    echo '<br/>';
     $userhost = $DB->get_record('mnet_host', array('id' => $USER->mnethostid));
     $courseurl = new moodle_url('/course/view.php', array('id' => $remotecourseid));
-    echo '<a href="'.$courseurl.'">'.get_string('jumptothecourse', 'block_publishflow').'</a> - ';
+    $attrs = array('value' => get_string('jumptothecourse', 'block_publishflow'), 'type' => 'button');
+    $button = html_writer::empty_tag('input', $attrs);
+    $template->remotecoursebutton = html_writer::link($courseurl, $button);
+
     $courseurl = new moodle_url('/course/view.php', array('id' => $course->id));
-    echo ' <a href="'.$courseurl.'">'.get_string('backtocourse', 'block_publishflow').'</a>';
-    echo '</center>';
+    $attrs = array('value' => get_string('backtocourse', 'block_publishflow'), 'type' => 'button');
+    $button = html_writer::empty_tag('input', $attrs);
+    $template->localcoursebutton = html_writer::link($courseurl, $button);
+
+    echo $OUTPUT->render_from_template('block_publishflow/deployresponse', $template);
+
     echo $OUTPUT->box_end();
 } else {
     // Start triggering the remote deployment.
@@ -124,7 +130,7 @@ if ($where == 0) {
     $rpcclient->add_param(1, 'int'); // Json response required.
 
     $mnethost = new mnet_peer();
-    $mnethost->set_wwwroot($mnethost->wwwroot);
+    $mnethost->set_wwwroot($wherehostrec->wwwroot);
     if (!$rpcclient->send($mnethost)) {
         $debugout = ($CFG->debug | DEBUG_DEVELOPER) ? var_export($rpcclient) : '';
         print_error('failed', 'block_publishflow', new moodle_url('/course/view.php', array('id' => $fromcourse, '', $debugout)));
@@ -133,26 +139,33 @@ if ($where == 0) {
     $response = json_decode($rpcclient->response);
 
     echo $OUTPUT->box_start('plublishpanel');
-    echo '<center>';
+
     if ($response->status == 200) {
         $remotecourseid = $response->courseid;
-        print_string('deploysuccess', 'block_publishflow');
-        echo '<br/>';
-        echo '<br/>';
+        $template->deploysuccessnotif = $OUTPUT->notification(get_string('deploysuccess', 'block_publishflow'), 'notifysuccess');
+
         if ($USER->mnethostid != $mnethost->id) {
             $params = array('hostid' => $mnethost->id, 'wantsurl' => '/course/view.php?id='.$remotecourseid);
             $jumpurl = new moodle_url('/auth/mnet/jump.php', $params);
-            echo '<a href="'.$jumpurl.'">'.get_string('jumptothecourse', 'block_publishflow').'</a> - ';
         } else {
-            $jumpurl = "{$mnethost->wwwroot}/course/view.php?id={$remotecourseid}";
-            echo '<a href="'.$jumpurl.'">'.get_string('jumptothecourse', 'block_publishflow').'</a> - ';
+            $outgoingurl = $wherehost->wwwroot.'/course/view.php?id='.$remotecourseid;
+            $jumpurl = new moodle_url('/blocks/publishflow/outgoing.php', array('wheretogo' => $outgoingurl));
         }
+        $button = new single_button($jumpurl, get_string('jumptothecourse', 'block_publishflow'));
+        $button->id = 'responseform';
+        $button->add_action(new confirm_action(get_string('remotejumpadvice', 'block_publishflow'), null,
+            get_string('confirmjump', 'block_publishflow')));
+        $template->remotecoursebutton = $OUTPUT->render($button);
     } else {
-        echo $OUTPUT->notification("Remote Error : ".$response->error);
+        $template->deployerrornotif = $OUTPUT->notification("Remote Error : ".$response->error, 'notifyproblem');
     }
     $courseurl = new moodle_url('/course/view.php', array('id' => $course->id));
-    echo ' <a href="'.$courseurl.'">'.get_string('backtocourse', 'block_publishflow').'</a>';
-    echo '</center>';
+    $attrs = array('value' => get_string('backtocourse', 'block_publishflow'), 'type' => 'button');
+    $button = html_writer::empty_tag('input', $attrs);
+    $template->localcoursebutton = html_writer::link($courseurl, $button);
+
+    echo $OUTPUT->render_from_template('block_publishflow/deployresponse', $template);
+
     echo $OUTPUT->box_end();
 }
 echo $OUTPUT->footer();

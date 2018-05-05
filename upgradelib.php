@@ -22,6 +22,10 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Builds a "deployer" role based on a non editing teacher with additional
+ * deployment capabilities.
+ */
 function block_publishflow_add_deployer_role() {
     global $DB;
 
