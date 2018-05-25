@@ -59,9 +59,6 @@ function block_publishflow_retrofit_course($courseorid, $whereroot, $fromcourse 
     return block_publishflow_retrofit($course, $whereroot, $fromcourse);
 }
 
-<<<<<<< HEAD
-=======
 function block_publishflow_get_factories() {
     return \block_publishflow::get_factories();
 }
->>>>>>> MOODLE_34_STABLE
