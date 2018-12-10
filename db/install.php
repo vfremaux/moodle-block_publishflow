@@ -98,6 +98,7 @@ function xmldb_block_publishflow_install() {
     block_publishflow_add_deployer_role();
 
     set_config('block_publishflow_late_install', 1);
+    return true;
 }
 
 function xmldb_block_publishflow_late_install() {
@@ -122,4 +123,5 @@ function xmldb_block_publishflow_late_install() {
             $DB->update_record('mnet_rpc', $rpc);
         }
     }
+    return true;
 }
