@@ -905,8 +905,6 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
     }
 
     // First bump up server execution characteristics.
-    $maxtime = ini_get('max_execution_time');
-    $maxmem = ini_get('memory_limit');
     ini_set('max_execution_time', '600');
     ini_set('memory_limit', '256M');
 
@@ -955,8 +953,6 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
                             $response->errors[] = $error;
                         }
                     }
-                    ini_set('max_execution_time', $maxtime);
-                    ini_set('memory_limit', $maxmem);
                     return publishflow_send_response($response, $jsonresponse);
                 }
                 $backresponse = json_decode($rpcclient->response);
@@ -969,8 +965,6 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
                 if ($backresponse->status == RPC_TEST) {
                     $response->status = RPC_TEST;
                     $response->teststatus = 'Remote test point : '.$backresponse->teststatus;
-                    ini_set('max_execution_time', $maxtime);
-                    ini_set('memory_limit', $maxmem);
                     return publishflow_send_response($response, $jsonresponse);
                 }
 
@@ -994,8 +988,6 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
                             $response->errors[] = $error;
                         }
                     }
-                    ini_set('max_execution_time', $maxtime);
-                    ini_set('memory_limit', $maxmem);
                     return publishflow_send_response($response, $jsonresponse);
                 }
             }
@@ -1039,8 +1031,6 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
                         $response->errors[] = $error;
                     }
                 }
-                ini_set('max_execution_time', $maxtime);
-                ini_set('memory_limit', $maxmem);
                 return publishflow_send_response($response, $jsonresponse);
             }
             $backresponse = json_decode($rpcclient->response);
@@ -1069,8 +1059,6 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
                         $response->status = RPC_FAILURE;
                         $response->error = "Local delivery : copy error from [$archivename] to [$tempfile] ";
                         $response->errors[] = "Local delivery : copy error from [$archivename] to [$tempfile] ";
-                        ini_set('max_execution_time', $maxtime);
-                        ini_set('memory_limit', $maxmem);
                         return publishflow_send_response($response, $jsonresponse);
                     }
                     if (function_exists('debug_trace')) {
@@ -1080,8 +1068,6 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
                     $response->status = RPC_FAILURE;
                     $response->errors[] = 'Local delivery remote : remote end has not local delivery set on';
                     $response->error = 'Local delivery remote : remote end has not local delivery set on';
-                    ini_set('max_execution_time', $maxtime);
-                    ini_set('memory_limit', $maxmem);
                     return publishflow_send_response($response, $jsonresponse);
                 }
             } else {
@@ -1089,8 +1075,6 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
                 $response->status = RPC_FAILURE;
                 $response->errors[] = 'Remote error : Could not get remote file description';
                 $response->error = 'Remote error : Could not get remote file description';
-                ini_set('max_execution_time', $maxtime);
-                ini_set('memory_limit', $maxmem);
                 return publishflow_send_response($response, $jsonresponse);
             }
         }
@@ -1110,8 +1094,6 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
         $response->status = RPC_FAILURE;
         $response->errors[] = 'Deployment category has not been setup. Contact local administrator.';
         $response->error = 'Deployment category has not been setup. Contact local administrator.';
-        ini_set('max_execution_time', $maxtime);
-        ini_set('memory_limit', $maxmem);
         return publishflow_send_response($response, $jsonresponse);
     }
 
@@ -1120,6 +1102,9 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
     }
     $newcourseid =  restore_automation::run_automated_restore(null, $tempfile, $deploycat->id);
     // Confirm/force idnumber in new course.
+    if (function_exists('debug_trace')) {
+        debug_trace($CFG->wwwroot." automation restore finished");
+    }
     $response->courseid = $newcourseid;
 
     $DB->set_field('course', 'idnumber', $sourcecourse->idnumber, array('id' => "{$response->courseid}"));
@@ -1178,8 +1163,9 @@ function delivery_deploy($callinguser, $sourcecourseserial, $forcereplace, $parm
     $response->course_idnumber = $sourcecourse->idnumber;
     $response->catalogcourseid = $sourcecourse->id;
 
-    ini_set('max_execution_time', $maxtime);
-    ini_set('memory_limit', $maxmem);
+    if (function_exists('debug_trace')) {
+        debug_trace($CFG->wwwroot." sending response. Getting out.");
+    }
     return publishflow_send_response($response, $jsonresponse);
 }
 
@@ -1254,10 +1240,8 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                 }
 
                 // First bump up server execution characteristics.
-                $maxtime = ini_get('max_execution_time');
-                $maxmem = ini_get('memory_limit');
                 ini_set('max_execution_time', '600');
-                ini_set('memory_limit', '150M');
+                ini_set('memory_limit', '256M');
 
                 // Check the local availability of the archive.
                 $realpath = $CFG->dataroot.'/courselivery/'.$CFG->coursedelivery_coursefordelivery.'/'.$sourcecourse->idnumber.'.zip';
@@ -1300,8 +1284,6 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                                         $response->errors[] = $error;
                                     }
                                 }
-                                ini_set('max_execution_time', $maxtime);
-                                ini_set('memory_limit', $maxmem);
                                 return publishflow_send_response($response, $jsonresponse);
                             }
                             $backresponse = json_decode($rpcclient->response);
@@ -1331,8 +1313,6 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                                         $response->errors[] = $error;
                                     }
                                 }
-                                ini_set('max_execution_time', $maxtime);
-                                ini_set('memory_limit', $maxmem);
                                 return publishflow_send_response($response, $jsonresponse);
                             }
                         }
@@ -1360,8 +1340,6 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                             $response->error = 'Remote error : Could not get the course archive descriptor for local delivery ';
                             $response->error .= '<br/>XML-RPC Callback errors :<br/>';
                             $response->error .= implode('<br/>', $rpcclient->error);
-                            ini_set('max_execution_time', $maxtime);
-                            ini_set('memory_limit', $maxmem);
                             return publishflow_send_response($response, $jsonresponse);
                         }
                         $backresponse = json_decode($rpcclient->response);
@@ -1378,15 +1356,11 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                                     $response->status = RPC_FAILURE;
                                     $response->errors[] = 'Local delivery : copy error';
                                     $response->error = 'Local delivery : copy error';
-                                    ini_set('max_execution_time', $maxtime);
-                                    ini_set('memory_limit', $maxmem);
                                     return publishflow_send_response($response, $jsonresponse);
                                 }
                             } else {
                                 $response->status = RPC_FAILURE;
                                 $response->error = 'Local delivery remote : remote end has not local delivery set on';
-                                ini_set('max_execution_time', $maxtime);
-                                ini_set('memory_limit', $maxmem);
                                 return publishflow_send_response($response, $jsonresponse);
                             }
                         } else {
@@ -1394,8 +1368,6 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                             $response->status = RPC_FAILURE;
                             $response->errors[] = 'Remote error : Could not get remote file description';
                             $response->error = 'Remote error : Could not get remote file description';
-                            ini_set('max_execution_time', $maxtime);
-                            ini_set('memory_limit', $maxmem);
                             return publishflow_send_response($response, $jsonresponse);
                         }
                     }
@@ -1422,8 +1394,6 @@ function delivery_publish($callinguser, $action, $sourcecourseserial, $forcerepl
                 $response->username = $username;
                 $response->remotehostroot = $remotehostroot;
                 $response->catalogcourseid = $sourcecourse->id;
-                ini_set('max_execution_time', $maxtime);
-                ini_set('memory_limit', $maxmem);
                 return publishflow_send_response($response, $jsonresponse);
             }
             break;

@@ -25,6 +25,9 @@ $string['publishflow:managelpoffer'] = 'Manage the local offer on training nodes
 $string['publishflow:publish'] = 'Publish courses in main catalog';
 $string['publishflow:retrofit'] = 'Can retrofit the course into a Factory';
 
+// Privacy.
+$string['privacy:metadata'] = 'The Publishflow block does not store any personal data about any user.';
+
 $string['accesscategory'] = 'Authorized Platforms';
 $string['activities'] = 'Activity(ies) ';
 $string['allowfreecategoryselection'] = 'Free selection of target category';

@@ -24,7 +24,7 @@ function block_publishflow_postscript($datacontext) {
             debug_trace($CFG->wwwroot." Loading moodlescript");
         }
         include_once($CFG->dirroot.'/local/moodlescript/lib.php');
-        include_once($CFG->dirroot.'/local/moodlescript/classes/engine/parser.class.php');
+        local_moodlescript_load_engine();
 
         // Building a global context.
         $globalcontext = new StdClass;

@@ -73,8 +73,7 @@ $desc = get_string('configpublicsessions_desc', 'block_publishflow');
 $default = 'private';
 $settings->add(new admin_setting_configselect($key, $label, $desc, $default, $options2));
 
-require_once($CFG->dirroot.'/lib/coursecatlib.php');
-$catlist = coursecat::make_categories_list();
+$catlist = \core_course_category::make_categories_list();
 
 $key = 'block_publishflow/deploycategory';
 $label = get_string('configdeploycategory', 'block_publishflow');

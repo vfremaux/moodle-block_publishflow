@@ -71,7 +71,8 @@ $string['configdeployprofilefield'] = 'Champ de profil pour le déploiement';
 $string['configdeployprofilefieldvalue'] = 'Valeur de champ de profil de déploiement';
 $string['configenableretrofit'] = 'Autoriser la réalimentation';
 $string['configenablesessionmanagement'] = 'Autoriser la gestion de la session';
-$string['configfactoryprefix'] = 'Préfixe de fabrique';
+$string['configmainhostprefix'] = 'Préfixe du moodle principal';
+$string['configfactoryprefix'] = 'Préfixe du moodle "fabrique"';
 $string['configmoodlenodetype'] = 'Type de noeud Moodle';
 $string['configpostprocessing'] = 'Script de post traitement après restauration';
 $string['configpublicsessions'] = 'Sessions publiques';
@@ -224,7 +225,8 @@ $string['configclosedcategory_desc'] = 'Catégorie d\'archivage des cours/sessio
 
 $string['configrunningcategory_desc'] = 'Catégorie des formations ouvertes.';
 
-$string['configpostprocessing_desc'] = 'Ecrivez une séquence de script MoodleScript qui s\'exécutera après déploiement d\'un cours';
+$string['configpostprocessing_desc'] = 'Ecrivez une séquence de script MoodleScript qui s\'exécutera après déploiement d\'un cours.
+Le plugin local <a href="https://github.com/vfremaux/moodle-local_moodlescript">Moodlescript</a> doit être installé pour bénéficier de cette fonctionnalité.';
 
 $string['configpublicsessions_desc'] = 'Si activé, les serveurs peuvent vous fournir des indications sur les sessions de
 formations en cours sans vérifier votre identité ni vos droits';
@@ -236,7 +238,11 @@ $string['configcoursefordelivery_desc'] = 'Cours stockant les archives transfér
 
 $string['configdeploycategory_desc'] = 'La catégorie d\'arrivée des cours déployés';
 
-$string['configfactoryprefix_desc'] = 'Préfixe discriminant des URLs de fabriques du réseau';
+$string['configmainhostprefix_desc'] = 'Le moodle "principal" est le moodle installé initialement dans une architecture à plusieurs instances.
+Il en est l\'instance principale. Dans une installation virtualisée (VMoodle) c\'est celle qui détient le registre des instances vituelles.';
+
+$string['configfactoryprefix_desc'] = 'Les fabriques du réseau sont des plates-formes Moodle ayant pour fonction 
+la production en amont de cours ou accessoirement le stockage d\'archives de cours.';
 
 $string['configdefaultrole_desc'] = 'Ce rôle est assigné automatiquement dans le cours d\'arrivée à l\'utilisateur qui
 déploie, publie ou rappatrie en fabrique. Attention, ce réglage agit sur les cours arrivant sur cette plate-forme.
@@ -265,7 +271,7 @@ $string['deployfortest_help'] = '
 <h2>Déploiement de cours</h2>
 <h3>Déploiement pour tests</h3>
 
-<p>Un auteur d\'une fabique de cours peut déployer un cours directeent sur son établissement à des fins de test.</p>
+<p>Un auteur d\'une fabique de cours peut déployer un cours directement sur son établissement à des fins de test.</p>
 ';
 
 $string['opennotifyhelper'] = 'Dans ce mode, vous rendez le cours disponible aux stagiares et émettez un avis
@@ -317,7 +323,7 @@ ue personne habilitée dans cette plate-forme le fera pour vous.</p>
 ';
 
 $string['configdeployprofilefield_desc'] = 'Alternativement aux capacités et rôle, un test de profil peut permettre d\'autoriser les
-opérations de déploiement à partir de moodle distants. Entrez le nom du champ de profil à teste (sous la forme &lt;idchamp&gt; pour
+opérations de déploiement vers des moodle distants. Entrez le nom du champ de profil à tester (sous la forme &lt;idchamp&gt; pour
 les champs primaires de profil, et \'profile_field_&lt;idchamp&gt;\' pour les champs personnalisés de profil. Si aucun champ n\'est
 mentionné, seule la capacité block/publishflow:deploy autorise le déploiement.';
 
